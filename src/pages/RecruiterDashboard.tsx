@@ -60,10 +60,9 @@ interface ApplicantCardProps {
   name: string;
   role: string;
   experience: string;
-  match: number;
 }
 
-function ApplicantCard({ name, role, experience, match }: ApplicantCardProps) {
+function ApplicantCard({ name, role, experience }: ApplicantCardProps) {
   return (
     <div
       className="p-4 rounded-lg border border-gray-100 hover:border-blue-100 transition-all bg-white shadow-sm"
@@ -127,19 +126,16 @@ export default function RecruiterDashboard() {
       name: 'Sarah Johnson',
       role: 'Theater Director',
       experience: '8 years',
-      match: 95,
     },
     {
       name: 'Michael Chen',
       role: 'Voice Actor',
       experience: '5 years',
-      match: 92,
     },
     {
       name: 'Emma Davis',
       role: 'Dancer',
       experience: '6 years',
-      match: 88,
     },
   ];
 
@@ -157,8 +153,8 @@ export default function RecruiterDashboard() {
 
           {/* Stats Grid */}
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-            {stats.map((stat, index) => (
-              <StatCard key={index} {...stat} />
+            {stats.map((stat) => (
+              <StatCard key={stat.title} {...stat} />
             ))}
           </div>
 
@@ -176,8 +172,8 @@ export default function RecruiterDashboard() {
                 </Link>
               </div>
               <div className="space-y-2">
-                {recentListings.map((listing, index) => (
-                  <JobListing key={index} {...listing} />
+                {recentListings.map((listing) => (
+                  <JobListing key={listing.title} {...listing} />
                 ))}
               </div>
             </div>
@@ -186,8 +182,8 @@ export default function RecruiterDashboard() {
             <div className="bg-white rounded-xl border border-gray-100 p-6 shadow-sm">
               <h2 className="text-xl font-minimal font-bold text-gray-900 mb-4">Recent Applications</h2>
               <div className="space-y-4">
-                {topApplicants.map((applicant, index) => (
-                  <ApplicantCard key={index} {...applicant} />
+                {topApplicants.map((applicant) => (
+                  <ApplicantCard key={applicant.name} {...applicant} />
                 ))}
               </div>
             </div>

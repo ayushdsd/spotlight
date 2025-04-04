@@ -1,44 +1,88 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useParams } from 'react-router-dom';
 
+interface ArtistData {
+  name: string;
+  title: string;
+  location: string;
+  bio: string;
+  skills: string[];
+  experience: {
+    role: string;
+    production: string;
+    company: string;
+    period: string;
+  }[];
+  portfolio: {
+    title: string;
+    description: string;
+    imageUrl: string;
+  }[];
+}
+
 const ArtistProfile = () => {
-  const { id } = useParams();
+  const { id } = useParams<{ id: string }>();
+  const [artistData, setArtistData] = useState<ArtistData | null>(null);
+  const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState<'portfolio' | 'experience'>('portfolio');
 
-  // TODO: Fetch actual artist data from backend
-  const artist = {
-    name: 'Sarah Johnson',
-    title: 'Professional Theater Actor',
-    location: 'New York, NY',
-    bio: 'Experienced theater actor with 5+ years of stage performance. Specialized in dramatic and musical theater.',
-    skills: ['Stage Acting', 'Musical Theater', 'Voice Acting', 'Dance'],
-    experience: [
-      {
-        role: 'Lead Actor',
-        production: 'Romeo and Juliet',
-        company: 'Broadway Theater',
-        period: 'Jan 2023 - Mar 2023',
-      },
-      {
-        role: 'Supporting Actor',
-        production: 'The Phantom of the Opera',
-        company: 'City Theater Company',
-        period: 'Jun 2022 - Dec 2022',
-      },
-    ],
-    portfolio: [
-      {
-        title: 'Performance Highlight',
-        description: 'Scene from Romeo and Juliet',
-        imageUrl: 'https://placehold.co/600x400',
-      },
-      {
-        title: 'Musical Performance',
-        description: 'Solo from The Phantom of the Opera',
-        imageUrl: 'https://placehold.co/600x400',
-      },
-    ],
-  };
+  useEffect(() => {
+    // Simulating API call using the id
+    const fetchArtistData = async () => {
+      try {
+        // TODO: Replace with actual API call
+        setArtistData({
+          name: `Artist ${id}`,
+          title: 'Professional Theater Actor',
+          location: 'New York, NY',
+          bio: 'Experienced theater actor with 5+ years of stage performance. Specialized in dramatic and musical theater.',
+          skills: ['Stage Acting', 'Musical Theater', 'Voice Acting', 'Dance'],
+          experience: [
+            {
+              role: 'Lead Actor',
+              production: 'Romeo and Juliet',
+              company: 'Broadway Theater',
+              period: 'Jan 2023 - Mar 2023',
+            },
+            {
+              role: 'Supporting Actor',
+              production: 'The Phantom of the Opera',
+              company: 'City Theater Company',
+              period: 'Jun 2022 - Dec 2022',
+            },
+          ],
+          portfolio: [
+            {
+              title: 'Performance Highlight',
+              description: 'Scene from Romeo and Juliet',
+              imageUrl: 'https://placehold.co/600x400',
+            },
+            {
+              title: 'Musical Performance',
+              description: 'Solo from The Phantom of the Opera',
+              imageUrl: 'https://placehold.co/600x400',
+            },
+          ],
+        });
+      } catch (error) {
+        console.error('Error fetching artist data:', error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    if (id) {
+      fetchArtistData();
+    }
+  }, [id]);
+
+  if (loading) {
+    return <div className="text-center py-8">Loading...</div>;
+  }
+
+  if (!artistData) {
+    return <div className="text-center py-8">Artist not found</div>;
+  }
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -49,19 +93,19 @@ const ArtistProfile = () => {
             <div className="flex items-center space-x-6">
               <div className="h-24 w-24 rounded-full bg-gray-300"></div>
               <div>
-                <h1 className="text-2xl font-bold text-gray-900">{artist.name}</h1>
-                <p className="text-gray-600">{artist.title}</p>
-                <p className="text-gray-500 text-sm">{artist.location}</p>
+                <h1 className="text-2xl font-bold text-gray-900">{artistData.name}</h1>
+                <p className="text-gray-600">{artistData.title}</p>
+                <p className="text-gray-500 text-sm">{artistData.location}</p>
               </div>
             </div>
             <div className="mt-6">
               <h2 className="text-lg font-semibold">About</h2>
-              <p className="mt-2 text-gray-600">{artist.bio}</p>
+              <p className="mt-2 text-gray-600">{artistData.bio}</p>
             </div>
             <div className="mt-6">
               <h2 className="text-lg font-semibold">Skills</h2>
               <div className="mt-2 flex flex-wrap gap-2">
-                {artist.skills.map((skill) => (
+                {artistData.skills.map((skill) => (
                   <span
                     key={skill}
                     className="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-primary-100 text-primary-800"
@@ -105,7 +149,7 @@ const ArtistProfile = () => {
           <div className="mt-8">
             {activeTab === 'portfolio' ? (
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                {artist.portfolio.map((item, index) => (
+                {artistData.portfolio.map((item, index) => (
                   <div key={index} className="bg-white rounded-lg shadow overflow-hidden">
                     <img src={item.imageUrl} alt={item.title} className="w-full h-48 object-cover" />
                     <div className="p-4">
@@ -117,7 +161,7 @@ const ArtistProfile = () => {
               </div>
             ) : (
               <div className="space-y-6">
-                {artist.experience.map((exp, index) => (
+                {artistData.experience.map((exp, index) => (
                   <div key={index} className="bg-white rounded-lg shadow p-6">
                     <h3 className="font-semibold">{exp.role}</h3>
                     <p className="text-gray-600">{exp.production}</p>
