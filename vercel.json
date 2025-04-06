@@ -5,15 +5,10 @@
   "framework": "vite",
   "outputDirectory": "dist",
   "version": 2,
-  "functions": {
-    "api/**": {
-      "runtime": "nodejs18.x"
-    }
-  },
   "rewrites": [
     {
       "source": "/api/:path*",
-      "destination": "http://localhost:5000/api/:path*"
+      "destination": "https://spotlight-backend.onrender.com/api/:path*"
     }
   ]
 }
