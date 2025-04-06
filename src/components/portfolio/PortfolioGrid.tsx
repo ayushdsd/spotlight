@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { DragDropContext, Droppable, Draggable } from 'react-beautiful-dnd';
+import { DragDropContext, Droppable, Draggable, DropResult, DroppableProvided, DraggableProvided } from 'react-beautiful-dnd';
 import { FiEdit2, FiTrash2, FiStar, FiEye } from 'react-icons/fi';
 
 interface PortfolioItem {
@@ -37,7 +37,7 @@ const PortfolioGrid: React.FC<PortfolioGridProps> = ({
 }) => {
   const [gridItems, setGridItems] = useState(items);
 
-  const handleDragEnd = (result: any) => {
+  const handleDragEnd = (result: DropResult) => {
     if (!result.destination || !onOrderChange) return;
 
     const reorderedItems = Array.from(gridItems);
@@ -96,7 +96,7 @@ const PortfolioGrid: React.FC<PortfolioGridProps> = ({
   return (
     <DragDropContext onDragEnd={handleDragEnd}>
       <Droppable droppableId="portfolio" direction="horizontal">
-        {(provided) => (
+        {(provided: DroppableProvided) => (
           <div
             {...provided.droppableProps}
             ref={provided.innerRef}
@@ -109,7 +109,7 @@ const PortfolioGrid: React.FC<PortfolioGridProps> = ({
                 index={index}
                 isDragDisabled={!isEditable}
               >
-                {(provided) => (
+                {(provided: DraggableProvided) => (
                   <div
                     ref={provided.innerRef}
                     {...provided.draggableProps}
@@ -149,17 +149,13 @@ const PortfolioGrid: React.FC<PortfolioGridProps> = ({
                           </div>
                         )}
                       </div>
-                      <p className="text-sm text-gray-600 mb-4 line-clamp-2">
-                        {item.description}
-                      </p>
-                      <div className="flex items-center justify-between">
-                        <span className="inline-block px-2 py-1 text-xs font-medium text-primary-700 bg-primary-50 rounded-full">
-                          {item.category}
-                        </span>
-                        <div className="flex items-center text-gray-500 text-sm">
-                          <FiEye className="w-4 h-4 mr-1" />
-                          {item.stats.views}
+                      <p className="text-gray-600 text-sm mb-2">{item.description}</p>
+                      <div className="flex items-center justify-between text-sm text-gray-500">
+                        <div className="flex items-center space-x-2">
+                          <FiEye className="w-4 h-4" />
+                          <span>{item.stats.views}</span>
                         </div>
+                        <span className="capitalize">{item.visibility}</span>
                       </div>
                     </div>
                   </div>

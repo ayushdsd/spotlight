@@ -1,10 +1,9 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import axios from 'axios';
 import DashboardLayout from '../components/layout/DashboardLayout';
 import SearchBar from '../components/search/SearchBar';
 import FilterPanel, { SearchFilters } from '../components/search/FilterPanel';
-import { useAuth } from '../contexts/AuthContext';
 
 interface Artist {
   _id: string;
@@ -22,7 +21,6 @@ interface PaginationInfo {
 }
 
 const ArtistDiscovery = () => {
-  const { user } = useAuth();
   const [artists, setArtists] = useState<Artist[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
