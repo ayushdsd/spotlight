@@ -11,23 +11,18 @@ interface User {
 
 interface AuthContextType {
   user: User | null;
-  login: (userData: { sub: string; name: string; email: string; picture?: string; role: 'artist' | 'recruiter'; token: string }) => void;
+  login: (userData: { sub: string; name: string; email: string; picture?: string; role: 'artist' | 'recruiter'; token: string }) => Promise<void>;
   logout: () => void;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export function AuthProvider({ children }: { children: ReactNode }) {
-  const [user, setUser] = useState<User | null>(null);
-  const navigate = useNavigate();
-
-  useEffect(() => {
-    // Check for stored user data on mount
+  const [user, setUser] = useState<User | null>(() => {
     const storedUser = localStorage.getItem('user');
-    if (storedUser) {
-      setUser(JSON.parse(storedUser));
-    }
-  }, []);
+    return storedUser ? JSON.parse(storedUser) : null;
+  });
+  const navigate = useNavigate();
 
   const login = async (userData: { sub: string; name: string; email: string; picture?: string; role: 'artist' | 'recruiter'; token: string }) => {
     try {
@@ -47,25 +42,19 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       // Update state
       setUser(newUser);
       
-      // Wait a bit to ensure state is updated
-      await new Promise(resolve => setTimeout(resolve, 100));
-      
-      // Navigate
+      // Navigate after state is updated
       navigate('/dashboard');
     } catch (error) {
-      console.error('Error during login:', error);
-      // Clear any partial data
-      localStorage.removeItem('user');
-      localStorage.removeItem('token');
-      setUser(null);
+      console.error('Login error:', error);
+      throw error;
     }
   };
 
   const logout = () => {
-    setUser(null);
     localStorage.removeItem('user');
     localStorage.removeItem('token');
-    navigate('/');
+    setUser(null);
+    navigate('/auth');
   };
 
   return (

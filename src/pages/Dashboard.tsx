@@ -4,24 +4,28 @@ import DashboardLayout from '../components/layout/DashboardLayout';
 
 interface StatCardProps {
   title: string;
-  value: string | number;
+  value: string;
   trend?: number;
-  icon: string;
+  icon?: string;
 }
 
 function StatCard({ title, value, trend, icon }: StatCardProps) {
   return (
-    <div className="bg-white p-6 rounded-xl border border-gray-100 hover:border-blue-500/30 transition-all shadow-sm">
-      <div className="flex justify-between items-start mb-4">
-        <span className="text-2xl text-blue-500">{icon}</span>
-        {trend !== undefined && (
-          <span className={`text-sm font-medium ${trend >= 0 ? 'text-green-500' : 'text-red-500'}`}>
-            {trend > 0 ? '+' : ''}{trend}%
-          </span>
+    <div className="bg-white rounded-xl border border-gray-100 p-6 shadow-sm">
+      <div className="flex justify-between items-start">
+        <div>
+          <p className="text-sm font-medium text-gray-600">{title}</p>
+          <p className="mt-2 text-3xl font-semibold text-gray-900">{value}</p>
+          {trend && (
+            <p className={`mt-2 text-sm ${trend >= 0 ? 'text-green-600' : 'text-red-600'}`}>
+              {trend > 0 ? '+' : ''}{trend}%
+            </p>
+          )}
+        </div>
+        {icon && (
+          <span className="text-2xl">{icon}</span>
         )}
       </div>
-      <h3 className="text-gray-600 text-sm mb-1">{title}</h3>
-      <p className="text-2xl font-minimal font-bold text-gray-900">{value}</p>
     </div>
   );
 }
@@ -34,124 +38,125 @@ interface ActivityItemProps {
 }
 
 function ActivityItem({ title, subtitle, status, date }: ActivityItemProps) {
-  const statusColors = {
-    applied: 'bg-blue-50 text-blue-600',
-    accepted: 'bg-green-50 text-green-600',
-    rejected: 'bg-red-50 text-red-600',
-    pending: 'bg-yellow-50 text-yellow-600',
+  const statusStyles = {
+    applied: 'bg-blue-100 text-blue-800',
+    accepted: 'bg-green-100 text-green-800',
+    rejected: 'bg-red-100 text-red-800',
+    pending: 'bg-yellow-100 text-yellow-800',
   };
 
   return (
-    <div className="flex items-center justify-between p-4 hover:bg-blue-50 rounded-lg transition-all border border-transparent hover:border-blue-100">
-      <div className="flex-1 min-w-0 mr-4">
-        <h3 className="text-sm font-medium text-gray-900 truncate">{title}</h3>
-        <p className="text-sm text-gray-600">{subtitle}</p>
+    <div className="flex items-center justify-between p-4 rounded-lg border border-gray-100 hover:border-blue-100 transition-all">
+      <div>
+        <h3 className="font-medium text-gray-900">{title}</h3>
+        <p className="text-sm text-gray-500">{subtitle}</p>
       </div>
-      <div className="flex items-center gap-4">
-        <span className={`text-xs px-2 py-0.5 rounded-full ${statusColors[status]}`}>
+      <div className="flex items-center space-x-4">
+        <span className={`px-2.5 py-0.5 rounded-full text-xs font-medium ${statusStyles[status]}`}>
           {status.charAt(0).toUpperCase() + status.slice(1)}
         </span>
-        <span className="text-xs text-gray-500">{date}</span>
+        <span className="text-sm text-gray-500">{date}</span>
       </div>
     </div>
   );
 }
 
-export default function Dashboard() {
+const Dashboard = () => {
   const { user } = useAuth();
+
+  const stats = [
+    { title: 'Applications', value: '24', trend: 12, icon: '📝' },
+    { title: 'Interviews', value: '8', trend: 5, icon: '🎯' },
+    { title: 'Profile Views', value: '156', trend: 25, icon: '👁️' },
+    { title: 'Messages', value: '12', icon: '💬' },
+  ];
+
+  const recentActivity = [
+    {
+      id: 1,
+      title: 'Lead Guitarist Position',
+      subtitle: 'Rock Band LLC',
+      status: 'applied' as const,
+      date: '2h ago',
+    },
+    {
+      id: 2,
+      title: 'Vocalist Position',
+      subtitle: 'Jazz Ensemble',
+      status: 'accepted' as const,
+      date: '1d ago',
+    },
+    {
+      id: 3,
+      title: 'Piano Teacher',
+      subtitle: 'Music School',
+      status: 'rejected' as const,
+      date: '2d ago',
+    },
+  ];
 
   return (
     <DashboardLayout>
-      <div className="min-h-screen bg-gray-50">
-        <div className="max-w-7xl mx-auto px-4 py-8">
-          {/* Welcome Section */}
-          <div className="mb-8">
-            <h1 className="text-3xl font-minimal font-bold text-gray-900 mb-2">
-              Welcome back, {user?.name?.split(' ')[0]}
-            </h1>
-            <p className="text-gray-600">Here's what's happening with your applications</p>
-          </div>
+      <div className="perspective-1000">
+        {/* Welcome Section */}
+        <div className="mb-8 transform-style-3d hover:translate-z-2 transition-transform">
+          <h1 className="text-3xl font-minimal font-bold text-gray-900 mb-2 animate-fade-in">Welcome back, {user?.name?.split(' ')[0]}</h1>
+          <p className="text-gray-600">Here's what's happening with your applications</p>
+        </div>
 
-          {/* Stats Grid */}
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-            <StatCard
-              title="Applications"
-              value="24"
-              trend={12}
-              icon="📝"
-            />
-            <StatCard
-              title="Interviews"
-              value="8"
-              trend={5}
-              icon="🎯"
-            />
-            <StatCard
-              title="Profile Views"
-              value="156"
-              trend={25}
-              icon="👁️"
-            />
-            <StatCard
-              title="Messages"
-              value="12"
-              icon="💬"
-            />
-          </div>
+        {/* Stats Grid */}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+          {stats.map((stat, index) => (
+            <div 
+              key={stat.title}
+              className="transform-style-3d hover:translate-z-4 hover:-translate-y-1 transition-all"
+              style={{ animationDelay: `${index * 100}ms` }}
+            >
+              <StatCard {...stat} />
+            </div>
+          ))}
+        </div>
 
-          {/* Content Grid */}
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-            {/* Recent Activity */}
-            <div className="bg-white rounded-xl border border-gray-100 p-6 shadow-sm">
-              <div className="flex justify-between items-center mb-4">
+        {/* Main Content Grid */}
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+          {/* Recent Activity */}
+          <div className="lg:col-span-2 transform-style-3d">
+            <div className="bg-white rounded-xl border border-gray-100 p-6 shadow-sm hover:translate-z-2 transition-transform">
+              <div className="flex justify-between items-center mb-6">
                 <h2 className="text-xl font-minimal font-bold text-gray-900">Recent Activity</h2>
                 <Link 
-                  to="/applications"
-                  className="text-sm text-blue-600 hover:text-blue-700"
+                  to="/applications" 
+                  className="text-blue-500 hover:text-blue-600 transform-gpu hover:-translate-y-0.5 transition-transform"
                 >
-                  View All
+                  View all
                 </Link>
               </div>
-              <div className="space-y-2">
-                <ActivityItem
-                  title="Lead Guitarist Position"
-                  subtitle="Rock Band LLC"
-                  status="applied"
-                  date="2h ago"
-                />
-                <ActivityItem
-                  title="Vocalist Position"
-                  subtitle="Jazz Ensemble"
-                  status="accepted"
-                  date="1d ago"
-                />
-                <ActivityItem
-                  title="Piano Teacher"
-                  subtitle="Music School"
-                  status="rejected"
-                  date="2d ago"
-                />
+              <div className="space-y-6">
+                {recentActivity.map((activity) => (
+                  <div 
+                    key={activity.id}
+                    className="transform-style-3d hover:translate-z-2 hover:-translate-y-0.5 transition-transform"
+                  >
+                    <ActivityItem {...activity} />
+                  </div>
+                ))}
               </div>
             </div>
+          </div>
 
-            {/* Recommended Jobs */}
-            <div className="bg-white rounded-xl border border-gray-100 p-6 shadow-sm">
-              <h2 className="text-xl font-minimal font-bold text-gray-900 mb-4">Recommended Jobs</h2>
+          {/* Recommended Jobs */}
+          <div className="transform-style-3d">
+            <div className="bg-white rounded-xl border border-gray-100 p-6 shadow-sm hover:translate-z-2 transition-transform">
+              <h2 className="text-xl font-minimal font-bold text-gray-900 mb-6">Recommended Jobs</h2>
               <div className="space-y-4">
                 {/* Job Cards */}
                 <div className="p-4 rounded-lg border border-gray-100 hover:border-blue-100 transition-all hover:bg-blue-50">
-                  <div className="flex items-center gap-4">
-                    <div className="w-10 h-10 rounded-full bg-blue-50 flex items-center justify-center border border-blue-100">
-                      <span className="text-lg">🎸</span>
-                    </div>
-                    <div>
-                      <h3 className="text-gray-900 font-medium">Bass Guitarist</h3>
-                      <p className="text-gray-600 text-sm">Rock Band LLC • Full-time</p>
-                    </div>
-                  </div>
-                  <div className="mt-3 flex items-center gap-3">
-                    <span className="text-xs px-2 py-0.5 rounded-full bg-blue-50 text-blue-600">95% Match</span>
-                    <span className="text-xs text-gray-500">Posted 2h ago</span>
+                  <h3 className="font-medium text-gray-900">Senior Theater Director</h3>
+                  <p className="text-sm text-gray-500 mt-1">Royal Shakespeare Company</p>
+                  <div className="mt-2 flex items-center space-x-2">
+                    <span className="text-sm text-gray-500">London, UK</span>
+                    <span className="text-gray-300">•</span>
+                    <span className="text-sm text-gray-500">Full-time</span>
                   </div>
                 </div>
               </div>
@@ -161,4 +166,6 @@ export default function Dashboard() {
       </div>
     </DashboardLayout>
   );
-}
+};
+
+export default Dashboard;

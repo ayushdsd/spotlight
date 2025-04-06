@@ -1,10 +1,14 @@
 import express from 'express';
 import { googleAuth, getProfile } from '../controllers/auth.controller';
-import { auth } from '../middleware/auth';
+import { authMiddleware } from '../middleware/auth';
 
 const router = express.Router();
 
+// Public routes
 router.post('/google', googleAuth);
-router.get('/profile', auth, getProfile);
+
+// Protected routes
+router.use(authMiddleware);
+router.get('/profile', getProfile);
 
 export default router;

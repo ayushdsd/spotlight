@@ -1,6 +1,6 @@
 import { Request, Response } from 'express';
 import jwt from 'jsonwebtoken';
-import User from '../models/User';
+import User from '../models/user.model';
 import axios from 'axios';
 
 export const googleAuth = async (req: Request, res: Response) => {
@@ -19,46 +19,75 @@ export const googleAuth = async (req: Request, res: Response) => {
 
     const { sub, name, email, picture } = userInfo;
 
-    let user = await User.findOne({ email });
+    let user = await User.findOne({ email }).exec();
 
     if (!user) {
       // Create new user
       user = new User({
         name,
         email,
-        role,
-        picture,
+        role: role || 'artist',
+        profilePicture: picture,
         googleId: sub,
+        skills: [],
+        portfolioImages: [],
+        experience: [],
+        education: [],
+        socialLinks: {
+          website: '',
+          linkedin: '',
+          twitter: '',
+          instagram: '',
+        },
       });
       await user.save();
-    } else {
-      // Update existing user's role if different
-      if (user.role !== role) {
-        user.role = role;
-        await user.save();
-      }
     }
 
-    // Generate token
-    const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET!, {
-      expiresIn: '7d',
-    });
+    // Generate JWT token
+    const token = jwt.sign(
+      {
+        _id: user._id,
+        name: user.name,
+        email: user.email,
+        role: user.role,
+        profilePicture: user.profilePicture,
+      },
+      process.env.JWT_SECRET || 'default_secret',
+      { expiresIn: '7d' }
+    );
 
-    res.json({ user, token });
+    res.json({
+      token,
+      user: {
+        _id: user._id,
+        name: user.name,
+        email: user.email,
+        role: user.role,
+        profilePicture: user.profilePicture,
+      },
+    });
   } catch (error) {
     console.error('Google auth error:', error);
-    res.status(500).json({ error: 'Server error' });
+    res.status(500).json({ error: 'Authentication failed' });
   }
 };
 
 export const getProfile = async (req: Request, res: Response) => {
   try {
-    const user = await User.findById(req.user?.id).select('-password');
+    const user = await User.findById(req.user!._id).exec();
     if (!user) {
       return res.status(404).json({ error: 'User not found' });
     }
-    res.json(user);
+
+    res.json({
+      _id: user._id,
+      name: user.name,
+      email: user.email,
+      role: user.role,
+      profilePicture: user.profilePicture,
+    });
   } catch (error) {
-    res.status(500).json({ error: 'Server error' });
+    console.error('Get profile error:', error);
+    res.status(500).json({ error: 'Failed to get profile' });
   }
 };

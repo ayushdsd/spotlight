@@ -1,151 +1,129 @@
 import { Request, Response } from 'express';
-import mongoose from 'mongoose';
-import Message from '../models/Message';
+import Message from '../models/message.model';
+import Conversation from '../models/conversation.model';
 
-export const sendMessage = async (req: Request, res: Response) => {
+// Get all conversations for a user
+export const getConversations = async (req: Request, res: Response) => {
   try {
-    if (!req.user) {
-      return res.status(401).json({ error: 'Authentication required' });
+    if (!req.user?._id) {
+      return res.status(401).json({ error: 'User not authenticated' });
     }
 
-    const { recipient, content, attachments } = req.body;
-    
-    const message = new Message({
-      sender: new mongoose.Types.ObjectId(req.user.id),
-      recipient: new mongoose.Types.ObjectId(recipient),
-      content,
-      attachments,
-    });
+    const conversations = await Conversation.find({
+      participants: req.user._id,
+    })
+      .populate('participants', 'name profilePicture')
+      .sort({ updatedAt: -1 })
+      .exec();
 
-    await message.save();
-    
-    // Populate sender details
-    await message.populate('sender', 'name picture');
-    
-    res.status(201).json(message);
+    res.json(conversations);
   } catch (error) {
-    console.error('Send message error:', error);
-    res.status(500).json({ error: 'Failed to send message' });
+    console.error('Error fetching conversations:', error);
+    res.status(500).json({ error: 'Error fetching conversations' });
   }
 };
 
+// Get messages for a conversation
 export const getMessages = async (req: Request, res: Response) => {
   try {
-    if (!req.user) {
-      return res.status(401).json({ error: 'Authentication required' });
+    const { conversationId } = req.params;
+    if (!req.user?._id) {
+      return res.status(401).json({ error: 'User not authenticated' });
     }
 
-    const { userId } = req.params;
-    const page = parseInt(req.query.page as string) || 1;
-    const limit = parseInt(req.query.limit as string) || 20;
+    // Verify user is part of the conversation
+    const conversation = await Conversation.findOne({
+      _id: conversationId,
+      participants: req.user._id,
+    }).exec();
 
-    const messages = await Message.find({
-      $or: [
-        { sender: new mongoose.Types.ObjectId(req.user.id), recipient: new mongoose.Types.ObjectId(userId) },
-        { sender: new mongoose.Types.ObjectId(userId), recipient: new mongoose.Types.ObjectId(req.user.id) },
-      ],
-    })
-      .sort({ createdAt: -1 })
-      .skip((page - 1) * limit)
-      .limit(limit)
-      .populate('sender', 'name picture')
-      .populate('recipient', 'name picture');
+    if (!conversation) {
+      return res.status(403).json({ error: 'Access denied' });
+    }
+
+    const messages = await Message.find({ conversationId })
+      .populate('sender', 'name profilePicture')
+      .sort({ createdAt: 1 })
+      .exec();
 
     res.json(messages);
   } catch (error) {
-    console.error('Get messages error:', error);
-    res.status(500).json({ error: 'Failed to get messages' });
+    console.error('Error fetching messages:', error);
+    res.status(500).json({ error: 'Error fetching messages' });
   }
 };
 
-export const markAsRead = async (req: Request, res: Response) => {
+// Send a message
+export const sendMessage = async (req: Request, res: Response) => {
   try {
-    if (!req.user) {
-      return res.status(401).json({ error: 'Authentication required' });
+    const { conversationId, content } = req.body;
+    if (!req.user?._id) {
+      return res.status(401).json({ error: 'User not authenticated' });
     }
 
-    const { messageId } = req.params;
-    const message = await Message.findOneAndUpdate(
-      {
-        _id: new mongoose.Types.ObjectId(messageId),
-        recipient: new mongoose.Types.ObjectId(req.user.id),
-      },
-      { read: true },
-      { new: true }
-    );
+    // Verify user is part of the conversation
+    const conversation = await Conversation.findOne({
+      _id: conversationId,
+      participants: req.user._id,
+    }).exec();
 
-    if (!message) {
-      return res.status(404).json({ error: 'Message not found' });
+    if (!conversation) {
+      return res.status(403).json({ error: 'Access denied' });
     }
 
-    res.json(message);
+    // Create and save the message
+    const message = await Message.create({
+      conversationId,
+      sender: req.user._id,
+      content,
+    });
+
+    // Update conversation's lastMessage and updatedAt
+    await Conversation.findByIdAndUpdate(conversationId, {
+      lastMessage: message._id,
+      updatedAt: new Date(),
+    }).exec();
+
+    // Populate sender info before sending response
+    await message.populate('sender', 'name profilePicture');
+
+    res.status(201).json(message);
   } catch (error) {
-    console.error('Mark as read error:', error);
-    res.status(500).json({ error: 'Failed to mark message as read' });
+    console.error('Error sending message:', error);
+    res.status(500).json({ error: 'Error sending message' });
   }
 };
 
-export const getContacts = async (req: Request, res: Response) => {
+// Create a new conversation
+export const createConversation = async (req: Request, res: Response) => {
   try {
-    if (!req.user) {
-      return res.status(401).json({ error: 'Authentication required' });
+    const { participantId } = req.body;
+    if (!req.user?._id) {
+      return res.status(401).json({ error: 'User not authenticated' });
     }
 
-    const userId = new mongoose.Types.ObjectId(req.user.id);
-    // Get all users who have exchanged messages with the current user
-    const contacts = await Message.aggregate([
-      {
-        $match: {
-          $or: [
-            { sender: userId },
-            { recipient: userId },
-          ],
-        },
-      },
-      {
-        $group: {
-          _id: {
-            $cond: [
-              { $eq: ['$sender', userId] },
-              '$recipient',
-              '$sender',
-            ],
-          },
-          lastMessage: { $last: '$$ROOT' },
-        },
-      },
-      {
-        $lookup: {
-          from: 'users',
-          localField: '_id',
-          foreignField: '_id',
-          as: 'user',
-        },
-      },
-      { $unwind: '$user' },
-      {
-        $project: {
-          _id: '$user._id',
-          name: '$user.name',
-          picture: '$user.picture',
-          lastMessage: {
-            content: '$lastMessage.content',
-            createdAt: '$lastMessage.createdAt',
-            unread: {
-              $and: [
-                { $eq: ['$lastMessage.recipient', userId] },
-                { $eq: ['$lastMessage.read', false] },
-              ],
-            },
-          },
-        },
-      },
-      { $sort: { 'lastMessage.createdAt': -1 } },
-    ]);
+    // Check if conversation already exists
+    const existingConversation = await Conversation.findOne({
+      participants: { $all: [req.user._id, participantId] },
+    })
+      .populate('participants', 'name profilePicture')
+      .exec();
 
-    res.json(contacts);
+    if (existingConversation) {
+      return res.json(existingConversation);
+    }
+
+    // Create new conversation
+    const conversation = await Conversation.create({
+      participants: [req.user._id, participantId],
+    });
+
+    // Populate participant info before sending response
+    await conversation.populate('participants', 'name profilePicture');
+
+    res.status(201).json(conversation);
   } catch (error) {
-    console.error('Get contacts error:', error);
-    res.status(500).json({ error: 'Failed to get contacts' });
+    console.error('Error creating conversation:', error);
+    res.status(500).json({ error: 'Error creating conversation' });
   }
 };

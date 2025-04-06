@@ -2,12 +2,15 @@ import express from 'express';
 import mongoose from 'mongoose';
 import dotenv from 'dotenv';
 import cors from 'cors';
-import { cloudinaryConfig } from './config/cloudinary';
+import { cloudinaryConfig } from './utils/cloudinary';
 
 // Import routes
 import authRoutes from './routes/auth.routes';
 import uploadRoutes from './routes/upload.routes';
 import messageRoutes from './routes/message.routes';
+import userRoutes from './routes/user.routes';
+import searchRoutes from './routes/search.routes';
+import portfolioRoutes from './routes/portfolio.routes';
 
 // Load environment variables
 dotenv.config();
@@ -25,26 +28,31 @@ cloudinaryConfig();
 
 // Connect to MongoDB
 mongoose
-  .connect(process.env.MONGODB_URI!, {
-    serverSelectionTimeoutMS: 5000, // Timeout after 5 seconds instead of 30
-    socketTimeoutMS: 45000, // Close sockets after 45 seconds of inactivity
-    family: 4 // Use IPv4, skip trying IPv6
-  })
+  .connect(process.env.MONGODB_URI || 'mongodb://localhost:27017/spotlight')
   .then(() => {
     console.log('Connected to MongoDB');
   })
-  .catch((error) => {
-    console.error('MongoDB connection error:', error);
+  .catch((err) => {
+    console.error('Error connecting to MongoDB:', err);
   });
 
 // Routes
 app.use('/api/auth', authRoutes);
 app.use('/api/upload', uploadRoutes);
 app.use('/api/messages', messageRoutes);
+app.use('/api/users', userRoutes);
+app.use('/api/search', searchRoutes);
+app.use('/api/portfolio', portfolioRoutes);
 
 // Health check route
 app.get('/health', (req, res) => {
   res.json({ status: 'ok' });
+});
+
+// Error handling middleware
+app.use((err: any, req: express.Request, res: express.Response, next: express.NextFunction) => {
+  console.error('Error:', err);
+  res.status(500).json({ message: err.message || 'Something went wrong!' });
 });
 
 // Start server

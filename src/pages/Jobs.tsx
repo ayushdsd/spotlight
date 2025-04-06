@@ -1,154 +1,143 @@
 import { useState } from 'react';
+import { Link } from 'react-router-dom';
 import DashboardLayout from '../components/layout/DashboardLayout';
 
 interface Job {
-  id: string;
+  id: number;
   title: string;
   company: string;
   location: string;
   type: string;
+  category: string;
   salary: string;
-  description: string;
-  requirements: string[];
   posted: string;
-  deadline: string;
-  matchScore: number;
 }
 
-const mockJobs: Job[] = [
-  {
-    id: '1',
-    title: 'Lead Actor for Theater Production',
-    company: 'New York Theater Company',
-    location: 'New York, NY',
-    type: 'Full-time',
-    salary: '$2,000-$3,000',
-    description: 'We are seeking a talented lead actor for our upcoming theater production...',
-    requirements: [
-      'Minimum 3 years of theater experience',
-      'Strong stage presence',
-      'Excellent vocal abilities',
-      'Available for evening rehearsals'
-    ],
-    posted: '2 days ago',
-    deadline: '2024-04-15',
-    matchScore: 95
-  },
-  // Add more mock jobs...
+const categories = [
+  { id: 'all', name: 'All Jobs' },
+  { id: 'acting', name: 'Acting' },
+  { id: 'music', name: 'Music' },
+  { id: 'dance', name: 'Dance' },
+  { id: 'theater', name: 'Theater' },
 ];
 
-export default function Jobs() {
-  const [searchTerm, setSearchTerm] = useState('');
-  const [selectedType, setSelectedType] = useState<string>('all');
-  const [selectedLocation, setSelectedLocation] = useState<string>('all');
+const jobs: Job[] = [
+  {
+    id: 1,
+    title: 'Lead Actor',
+    company: 'Royal Theater Company',
+    location: 'London, UK',
+    type: 'Full-time',
+    category: 'acting',
+    salary: '$50k - $70k',
+    posted: '2d ago',
+  },
+  {
+    id: 2,
+    title: 'Dance Instructor',
+    company: 'Elite Dance Academy',
+    location: 'New York, USA',
+    type: 'Part-time',
+    category: 'dance',
+    salary: '$30-50/hr',
+    posted: '3d ago',
+  },
+  // Add more job listings as needed
+];
 
-  const filteredJobs = mockJobs.filter(job => {
-    const matchesSearch = job.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      job.company.toLowerCase().includes(searchTerm.toLowerCase());
-    const matchesType = selectedType === 'all' || job.type === selectedType;
-    const matchesLocation = selectedLocation === 'all' || job.location === selectedLocation;
-    return matchesSearch && matchesType && matchesLocation;
-  });
+const Jobs = () => {
+  const [searchTerm, setSearchTerm] = useState('');
+  const [selectedCategory, setSelectedCategory] = useState('all');
+
+  const filteredJobs = jobs.filter(job => 
+    (selectedCategory === 'all' || job.category === selectedCategory) &&
+    (job.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
+     job.company.toLowerCase().includes(searchTerm.toLowerCase()))
+  );
 
   return (
     <DashboardLayout>
-      <div className="space-y-6">
-        {/* Header */}
-        <div>
-          <h1 className="text-3xl font-display font-bold text-dark-900">Find Your Next Role</h1>
-          <p className="mt-2 text-dark-500">Discover opportunities that match your skills and interests.</p>
+      <div className="perspective-1000">
+        {/* Header Section */}
+        <div className="mb-8 transform-style-3d hover:translate-z-2 transition-transform">
+          <h1 className="text-3xl font-minimal font-bold text-gray-900 mb-2 animate-fade-in">Jobs</h1>
+          <p className="text-gray-600">Find your next opportunity in the performing arts</p>
         </div>
 
-        {/* Search and Filters */}
-        <div className="bg-white rounded-xl shadow-sm p-6 space-y-4">
-          <div className="flex gap-4">
-            <div className="flex-1">
-              <input
-                type="text"
-                placeholder="Search jobs by title or company..."
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-                className="w-full px-4 py-2 rounded-lg border border-dark-200 focus:outline-none focus:ring-2 focus:ring-primary-500"
-              />
-            </div>
-            <select
-              value={selectedType}
-              onChange={(e) => setSelectedType(e.target.value)}
-              className="px-4 py-2 rounded-lg border border-dark-200 focus:outline-none focus:ring-2 focus:ring-primary-500"
-            >
-              <option value="all">All Types</option>
-              <option value="Full-time">Full-time</option>
-              <option value="Part-time">Part-time</option>
-              <option value="Contract">Contract</option>
-            </select>
-            <select
-              value={selectedLocation}
-              onChange={(e) => setSelectedLocation(e.target.value)}
-              className="px-4 py-2 rounded-lg border border-dark-200 focus:outline-none focus:ring-2 focus:ring-primary-500"
-            >
-              <option value="all">All Locations</option>
-              <option value="New York, NY">New York</option>
-              <option value="Los Angeles, CA">Los Angeles</option>
-              <option value="Chicago, IL">Chicago</option>
-            </select>
+        {/* Search and Filter Section */}
+        <div className="mb-8 grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div className="transform-style-3d hover:translate-z-2 transition-transform">
+            <input
+              type="text"
+              placeholder="Search jobs..."
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              className="w-full px-4 py-2 rounded-lg border border-gray-200 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+            />
+          </div>
+          <div className="flex space-x-2 overflow-x-auto pb-2">
+            {categories.map((category) => (
+              <button
+                key={category.id}
+                onClick={() => setSelectedCategory(category.id)}
+                className={`px-4 py-2 rounded-lg whitespace-nowrap transform-style-3d hover:translate-z-1 transition-transform ${
+                  selectedCategory === category.id
+                    ? 'bg-blue-600 text-white'
+                    : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                }`}
+              >
+                {category.name}
+              </button>
+            ))}
           </div>
         </div>
 
-        {/* Job Listings */}
-        <div className="space-y-4">
+        {/* Jobs Grid */}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {filteredJobs.map((job) => (
-            <div key={job.id} className="bg-white rounded-xl shadow-sm p-6 hover:shadow-md transition-shadow">
-              <div className="flex justify-between items-start">
-                <div>
-                  <h2 className="text-xl font-bold text-dark-900">{job.title}</h2>
-                  <p className="text-dark-500 mt-1">{job.company}</p>
-                  <div className="flex items-center gap-4 mt-2 text-sm text-dark-600">
-                    <span>{job.location}</span>
-                    <span>•</span>
-                    <span>{job.type}</span>
-                    <span>•</span>
-                    <span>{job.salary}</span>
+            <Link
+              key={job.id}
+              to={`/jobs/${job.id}`}
+              className="block"
+            >
+              <div className="bg-white rounded-xl border border-gray-100 p-6 shadow-sm transform-style-3d hover:translate-z-4 hover:-translate-y-1 transition-all">
+                <div className="flex justify-between items-start mb-4">
+                  <div>
+                    <h3 className="text-lg font-medium text-gray-900">{job.title}</h3>
+                    <p className="text-gray-600">{job.company}</p>
+                  </div>
+                  <span className="px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
+                    {job.type}
+                  </span>
+                </div>
+                <div className="space-y-2">
+                  <div className="flex items-center text-gray-500 text-sm">
+                    <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
+                    </svg>
+                    {job.location}
+                  </div>
+                  <div className="flex items-center text-gray-500 text-sm">
+                    <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    </svg>
+                    {job.posted}
+                  </div>
+                  <div className="flex items-center text-gray-500 text-sm">
+                    <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    </svg>
+                    {job.salary}
                   </div>
                 </div>
-                <span className="bg-primary-50 text-primary-700 text-sm font-medium px-3 py-1 rounded-full">
-                  {job.matchScore}% Match
-                </span>
               </div>
-
-              <div className="mt-4">
-                <p className="text-dark-600 line-clamp-2">{job.description}</p>
-              </div>
-
-              <div className="mt-4 flex flex-wrap gap-2">
-                {job.requirements.slice(0, 3).map((req, index) => (
-                  <span
-                    key={index}
-                    className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-dark-100 text-dark-700"
-                  >
-                    {req}
-                  </span>
-                ))}
-                {job.requirements.length > 3 && (
-                  <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-dark-100 text-dark-700">
-                    +{job.requirements.length - 3} more
-                  </span>
-                )}
-              </div>
-
-              <div className="mt-4 flex items-center justify-between border-t border-dark-100 pt-4">
-                <div className="text-sm text-dark-500">
-                  <span>Posted {job.posted}</span>
-                  <span className="mx-2">•</span>
-                  <span>Apply by {new Date(job.deadline).toLocaleDateString()}</span>
-                </div>
-                <button className="px-4 py-2 bg-primary-600 text-white rounded-lg hover:bg-primary-700 transition-colors">
-                  Apply Now
-                </button>
-              </div>
-            </div>
+            </Link>
           ))}
         </div>
       </div>
     </DashboardLayout>
   );
-}
+};
+
+export default Jobs;

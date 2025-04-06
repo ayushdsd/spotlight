@@ -141,7 +141,7 @@ const Landing = () => {
               <div className="text-left z-10 lg:col-span-3">
                 <h1 className="font-minimal text-4xl sm:text-5xl lg:text-6xl xl:text-7xl font-bold text-white mb-6 animate-fade-in-up">
                   Your Talent <br />
-                  Deserves a{' '}
+                  Deserves our{' '}
                   <span className="text-blue-400 animate-tilt inline-block transform-gpu">Spotlight</span>
                 </h1>
                 <p className="text-white/70 text-lg sm:text-xl lg:text-2xl mb-12 animate-fade-in-up max-w-xl" style={{ animationDelay: '200ms' }}>
