@@ -1,5 +1,4 @@
-import { Request } from 'express';
-import multer from 'multer';
+import { Express as ExpressType } from 'express-serve-static-core';
 
 declare global {
   namespace Express {
@@ -7,7 +6,6 @@ declare global {
       user?: any;
       file?: any;
     }
-    interface Multer extends multer.Multer {}
   }
 }
 

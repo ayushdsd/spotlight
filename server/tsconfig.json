@@ -14,12 +14,18 @@
     "declaration": true,
     "declarationMap": true,
     "baseUrl": ".",
+    "typeRoots": [
+      "./node_modules/@types",
+      "./src/types"
+    ],
+    "types": ["node", "express", "multer"],
     "paths": {
       "*": ["node_modules/*", "src/types/*"]
-    },
-    "typeRoots": ["./node_modules/@types"],
-    "types": ["node", "express", "multer"]
+    }
   },
-  "include": ["src/**/*"],
+  "include": [
+    "src/**/*",
+    "src/types/**/*.d.ts"
+  ],
   "exclude": ["node_modules"]
 }
