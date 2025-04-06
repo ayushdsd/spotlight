@@ -1,16 +1,16 @@
-import express from 'express';
-import { authMiddleware } from '../middleware/auth';
+import express, { Router } from 'express';
 import {
   getConversations,
   getMessages,
   sendMessage,
   createConversation,
 } from '../controllers/message.controller';
+import auth from '../middleware/auth';
 
-const router = express.Router();
+const router: Router = express.Router();
 
 // All message routes require authentication
-router.use(authMiddleware);
+router.use(auth);
 
 // Conversation routes
 router.get('/conversations', getConversations);

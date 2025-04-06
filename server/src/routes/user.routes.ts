@@ -1,15 +1,15 @@
-import express from 'express';
-import { authMiddleware } from '../middleware/auth';
+import express, { Router } from 'express';
 import {
   getUserProfile,
   updateUserProfile,
   uploadProfilePicture,
 } from '../controllers/user.controller';
+import auth from '../middleware/auth';
 
-const router = express.Router();
+const router: Router = express.Router();
 
 // Protected routes
-router.use(authMiddleware);
+router.use(auth);
 router.get('/profile', getUserProfile); // Get own profile
 router.get('/:userId', getUserProfile); // Get other user's profile
 router.put('/profile', updateUserProfile);

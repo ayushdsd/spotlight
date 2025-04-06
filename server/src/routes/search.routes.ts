@@ -1,11 +1,11 @@
-import express from 'express';
-import { authMiddleware } from '../middleware/auth';
+import express, { Router } from 'express';
 import { searchArtists, searchJobs, searchUsers } from '../controllers/search.controller';
+import auth from '../middleware/auth';
 
-const router = express.Router();
+const router: Router = express.Router();
 
 // All search routes require authentication
-router.use(authMiddleware);
+router.use(auth);
 
 // Search routes
 router.get('/artists', searchArtists);

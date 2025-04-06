@@ -1,22 +1,7 @@
-import { Request, Response, NextFunction } from 'express';
+import { Request, Response, NextFunction, User } from 'express';
 import jwt from 'jsonwebtoken';
 
-// Extend Express Request type to include user
-declare global {
-  namespace Express {
-    interface Request {
-      user?: {
-        _id: string;
-        name: string;
-        email: string;
-        role: 'artist' | 'recruiter';
-        profilePicture?: string;
-      };
-    }
-  }
-}
-
-export const authMiddleware = async (
+const auth = async (
   req: Request,
   res: Response,
   next: NextFunction
@@ -25,29 +10,16 @@ export const authMiddleware = async (
     const token = req.headers.authorization?.split(' ')[1];
 
     if (!token) {
-      return res.status(401).json({ error: 'Authentication required' });
+      return res.status(401).json({ message: 'No authentication token, access denied' });
     }
 
-    const decoded = jwt.verify(token, process.env.JWT_SECRET || 'default_secret') as {
-      _id: string;
-      name: string;
-      email: string;
-      role: 'artist' | 'recruiter';
-      profilePicture?: string;
-    };
-
-    // Set user info in request
-    req.user = {
-      _id: decoded._id,
-      name: decoded.name,
-      email: decoded.email,
-      role: decoded.role,
-      profilePicture: decoded.profilePicture,
-    };
-
+    const verified = jwt.verify(token, process.env.JWT_SECRET || 'your-secret-key') as User;
+    req.user = verified;
     next();
-  } catch (error) {
-    console.error('Auth middleware error:', error);
-    res.status(401).json({ error: 'Invalid token' });
+  } catch (err) {
+    console.error('Auth middleware error:', err);
+    res.status(401).json({ message: 'Token verification failed, authorization denied' });
   }
 };
+
+export default auth;

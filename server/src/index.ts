@@ -1,4 +1,4 @@
-import express from 'express';
+import express, { Request, Response, NextFunction, Application } from 'express';
 import mongoose from 'mongoose';
 import dotenv from 'dotenv';
 import cors from 'cors';
@@ -16,7 +16,7 @@ import portfolioRoutes from './routes/portfolio.routes';
 dotenv.config();
 
 // Create Express app
-const app = express();
+const app: Application = express();
 
 // Middleware
 app.use(cors());
@@ -45,18 +45,20 @@ app.use('/api/search', searchRoutes);
 app.use('/api/portfolio', portfolioRoutes);
 
 // Health check route
-app.get('/health', (req, res) => {
+app.get('/health', (req: Request, res: Response) => {
   res.json({ status: 'ok' });
 });
 
 // Error handling middleware
-app.use((err: any, req: express.Request, res: express.Response, next: express.NextFunction) => {
+app.use((err: Error, req: Request, res: Response, next: NextFunction) => {
   console.error('Error:', err);
   res.status(500).json({ message: err.message || 'Something went wrong!' });
 });
 
+// Express configuration
+app.set('port', process.env.PORT || 5000);
+
 // Start server
-const PORT = process.env.PORT || 5000;
-app.listen(PORT, () => {
-  console.log(`Server is running on port ${PORT}`);
+app.listen(app.get('port'), () => {
+  console.log(`Server is running on port ${app.get('port')}`);
 });

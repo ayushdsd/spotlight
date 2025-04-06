@@ -1,5 +1,4 @@
-import express from 'express';
-import { authMiddleware } from '../middleware/auth';
+import express, { Router } from 'express';
 import {
   getUserPortfolio,
   getPortfolioItem,
@@ -10,8 +9,9 @@ import {
   toggleFeatured,
   toggleLike,
 } from '../controllers/portfolio.controller';
+import auth from '../middleware/auth';
 
-const router = express.Router();
+const router: Router = express.Router();
 
 // Get user's portfolio items (public)
 router.get('/user/:userId', getUserPortfolio);
@@ -20,7 +20,7 @@ router.get('/user/:userId', getUserPortfolio);
 router.get('/item/:itemId', getPortfolioItem);
 
 // Protected routes (require authentication)
-router.use(authMiddleware);
+router.use(auth);
 
 // Create new portfolio item
 router.post('/', createPortfolioItem);
