@@ -5,10 +5,16 @@
   "framework": "vite",
   "outputDirectory": "dist",
   "version": 2,
-  "rewrites": [
+  "headers": [
     {
-      "source": "/api/:path*",
-      "destination": "https://spotlight-backend.onrender.com/api/:path*"
+      "source": "/(.*)",
+      "headers": [
+        {
+          "key": "Cross-Origin-Opener-Policy",
+          "value": "same-origin-allow-popups"
+        }
+      ]
     }
-  ]
+  ],
+  "rewrites": []
 }
