@@ -66,8 +66,12 @@ export default {
           '100%': { opacity: '1' }
         },
         'slide-in': {
-          '0%': { transform: 'translateX(-100%)' },
-          '100%': { transform: 'translateX(0)' }
+          '0%': { transform: 'translateX(0)' },
+          '100%': { transform: 'translateX(-50%)' },
+        },
+        'slide-in-reverse': {
+          '0%': { transform: 'translateX(-50%)' },
+          '100%': { transform: 'translateX(0)' },
         },
         'splash': {
           '0%': { transform: 'scale(1)', opacity: '1' },
@@ -106,18 +110,33 @@ export default {
             transform: 'translateZ(50px) rotateX(5deg) rotateY(-5deg)',
             boxShadow: '20px 20px 60px rgba(0, 52, 122, 0.2)'
           }
-        }
+        },
+        fadeIn: {
+          '0%': { opacity: '0' },
+          '100%': { opacity: '1' },
+        },
+        fadeInUp: {
+          '0%': { opacity: '0', transform: 'translateY(20px)' },
+          '100%': { opacity: '1', transform: 'translateY(0)' },
+        },
+        slideLeft: {
+          '0%': { transform: 'translateX(0)' },
+          '100%': { transform: 'translateX(-50%)' },
+        },
+        slideRight: {
+          '0%': { transform: 'translateX(-50%)' },
+          '100%': { transform: 'translateX(0)' },
+        },
       },
       animation: {
-        'fade-in-up': 'fade-in-up 0.5s ease-out',
-        'fade-in': 'fade-in 0.5s ease-out',
-        'slide-in': 'slide-in 0.5s ease-out',
-        'splash': 'splash 1s ease-out forwards',
-        'pulse-soft': 'pulse-soft 2s ease-in-out infinite',
-        'scale-in': 'scale-in 0.5s ease-out',
-        'float': 'float 3s ease-in-out infinite',
+        'fade-in': 'fadeIn 1s ease-in-out forwards',
+        'fade-in-up': 'fadeInUp 1s ease-out forwards',
+        'slide-left': 'slideLeft 25s linear infinite',
+        'slide-right': 'slideRight 25s linear infinite',
         'tilt': 'tilt 10s infinite linear',
-        'card-hover': 'card-hover 0.3s ease-out forwards',
+        'float': 'float 3s ease-in-out infinite',
+        'splash': 'splash 2s ease-out forwards',
+        'card-hover': 'cardHover 0.3s ease-out forwards',
       },
       transformStyle: {
         '3d': 'preserve-3d',

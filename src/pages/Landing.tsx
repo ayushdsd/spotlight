@@ -132,96 +132,115 @@ const Landing = () => {
       </header>
 
       {/* Hero Section */}
-      <section className="relative w-full overflow-hidden">
-        <div className="absolute inset-0 bg-gradient-to-b from-blue-900/20 to-black/40 z-10"></div>
-        
-        {/* Animation Container */}
-        <div className="absolute inset-0">
-          <HeroAnimation />
-        </div>
+      <section className="relative min-h-[calc(100vh-4rem)] w-full flex items-center perspective-2000">
+        <div className="absolute inset-0 bg-gradient-to-b from-black to-blue-900"></div>
+        <div className="relative w-full transform-style-3d">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 sm:py-16 lg:py-20">
+            <div className="grid grid-cols-1 lg:grid-cols-5 gap-8 lg:gap-12 items-center">
+              {/* Left side - Text content */}
+              <div className="text-left z-10 lg:col-span-3 space-y-4 sm:space-y-6">
+                <h1 className="font-minimal text-3xl sm:text-4xl lg:text-5xl xl:text-6xl font-bold text-white animate-fade-in-up">
+                  Your Talent <br className="hidden sm:block" />
+                  Deserves our{' '}
+                  <span className="text-blue-400 animate-tilt inline-block transform-gpu">Spotlight</span>
+                </h1>
+                <p className="text-white/70 text-base sm:text-lg lg:text-xl animate-fade-in-up max-w-xl" style={{ animationDelay: '200ms' }}>
+                  Connect with top artists and recruiters in the performing arts industry. Showcase your talent and find your next big opportunity.
+                </p>
+                <div className="flex flex-col sm:flex-row gap-4 sm:gap-6 animate-fade-in-up" style={{ animationDelay: '400ms' }}>
+                  <Link 
+                    to="/register" 
+                    className="bg-blue-500 text-white px-6 sm:px-8 py-3 sm:py-4 rounded-lg font-semibold transform-gpu hover:translate-z-4 hover:-translate-y-1 hover:shadow-xl transition-all text-center"
+                  >
+                    Get Started
+                  </Link>
+                  <Link 
+                    to="/about" 
+                    className="bg-white/10 backdrop-blur-sm text-white px-6 sm:px-8 py-3 sm:py-4 rounded-lg font-semibold transform-gpu hover:translate-z-4 hover:-translate-y-1 hover:bg-white/20 transition-all text-center"
+                  >
+                    Learn More
+                  </Link>
+                </div>
+              </div>
 
-        {/* Content */}
-        <div className="relative z-20 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20 sm:py-24 lg:py-32">
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-12 items-center">
-            {/* Left side - Text content */}
-            <div className="text-left">
-              <h1 className="font-minimal text-4xl sm:text-5xl lg:text-6xl xl:text-7xl font-bold text-white mb-6 animate-fade-in-up">
-                Your Talent <br />
-                Deserves our{' '}
-                <span className="text-blue-400 animate-tilt inline-block transform-gpu">Spotlight</span>
-              </h1>
-              <p className="text-white/90 text-lg sm:text-xl lg:text-2xl mb-12 animate-fade-in-up max-w-xl" style={{ animationDelay: '200ms' }}>
-                Connect with top artists and recruiters in the performing arts industry. Showcase your talent and find your next big opportunity.
-              </p>
-              <div className="flex flex-col sm:flex-row gap-4 sm:gap-6 animate-fade-in-up" style={{ animationDelay: '400ms' }}>
-                <Link 
-                  to="/register" 
-                  className="bg-blue-500 text-white px-8 py-4 rounded-lg font-semibold transform-gpu hover:translate-z-4 hover:-translate-y-1 hover:shadow-xl transition-all"
-                >
-                  Get Started
-                </Link>
-                <Link 
-                  to="/about" 
-                  className="bg-white/10 backdrop-blur-sm text-white px-8 py-4 rounded-lg font-semibold transform-gpu hover:translate-z-4 hover:-translate-y-1 hover:bg-white/20 transition-all"
-                >
-                  Learn More
-                </Link>
+              {/* Right side - Animation */}
+              <div className="relative lg:col-span-2 transform-style-3d animate-tilt">
+                <HeroAnimation />
               </div>
             </div>
-
-            {/* Right side - Empty space for animation */}
-            <div className="hidden lg:block"></div>
           </div>
         </div>
 
         {/* Scroll indicator */}
-        <div className="absolute bottom-8 left-1/2 -translate-x-1/2 animate-bounce z-20">
+        <div className="absolute bottom-8 left-1/2 -translate-x-1/2 animate-bounce z-10">
           <div className="w-6 h-10 border-2 border-white/30 rounded-full p-1">
-            <div className="w-1 h-2 bg-white/50 rounded-full mx-auto animate-[float_1.5s_ease-in-out_infinite]" />
+            <div className="w-1 h-2 bg-white/30 rounded-full mx-auto animate-[float_1.5s_ease-in-out_infinite]" />
           </div>
         </div>
       </section>
 
       {/* Featured Artists */}
-      <section className="py-16 bg-white w-full perspective-1000">
-        <div className="w-full max-w-7xl mx-auto px-2 sm:px-4">
-          <h2 className="font-minimal text-3xl font-bold text-black mb-8 text-center animate-fade-in">Featured Artists</h2>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-            {featuredArtists.map((artist, index) => (
-              <div 
-                key={artist.id} 
-                className="bg-white rounded-xl p-6 transform-style-3d hover:animate-card-hover cursor-pointer transition-all border border-gray-100 shadow-sm"
-                style={{ animationDelay: `${index * 100}ms` }}
-              >
-                <img src={artist.image} alt={artist.name} className="w-20 h-20 rounded-full mb-4 transform-gpu hover:scale-105 transition-transform" />
-                <h3 className="font-minimal text-xl font-semibold text-black">{artist.name}</h3>
-                <p className="text-gray-600">{artist.role}</p>
-                <div className="mt-2 text-blue-500">★ {artist.rating}</div>
-              </div>
-            ))}
+      <section className="py-8 sm:py-12 lg:py-16 bg-white w-full overflow-hidden">
+        <div className="w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <h2 className="font-minimal text-2xl sm:text-3xl font-bold text-black mb-6 sm:mb-8 text-center">Featured Artists</h2>
+          
+          {/* Sliding container */}
+          <div className="relative">
+            <div className="flex animate-slide-left whitespace-nowrap">
+              {/* First set of artists */}
+              {[...featuredArtists, ...featuredArtists].map((artist, index) => (
+                <div 
+                  key={`${artist.id}-${index}`}
+                  className="flex-none w-[260px] sm:w-[300px] mx-2 sm:mx-4 bg-white rounded-xl p-4 sm:p-6 transform-style-3d hover:animate-card-hover cursor-pointer transition-all border border-gray-100 shadow-sm"
+                >
+                  <img src={artist.image} alt={artist.name} className="w-16 h-16 sm:w-20 sm:h-20 rounded-full mb-3 sm:mb-4 transform-gpu hover:scale-105 transition-transform" />
+                  <h3 className="font-minimal text-lg sm:text-xl font-semibold text-black">{artist.name}</h3>
+                  <p className="text-gray-600 text-sm sm:text-base">{artist.role}</p>
+                  <div className="mt-2 text-blue-500">★ {artist.rating}</div>
+                </div>
+              ))}
+            </div>
+
+            {/* Gradient overlays */}
+            <div className="absolute top-0 left-0 bottom-0 w-24 sm:w-48 bg-gradient-to-r from-white to-transparent pointer-events-none"></div>
+            <div className="absolute top-0 right-0 bottom-0 w-24 sm:w-48 bg-gradient-to-l from-white to-transparent pointer-events-none"></div>
           </div>
         </div>
       </section>
 
       {/* Featured Recruiters */}
-      <section className="py-16 bg-gray-50 w-full perspective-1000">
-        <div className="w-full max-w-7xl mx-auto px-2 sm:px-4">
-          <h2 className="font-minimal text-3xl font-bold text-black mb-8 text-center animate-fade-in">Featured Recruiters</h2>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-            {featuredRecruiters.map((recruiter, index) => (
-              <div 
-                key={recruiter.id} 
-                className="bg-white rounded-xl p-6 transform-style-3d hover:animate-card-hover cursor-pointer transition-all border border-gray-100 shadow-sm"
-                style={{ animationDelay: `${index * 100}ms` }}
-              >
-                <img src={recruiter.image} alt={recruiter.name} className="w-20 h-20 rounded-full mb-4 transform-gpu hover:scale-105 transition-transform" />
-                <h3 className="font-minimal text-xl font-semibold text-black">{recruiter.name}</h3>
-                <p className="text-gray-600">{recruiter.role}</p>
-                {recruiter.verified && (
-                  <div className="mt-2 text-blue-500 transform-gpu hover:scale-105 transition-transform">✓ Verified</div>
-                )}
-              </div>
-            ))}
+      <section className="py-8 sm:py-12 lg:py-16 bg-gray-50 w-full overflow-hidden">
+        <div className="w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <h2 className="font-minimal text-2xl sm:text-3xl font-bold text-black mb-6 sm:mb-8 text-center">Featured Recruiters</h2>
+          
+          {/* Sliding container */}
+          <div className="relative">
+            <div className="flex animate-slide-right whitespace-nowrap">
+              {/* First set of recruiters */}
+              {[...featuredRecruiters, ...featuredRecruiters].map((recruiter, index) => (
+                <div 
+                  key={`${recruiter.id}-${index}`}
+                  className="flex-none w-[260px] sm:w-[300px] mx-2 sm:mx-4 bg-white rounded-xl p-4 sm:p-6 transform-style-3d hover:animate-card-hover cursor-pointer transition-all border border-gray-100 shadow-sm"
+                >
+                  <div className="flex items-center mb-3 sm:mb-4">
+                    <img src={recruiter.image} alt={recruiter.name} className="w-16 h-16 sm:w-20 sm:h-20 rounded-full transform-gpu hover:scale-105 transition-transform" />
+                    {recruiter.verified && (
+                      <div className="ml-2 text-blue-500">
+                        <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 sm:h-6 sm:w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                        </svg>
+                      </div>
+                    )}
+                  </div>
+                  <h3 className="font-minimal text-lg sm:text-xl font-semibold text-black">{recruiter.name}</h3>
+                  <p className="text-gray-600 text-sm sm:text-base">{recruiter.role}</p>
+                </div>
+              ))}
+            </div>
+
+            {/* Gradient overlays */}
+            <div className="absolute top-0 left-0 bottom-0 w-24 sm:w-48 bg-gradient-to-r from-gray-50 to-transparent pointer-events-none"></div>
+            <div className="absolute top-0 right-0 bottom-0 w-24 sm:w-48 bg-gradient-to-l from-gray-50 to-transparent pointer-events-none"></div>
           </div>
         </div>
       </section>
@@ -260,15 +279,16 @@ const Landing = () => {
       </section>
 
       {/* CTA Section */}
-      <section className="py-16 bg-black w-full">
-        <div className="w-full max-w-7xl mx-auto px-2 sm:px-4 text-center animate-fade-in-up">
-          <h2 className="font-minimal text-3xl font-bold text-white mb-6">
-            Ready to Join Spotlight?
-          </h2>
-          <p className="text-white/70 mb-8 max-w-2xl mx-auto">
+      <section className="py-8 sm:py-12 lg:py-16 bg-blue-500 w-full">
+        <div className="w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center animate-fade-in-up">
+          <h2 className="font-minimal text-2xl sm:text-3xl font-bold text-white mb-4 sm:mb-6">Ready to Join Spotlight?</h2>
+          <p className="text-white/70 mb-6 sm:mb-8 max-w-2xl mx-auto text-base sm:text-lg">
             Start your journey today and connect with the best opportunities in the performing arts industry.
           </p>
-          <Link to="/register" className="bg-white text-black px-8 py-3 rounded-lg font-semibold hover:bg-black-800 hover:text-white transition-colors inline-block">
+          <Link
+            to="/register"
+            className="bg-white text-blue-500 px-6 sm:px-8 py-2.5 sm:py-3 rounded-lg font-semibold hover:bg-blue-50 transition-colors inline-block text-sm sm:text-base"
+          >
             Get Started Now
           </Link>
         </div>
