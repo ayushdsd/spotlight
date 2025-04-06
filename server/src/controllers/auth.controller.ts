@@ -7,19 +7,11 @@ const client = new OAuth2Client(process.env.GOOGLE_CLIENT_ID);
 
 export const googleAuth = async (req: Request, res: Response) => {
   try {
-    const { token } = req.body;
+    const { token, email, name, picture, role } = req.body;
 
-    const ticket = await client.verifyIdToken({
-      idToken: token,
-      audience: process.env.GOOGLE_CLIENT_ID
-    });
-
-    const payload = ticket.getPayload();
-    if (!payload) {
-      return res.status(400).json({ message: 'Invalid token' });
+    if (!email || !name) {
+      return res.status(400).json({ message: 'Email and name are required' });
     }
-
-    const { email, name, picture } = payload;
 
     let user = await User.findOne({ email });
 
@@ -28,8 +20,14 @@ export const googleAuth = async (req: Request, res: Response) => {
         email,
         name,
         profilePicture: picture,
-        role: 'artist' // Default role
+        role: role || 'artist' // Use provided role or default to artist
       });
+    } else {
+      // Update existing user's info
+      user.name = name;
+      user.profilePicture = picture || user.profilePicture;
+      user.role = role || user.role;
+      await user.save();
     }
 
     const authToken = jwt.sign(
@@ -54,8 +52,8 @@ export const googleAuth = async (req: Request, res: Response) => {
         profilePicture: user.profilePicture
       }
     });
-  } catch (err) {
-    console.error('Google auth error:', err);
+  } catch (error) {
+    console.error('Google auth error:', error);
     res.status(500).json({ message: 'Authentication failed' });
   }
 };
@@ -67,8 +65,8 @@ export const getProfile = async (req: Request, res: Response) => {
       return res.status(404).json({ message: 'User not found' });
     }
     res.json(user);
-  } catch (err) {
-    console.error('Get profile error:', err);
-    res.status(500).json({ message: 'Error fetching profile' });
+  } catch (error) {
+    console.error('Get profile error:', error);
+    res.status(500).json({ message: 'Failed to get profile' });
   }
 };

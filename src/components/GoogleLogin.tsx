@@ -32,12 +32,15 @@ export default function GoogleLogin({ role }: GoogleLoginProps) {
           },
           body: JSON.stringify({
             token: tokenResponse.access_token,
+            email: userInfo.email,
+            name: userInfo.name,
+            picture: userInfo.picture,
             role,
           }),
         });
 
         if (!backendResponse.ok) {
-          const errorData = await backendResponse.json();
+          const errorData = await backendResponse.json().catch(() => ({ message: 'Failed to authenticate with backend' }));
           throw new Error(errorData.message || 'Failed to authenticate with backend');
         }
 
@@ -66,6 +69,7 @@ export default function GoogleLogin({ role }: GoogleLoginProps) {
       console.error('Google OAuth error:', error);
       // You can add a toast notification here to show the error to the user
     },
+    flow: 'implicit',
   });
 
   return (
