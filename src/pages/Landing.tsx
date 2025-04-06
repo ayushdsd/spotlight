@@ -132,49 +132,52 @@ const Landing = () => {
       </header>
 
       {/* Hero Section */}
-      <section className="relative min-h-screen w-full flex items-center perspective-2000">
-        <div className="absolute inset-0 bg-gradient-to-b from-black to-blue-900"></div>
-        <div className="relative w-full transform-style-3d">
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20 sm:py-24 lg:py-32">
-            <div className="grid grid-cols-1 lg:grid-cols-5 gap-8 lg:gap-12 items-center">
-              {/* Left side - Text content */}
-              <div className="text-left z-10 lg:col-span-3">
-                <h1 className="font-minimal text-4xl sm:text-5xl lg:text-6xl xl:text-7xl font-bold text-white mb-6 animate-fade-in-up">
-                  Your Talent <br />
-                  Deserves our{' '}
-                  <span className="text-blue-400 animate-tilt inline-block transform-gpu">Spotlight</span>
-                </h1>
-                <p className="text-white/70 text-lg sm:text-xl lg:text-2xl mb-12 animate-fade-in-up max-w-xl" style={{ animationDelay: '200ms' }}>
-                  Connect with top artists and recruiters in the performing arts industry. Showcase your talent and find your next big opportunity.
-                </p>
-                <div className="flex flex-col sm:flex-row gap-4 sm:gap-6 animate-fade-in-up" style={{ animationDelay: '400ms' }}>
-                  <Link 
-                    to="/register" 
-                    className="bg-blue-500 text-white px-8 py-4 rounded-lg font-semibold transform-gpu hover:translate-z-4 hover:-translate-y-1 hover:shadow-xl transition-all"
-                  >
-                    Get Started
-                  </Link>
-                  <Link 
-                    to="/about" 
-                    className="bg-white/10 backdrop-blur-sm text-white px-8 py-4 rounded-lg font-semibold transform-gpu hover:translate-z-4 hover:-translate-y-1 hover:bg-white/20 transition-all"
-                  >
-                    Learn More
-                  </Link>
-                </div>
-              </div>
+      <section className="relative w-full overflow-hidden">
+        <div className="absolute inset-0 bg-gradient-to-b from-blue-900/20 to-black/40 z-10"></div>
+        
+        {/* Animation Container */}
+        <div className="absolute inset-0">
+          <HeroAnimation />
+        </div>
 
-              {/* Right side - Animation */}
-              <div className="relative h-[400px] lg:h-[600px] lg:col-span-2 transform-style-3d animate-tilt">
-                <HeroAnimation />
+        {/* Content */}
+        <div className="relative z-20 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20 sm:py-24 lg:py-32">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-12 items-center">
+            {/* Left side - Text content */}
+            <div className="text-left">
+              <h1 className="font-minimal text-4xl sm:text-5xl lg:text-6xl xl:text-7xl font-bold text-white mb-6 animate-fade-in-up">
+                Your Talent <br />
+                Deserves our{' '}
+                <span className="text-blue-400 animate-tilt inline-block transform-gpu">Spotlight</span>
+              </h1>
+              <p className="text-white/90 text-lg sm:text-xl lg:text-2xl mb-12 animate-fade-in-up max-w-xl" style={{ animationDelay: '200ms' }}>
+                Connect with top artists and recruiters in the performing arts industry. Showcase your talent and find your next big opportunity.
+              </p>
+              <div className="flex flex-col sm:flex-row gap-4 sm:gap-6 animate-fade-in-up" style={{ animationDelay: '400ms' }}>
+                <Link 
+                  to="/register" 
+                  className="bg-blue-500 text-white px-8 py-4 rounded-lg font-semibold transform-gpu hover:translate-z-4 hover:-translate-y-1 hover:shadow-xl transition-all"
+                >
+                  Get Started
+                </Link>
+                <Link 
+                  to="/about" 
+                  className="bg-white/10 backdrop-blur-sm text-white px-8 py-4 rounded-lg font-semibold transform-gpu hover:translate-z-4 hover:-translate-y-1 hover:bg-white/20 transition-all"
+                >
+                  Learn More
+                </Link>
               </div>
             </div>
+
+            {/* Right side - Empty space for animation */}
+            <div className="hidden lg:block"></div>
           </div>
         </div>
 
         {/* Scroll indicator */}
-        <div className="absolute bottom-8 left-1/2 -translate-x-1/2 animate-bounce z-10">
+        <div className="absolute bottom-8 left-1/2 -translate-x-1/2 animate-bounce z-20">
           <div className="w-6 h-10 border-2 border-white/30 rounded-full p-1">
-            <div className="w-1 h-2 bg-white/30 rounded-full mx-auto animate-[float_1.5s_ease-in-out_infinite]" />
+            <div className="w-1 h-2 bg-white/50 rounded-full mx-auto animate-[float_1.5s_ease-in-out_infinite]" />
           </div>
         </div>
       </section>
