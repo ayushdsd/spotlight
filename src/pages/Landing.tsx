@@ -88,7 +88,7 @@ const Landing = () => {
   };
 
   return (
-    <>
+    <div className="w-full max-w-none px-0 mx-0">
       <Splash />
       {/* Header */}
       <header className="fixed top-0 left-0 right-0 z-40 bg-white/95 backdrop-blur w-screen">
@@ -117,7 +117,7 @@ const Landing = () => {
       </header>
 
       {/* Hero Section */}
-      <section className="w-screen h-screen flex items-center m-0 p-0">
+      <section className="w-full h-screen flex items-center m-0 p-0">
         <div 
           className="absolute inset-0 bg-cover bg-center bg-no-repeat w-full h-full"
           style={{ backgroundImage: `url(${herobg})` }}
@@ -259,8 +259,10 @@ const Landing = () => {
       {/* CTA Section */}
       <section className="py-8 sm:py-12 lg:py-16 bg-blue-500 w-full">
         <div className="w-full text-center animate-fade-in-up">
-          <h2 className="font-minimal text-2xl sm:text-3xl font-bold text-white mb-4 sm:mb-6">Ready to Join Spotlight?</h2>
-          <p className="text-white/70 mb-6 sm:mb-8 max-w-2xl mx-auto text-base sm:text-lg">
+          <h2 className="font-minimal text-2xl sm:text-3xl font-bold text-white mb-4 sm:mb-6">
+            Ready to Join Spotlight?
+          </h2>
+          <p className="text-white/70 mb-6 sm:mb-8 text-base sm:text-lg">
             Start your journey today and connect with the best opportunities in the performing arts industry.
           </p>
           <Link
@@ -268,9 +270,10 @@ const Landing = () => {
             className="bg-white text-blue-500 px-6 sm:px-8 py-2.5 sm:py-3 rounded-lg font-semibold hover:bg-blue-50 transition-colors inline-block text-sm sm:text-base"
           >
             Get Started Now
-          </Link>
-        </div>
-      </section>
+        </Link>
+  </div>
+</section>
+
 
       {/* Footer */}
       <footer className="bg-black animate-fade-in" aria-labelledby="footer-heading">
@@ -357,7 +360,7 @@ const Landing = () => {
           </div>
         </div>
       </footer>
-    </>
+    </div>
   );
 };
 
