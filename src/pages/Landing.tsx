@@ -225,7 +225,7 @@ const Landing = () => {
 
       {/* FAQ Section */}
       <section className="py-16 bg-white w-full perspective-1000">
-        <div className="w-full">
+        <div className="w-full px-4 sm:px-6 lg:px-8">
           <h2 className="font-minimal text-3xl font-bold text-black mb-8 text-center animate-fade-in">Frequently Asked Questions</h2>
           <div className="space-y-4">
             {faqItems.map((item, index) => (
