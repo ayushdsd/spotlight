@@ -24,11 +24,10 @@ export interface ISocialLinks {
 }
 
 export interface IUser extends Document {
-  firstName: string;
-  lastName: string;
+  firstName?: string;
+  lastName?: string;
   name: string;
   email: string;
-  password: string;
   role: 'artist' | 'recruiter';
   profilePicture?: string;
   bio?: string;
@@ -46,11 +45,9 @@ export interface IUser extends Document {
 const userSchema = new Schema<IUser>({
   firstName: {
     type: String,
-    required: true,
   },
   lastName: {
     type: String,
-    required: true,
   },
   name: {
     type: String,
@@ -60,10 +57,6 @@ const userSchema = new Schema<IUser>({
     type: String,
     required: true,
     unique: true,
-  },
-  password: {
-    type: String,
-    required: true,
   },
   role: {
     type: String,

@@ -34,85 +34,71 @@ function App() {
             <Route path="/" element={<Landing />} />
             <Route path="/auth/*" element={<Auth />} />
             
-            {/* Protected Routes */}
+            {/* Artist Routes */}
             <Route
-              path="/dashboard"
+              path="/artist/dashboard/*"
               element={
-                <RouteGuard>
-                  {({ user }) => user.role === 'recruiter' ? <RecruiterDashboard /> : <Dashboard />}
+                <RouteGuard allowedRoles={['artist']}>
+                  <Dashboard />
                 </RouteGuard>
               }
             />
-            
-            {/* Artist Routes */}
             <Route
-              path="/dashboard/jobs"
+              path="/artist/jobs"
               element={
                 <RouteGuard allowedRoles={['artist']}>
                   <Jobs />
                 </RouteGuard>
               }
             />
-            
+            <Route
+              path="/artist/profile"
+              element={
+                <RouteGuard allowedRoles={['artist']}>
+                  <Profile />
+                </RouteGuard>
+              }
+            />
+            <Route
+              path="/artist/messages"
+              element={
+                <RouteGuard allowedRoles={['artist']}>
+                  <Messages />
+                </RouteGuard>
+              }
+            />
+
             {/* Recruiter Routes */}
             <Route
-              path="/dashboard/post-job"
+              path="/recruiter/dashboard/*"
+              element={
+                <RouteGuard allowedRoles={['recruiter']}>
+                  <RecruiterDashboard />
+                </RouteGuard>
+              }
+            />
+            <Route
+              path="/recruiter/post-job"
               element={
                 <RouteGuard allowedRoles={['recruiter']}>
                   <PostJob />
                 </RouteGuard>
               }
             />
-            
-            {/* Common Routes */}
             <Route
-              path="/dashboard/profile"
+              path="/recruiter/messages"
               element={
-                <RouteGuard>
-                  <Profile />
-                </RouteGuard>
-              }
-            />
-            <Route
-              path="/dashboard/messages"
-              element={
-                <RouteGuard>
+                <RouteGuard allowedRoles={['recruiter']}>
                   <Messages />
                 </RouteGuard>
               }
             />
-            <Route
-              path="/dashboard/listings"
-              element={
-                <RouteGuard>
-                  <GigListings />
-                </RouteGuard>
-              }
-            />
-            <Route
-              path="/dashboard/listings/:id"
-              element={
-                <RouteGuard>
-                  <GigDetail />
-                </RouteGuard>
-              }
-            />
-            <Route
-              path="/artists/:id"
-              element={
-                <RouteGuard>
-                  <ArtistProfile />
-                </RouteGuard>
-              }
-            />
-            <Route
-              path="/pricing"
-              element={
-                <RouteGuard>
-                  <Pricing />
-                </RouteGuard>
-              }
-            />
+
+            {/* Common Routes */}
+            <Route path="/gigs" element={<GigListings />} />
+            <Route path="/gigs/:id" element={<GigDetail />} />
+            <Route path="/artists/:id" element={<ArtistProfile />} />
+            <Route path="/pricing" element={<Pricing />} />
           </Routes>
         </Suspense>
       </AuthProvider>

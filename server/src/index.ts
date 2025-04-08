@@ -11,7 +11,6 @@ import messageRoutes from './routes/message.routes';
 import userRoutes from './routes/user.routes';
 import searchRoutes from './routes/search.routes';
 import portfolioRoutes from './routes/portfolio.routes';
-import paymentRoutes from './routes/payment.routes';
 
 // Load environment variables
 dotenv.config();
@@ -30,44 +29,24 @@ const allowedOrigins = [
 app.use(cors({
   origin: (origin, callback) => {
     // Allow requests with no origin (like mobile apps or curl requests)
-    if (!origin) {
-      return callback(null, true);
+    if (!origin) return callback(null, true);
+    if (allowedOrigins.indexOf(origin) === -1) {
+      const msg = 'The CORS policy for this site does not allow access from the specified Origin.';
+      return callback(new Error(msg), false);
     }
-
-    if (allowedOrigins.includes(origin)) {
-      callback(null, true);
-    } else {
-      console.log('Blocked by CORS:', origin);
-      callback(new Error('Not allowed by CORS'));
-    }
+    return callback(null, true);
   },
   credentials: true,
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
   allowedHeaders: ['Content-Type', 'Authorization'],
 }));
 
-// Security headers
-app.use((req, res, next) => {
-  res.header('Cross-Origin-Opener-Policy', 'same-origin-allow-popups');
-  res.header('Cross-Origin-Embedder-Policy', 'require-corp');
-  next();
-});
-
+// Body parser middleware
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
 // Cloudinary configuration
 cloudinaryConfig();
-
-// Connect to MongoDB
-mongoose
-  .connect(process.env.MONGODB_URI || 'mongodb://localhost:27017/spotlight')
-  .then(() => {
-    console.log('Connected to MongoDB');
-  })
-  .catch((err) => {
-    console.error('Error connecting to MongoDB:', err);
-  });
 
 // Routes
 app.use('/api/auth', authRoutes);
@@ -75,23 +54,22 @@ app.use('/api/upload', uploadRoutes);
 app.use('/api/messages', messageRoutes);
 app.use('/api/users', userRoutes);
 app.use('/api/search', searchRoutes);
-app.use('/api/portfolios', portfolioRoutes);
-app.use('/api/payments', paymentRoutes);
-
-// Health check route
-app.get('/', (req: Request, res: Response) => {
-  res.json({ status: 'ok', message: 'Spotlight API is running' });
-});
+app.use('/api/portfolio', portfolioRoutes);
 
 // Error handling middleware
 app.use((err: Error, req: Request, res: Response, next: NextFunction) => {
-  console.error('Error:', err);
-  res.status(500).json({ message: err.message || 'Something went wrong!' });
+  console.error(err.stack);
+  res.status(500).json({ message: 'Something broke!' });
 });
 
-const port = process.env.PORT ? parseInt(process.env.PORT) : 5000;
-app.listen(port, () => {
-  console.log(`Server is running on port ${port}`);
-});
+// Connect to MongoDB
+const MONGODB_URI = process.env.MONGODB_URI || 'mongodb://localhost:27017/spotlight';
+mongoose.connect(MONGODB_URI)
+  .then(() => console.log('Connected to MongoDB'))
+  .catch((err) => console.error('MongoDB connection error:', err));
 
-export default app;
+// Start server
+const PORT = process.env.PORT ? parseInt(process.env.PORT) : 5000;
+app.listen(PORT, () => {
+  console.log(`Server is running on port ${PORT}`);
+});

@@ -89,9 +89,12 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       // Update state
       setUser(newUser);
       
-      // Navigate after state is updated
-      console.log('Navigating to dashboard...');
-      navigate('/dashboard');
+      // Navigate based on role
+      if (userData.role === 'artist') {
+        navigate('/artist/dashboard');
+      } else {
+        navigate('/recruiter/dashboard');
+      }
     } catch (error) {
       console.error('Login error:', error);
       throw error;

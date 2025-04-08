@@ -70,6 +70,7 @@ export default function GoogleLogin({ role }: GoogleLoginProps) {
       // You can add a toast notification here to show the error to the user
     },
     flow: 'implicit',
+    scope: 'email profile',
   });
 
   return (

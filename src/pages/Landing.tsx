@@ -2,8 +2,8 @@ import { Link } from 'react-router-dom';
 import { useAccordion } from '../hooks/useAccordion';
 import { ChevronDownIcon } from '@heroicons/react/24/outline';
 import Splash from '../components/common/Splash';
-import HeroAnimation from '../components/common/HeroAnimation';
 import spotlightLogo from '../assets/SPOTLIGHT.png';
+import herobg from '../assets/herobg.jpg';
 
 const Landing = () => {
   const { openIndex, toggleAccordion } = useAccordion();
@@ -91,97 +91,75 @@ const Landing = () => {
     <>
       <Splash />
       {/* Header */}
-      <header className="fixed top-0 left-0 right-0 z-40 bg-white/95 backdrop-blur transform-style-3d">
-        <nav className="container mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex items-center justify-between h-16">
+      <header className="fixed top-0 left-0 right-0 z-40 bg-white/95 backdrop-blur w-screen">
+        <nav className="w-full">
+          <div className="flex items-center justify-between h-16 px-4">
             {/* Logo */}
-            <Link to="/" className="flex items-center transform-gpu hover:scale-105 transition-transform">
+            <Link to="/" className="flex items-center">
               <img src={spotlightLogo} alt="Spotlight" className="h-8 w-auto" />
             </Link>
 
             {/* Navigation */}
             <div className="hidden md:flex md:items-center md:space-x-8">
-              <Link to="/artists" className="text-gray-600 hover:text-blue-500 transform-gpu hover:-translate-y-0.5 hover:translate-z-2 transition-all">
-                Find Artists
-              </Link>
-              <Link to="/gigs" className="text-gray-600 hover:text-blue-500 transform-gpu hover:-translate-y-0.5 hover:translate-z-2 transition-all">
-                Browse Gigs
-              </Link>
-              <Link to="/pricing" className="text-gray-600 hover:text-blue-500 transform-gpu hover:-translate-y-0.5 hover:translate-z-2 transition-all">
-                Pricing
-              </Link>
-              <Link to="/about" className="text-gray-600 hover:text-blue-500 transform-gpu hover:-translate-y-0.5 hover:translate-z-2 transition-all">
-                About
-              </Link>
+              <Link to="/artists" className="text-gray-600 hover:text-blue-500">Find Artists</Link>
+              <Link to="/gigs" className="text-gray-600 hover:text-blue-500">Browse Gigs</Link>
+              <Link to="/pricing" className="text-gray-600 hover:text-blue-500">Pricing</Link>
+              <Link to="/about" className="text-gray-600 hover:text-blue-500">About</Link>
             </div>
 
             {/* Auth Buttons */}
             <div className="flex items-center space-x-4">
-              <Link to="/auth" className="text-gray-600 hover:text-blue-500 transform-gpu hover:-translate-y-0.5 hover:translate-z-2 transition-all">
-                Sign In
-              </Link>
-              <Link
-                to="/auth"
-                className="bg-blue-500 text-white px-6 py-2 rounded-lg hover:bg-blue-600 transform-gpu hover:-translate-y-1 hover:translate-z-4 hover:shadow-lg transition-all"
-              >
-                Get Started
-              </Link>
+              <Link to="/auth" className="text-gray-600 hover:text-blue-500">Sign In</Link>
+              <Link to="/auth" className="bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600">Get Started</Link>
             </div>
           </div>
         </nav>
       </header>
 
       {/* Hero Section */}
-      <section className="relative min-h-[calc(100vh-4rem)] w-full flex items-center perspective-2000">
-        <div className="absolute inset-0 bg-gradient-to-b from-black to-blue-900"></div>
-        <div className="relative w-full transform-style-3d">
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 sm:py-16 lg:py-20">
-            <div className="grid grid-cols-1 lg:grid-cols-5 gap-8 lg:gap-12 items-center">
-              {/* Left side - Text content */}
-              <div className="text-left z-10 lg:col-span-3 space-y-4 sm:space-y-6">
-                <h1 className="font-minimal text-3xl sm:text-4xl lg:text-5xl xl:text-6xl font-bold text-white animate-fade-in-up">
+      <section className="w-screen h-screen flex items-center m-0 p-0">
+        <div 
+          className="absolute inset-0 bg-cover bg-center bg-no-repeat w-full h-full"
+          style={{ backgroundImage: `url(${herobg})` }}
+        >
+          <div className="absolute inset-0 bg-black/60"></div>
+        </div>
+        <div className="relative w-full h-full">
+          <div className="grid grid-cols-1 lg:grid-cols-2 h-full">
+            {/* Left side - Text content */}
+            <div className="flex flex-col justify-center p-4 lg:p-8">
+              <div className="max-w-3xl">
+                <h1 className="font-minimal text-4xl sm:text-5xl lg:text-6xl xl:text-7xl font-bold text-white text-left">
                   Your Talent <br className="hidden sm:block" />
                   Deserves our{' '}
-                  <span className="text-blue-400 animate-tilt inline-block transform-gpu">Spotlight</span>
+                  <span className="text-blue-400">Spotlight</span>
                 </h1>
-                <p className="text-white/70 text-base sm:text-lg lg:text-xl animate-fade-in-up max-w-xl" style={{ animationDelay: '200ms' }}>
+                <p className="text-white/90 text-lg sm:text-xl lg:text-2xl mt-6 backdrop-blur-sm bg-black/20 p-4 rounded-lg text-left">
                   Connect with top artists and recruiters in the performing arts industry. Showcase your talent and find your next big opportunity.
                 </p>
-                <div className="flex flex-col sm:flex-row gap-4 sm:gap-6 animate-fade-in-up" style={{ animationDelay: '400ms' }}>
-                  <Link 
-                    to="/register" 
-                    className="bg-blue-500 text-white px-6 sm:px-8 py-3 sm:py-4 rounded-lg font-semibold transform-gpu hover:translate-z-4 hover:-translate-y-1 hover:shadow-xl transition-all text-center"
+                <div className="flex flex-col sm:flex-row items-start gap-4 mt-8">
+                  <Link
+                    to="/auth"
+                    className="w-full sm:w-auto bg-blue-500 text-white px-8 py-4 rounded-xl text-lg font-semibold hover:bg-blue-600"
                   >
                     Get Started
                   </Link>
-                  <Link 
-                    to="/about" 
-                    className="bg-white/10 backdrop-blur-sm text-white px-6 sm:px-8 py-3 sm:py-4 rounded-lg font-semibold transform-gpu hover:translate-z-4 hover:-translate-y-1 hover:bg-white/20 transition-all text-center"
+                  <Link
+                    to="/artists"
+                    className="w-full sm:w-auto bg-white/10 backdrop-blur-sm text-white px-8 py-4 rounded-xl text-lg font-semibold hover:bg-white/20"
                   >
-                    Learn More
+                    Explore Artists
                   </Link>
                 </div>
               </div>
-
-              {/* Right side - Animation */}
-              <div className="relative lg:col-span-2 transform-style-3d animate-tilt">
-                <HeroAnimation />
-              </div>
             </div>
-          </div>
-        </div>
-
-        {/* Scroll indicator */}
-        <div className="absolute bottom-8 left-1/2 -translate-x-1/2 animate-bounce z-10">
-          <div className="w-6 h-10 border-2 border-white/30 rounded-full p-1">
-            <div className="w-1 h-2 bg-white/30 rounded-full mx-auto animate-[float_1.5s_ease-in-out_infinite]" />
           </div>
         </div>
       </section>
 
       {/* Featured Artists */}
       <section className="py-8 sm:py-12 lg:py-16 bg-white w-full overflow-hidden">
-        <div className="w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="w-full">
           <h2 className="font-minimal text-2xl sm:text-3xl font-bold text-black mb-6 sm:mb-8 text-center">Featured Artists</h2>
           
           {/* Sliding container */}
@@ -210,7 +188,7 @@ const Landing = () => {
 
       {/* Featured Recruiters */}
       <section className="py-8 sm:py-12 lg:py-16 bg-gray-50 w-full overflow-hidden">
-        <div className="w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="w-full">
           <h2 className="font-minimal text-2xl sm:text-3xl font-bold text-black mb-6 sm:mb-8 text-center">Featured Recruiters</h2>
           
           {/* Sliding container */}
@@ -247,9 +225,9 @@ const Landing = () => {
 
       {/* FAQ Section */}
       <section className="py-16 bg-white w-full perspective-1000">
-        <div className="w-full max-w-7xl mx-auto px-2 sm:px-4">
+        <div className="w-full">
           <h2 className="font-minimal text-3xl font-bold text-black mb-8 text-center animate-fade-in">Frequently Asked Questions</h2>
-          <div className="max-w-3xl mx-auto space-y-4">
+          <div className="space-y-4">
             {faqItems.map((item, index) => (
               <div 
                 key={index} 
@@ -280,7 +258,7 @@ const Landing = () => {
 
       {/* CTA Section */}
       <section className="py-8 sm:py-12 lg:py-16 bg-blue-500 w-full">
-        <div className="w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center animate-fade-in-up">
+        <div className="w-full text-center animate-fade-in-up">
           <h2 className="font-minimal text-2xl sm:text-3xl font-bold text-white mb-4 sm:mb-6">Ready to Join Spotlight?</h2>
           <p className="text-white/70 mb-6 sm:mb-8 max-w-2xl mx-auto text-base sm:text-lg">
             Start your journey today and connect with the best opportunities in the performing arts industry.
@@ -297,7 +275,7 @@ const Landing = () => {
       {/* Footer */}
       <footer className="bg-black animate-fade-in" aria-labelledby="footer-heading">
         <h2 id="footer-heading" className="sr-only">Footer</h2>
-        <div className="w-full max-w-7xl mx-auto py-6 px-2 sm:px-4">
+        <div className="w-full py-6 px-2 sm:px-4">
           <div className="xl:grid xl:grid-cols-3 xl:gap-4">
             <div className="space-y-3 xl:col-span-1">
               <span className="font-display text-lg font-bold text-white">Spotlight</span>
