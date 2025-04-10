@@ -12,10 +12,16 @@ export default function GoogleLogin({ role }: GoogleLoginProps) {
 
   const handleGoogleLogin = useGoogleLogin({
     flow: 'auth-code',
-    redirect_uri: import.meta.env.VITE_REDIRECT_URI || 'http://localhost:5173',
+    redirect_uri: import.meta.env.VITE_GOOGLE_REDIRECT_URI || 'http://localhost:5173',
     onSuccess: async (codeResponse) => {
       try {
-        console.log('Google OAuth success:', { code: codeResponse.code, role });
+        console.log('Google OAuth success:', { 
+          code: codeResponse.code, 
+          role,
+          client_id: role === 'artist' 
+            ? import.meta.env.VITE_GOOGLE_ARTIST_CLIENT_ID 
+            : import.meta.env.VITE_GOOGLE_RECRUITER_CLIENT_ID
+        });
         
         // Exchange code for tokens using our backend
         const tokenResponse = await fetch(`${import.meta.env.VITE_API_URL}/api/auth/google/callback`, {
@@ -30,24 +36,38 @@ export default function GoogleLogin({ role }: GoogleLoginProps) {
         });
 
         const data = await tokenResponse.json();
+        console.log('Server response:', data);
 
         if (!tokenResponse.ok) {
+          console.error('Server error:', data);
           throw new Error(data.message || 'Failed to exchange code for token');
         }
 
-        if (!data.token || !data.userInfo) {
+        if (!data.token || !data.user) {
+          console.error('Invalid server response:', data);
           throw new Error('Invalid response from server');
         }
 
+        console.log('Attempting login with:', {
+          sub: data.user._id,
+          name: data.user.name,
+          email: data.user.email,
+          picture: data.user.profilePicture,
+          role: data.user.role,
+          token: data.token ? 'present' : 'missing'
+        });
+
         // Login with role and token
         await login({
-          sub: data.userInfo.sub,
-          name: data.userInfo.name,
-          email: data.userInfo.email,
-          picture: data.userInfo.picture,
-          role,
+          sub: data.user._id,
+          name: data.user.name,
+          email: data.user.email,
+          picture: data.user.profilePicture,
+          role: data.user.role,
           token: data.token,
         });
+
+        console.log('Login successful, navigating to dashboard');
 
         // Redirect to the appropriate dashboard
         if (role === 'artist') {

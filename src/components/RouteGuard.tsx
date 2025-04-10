@@ -17,13 +17,17 @@ interface RouteGuardProps {
 
 export default function RouteGuard({ children, allowedRoles }: RouteGuardProps) {
   const { user } = useAuth();
+  console.log('RouteGuard:', { user, allowedRoles });
 
   if (!user) {
+    console.log('No user found, redirecting to /auth');
     return <Navigate to="/auth" replace />;
   }
 
   if (allowedRoles && !allowedRoles.includes(user.role)) {
-    return <Navigate to="/dashboard" replace />;
+    console.log('User role not allowed:', { userRole: user.role, allowedRoles });
+    // Redirect to the appropriate dashboard based on role
+    return <Navigate to={`/${user.role}/dashboard`} replace />;
   }
 
   if (typeof children === 'function') {

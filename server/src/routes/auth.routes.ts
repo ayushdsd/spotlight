@@ -8,6 +8,6 @@ const router: Router = express.Router();
 router.post('/google/callback', googleCallback);
 
 // Protected routes
-router.get('/profile', auth, getProfile);
+router.get('/profile', auth, getProfile,googleCallback);
 
 export default router;

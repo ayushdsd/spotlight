@@ -73,6 +73,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         throw new Error('No token provided');
       }
 
+      console.log('Login data received:', userData);
+
       // Transform Google user data into our User type
       const newUser: User = {
         id: userData.sub,
@@ -89,6 +91,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       // Update state
       setUser(newUser);
       
+      console.log('User logged in successfully:', newUser);
+      console.log('Navigating to:', userData.role === 'artist' ? '/artist/dashboard' : '/recruiter/dashboard');
+
       // Navigate based on role
       if (userData.role === 'artist') {
         navigate('/artist/dashboard');

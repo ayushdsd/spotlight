@@ -13,7 +13,16 @@ import searchRoutes from './routes/search.routes';
 import portfolioRoutes from './routes/portfolio.routes';
 
 // Load environment variables
-dotenv.config();
+dotenv.config({ path: '.env' });
+
+// Debug environment variables
+console.log('Environment variables loaded:', {
+  NODE_ENV: process.env.NODE_ENV,
+  PORT: process.env.PORT,
+  JWT_SECRET: process.env.JWT_SECRET ? 'Set' : 'Not set',
+  MONGODB_URI: process.env.MONGODB_URI ? 'Set' : 'Not set',
+  GOOGLE_REDIRECT_URI: process.env.GOOGLE_REDIRECT_URI,
+});
 
 // Create Express app
 const app: Application = express();
