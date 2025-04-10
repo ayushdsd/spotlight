@@ -1,5 +1,6 @@
 import { useGoogleLogin } from '@react-oauth/google';
 import { useAuth } from '../contexts/AuthContext';
+import { useNavigate } from 'react-router-dom';
 
 interface GoogleLoginProps {
   role: 'artist' | 'recruiter';
@@ -7,6 +8,7 @@ interface GoogleLoginProps {
 
 export default function GoogleLogin({ role }: GoogleLoginProps) {
   const { login } = useAuth();
+  const navigate = useNavigate();
 
   const handleGoogleLogin = useGoogleLogin({
     onSuccess: async (codeResponse) => {
@@ -44,6 +46,13 @@ export default function GoogleLogin({ role }: GoogleLoginProps) {
           role,
           token: data.token,
         });
+
+        // Redirect to the appropriate dashboard
+        if (role === 'artist') {
+          navigate('/artist/dashboard');
+        } else if (role === 'recruiter') {
+          navigate('/recruiter/dashboard');
+        }
 
       } catch (error) {
         console.error('Login error:', error);
