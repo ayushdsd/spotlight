@@ -20,9 +20,9 @@ services:
   - key: CLOUDINARY_API_SECRET
     sync: false
   - key: CORS_ORIGIN
-    value: http://localhost:5173
+    value: https://spotlightcast.vercel.app
   - key: GOOGLE_REDIRECT_URI
-    value: http://localhost:5173
+    value: https://spotlightcast.vercel.app
   - key: GOOGLE_ARTIST_CLIENT_ID
     sync: false
   - key: GOOGLE_ARTIST_CLIENT_SECRET
