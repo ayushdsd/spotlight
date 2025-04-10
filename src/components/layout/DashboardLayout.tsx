@@ -8,22 +8,22 @@ interface DashboardLayoutProps {
 
 const artistNavItems = [
   { name: 'Dashboard', path: '/artist/dashboard', icon: '🏠' },
-  { name: 'Jobs', path: '/artist/dashboard/jobs', icon: '💼' },
-  { name: 'My Applications', path: '/artist/dashboard/applications', icon: '📝' },
-  { name: 'Profile', path: '/artist/dashboard/profile', icon: '👤' },
-  { name: 'Portfolio', path: '/artist/dashboard/portfolio', icon: '🎨' },
-  { name: 'Messages', path: '/artist/dashboard/messages', icon: '💬' },
-  { name: 'Subscription', path: '/artist/dashboard/subscription', icon: '⭐' },
+  { name: 'Jobs', path: '/artist/jobs', icon: '💼' },
+  { name: 'My Applications', path: '/artist/applications', icon: '📝' },
+  { name: 'Profile', path: '/artist/profile', icon: '👤' },
+  { name: 'Portfolio', path: '/artist/portfolio', icon: '🎨' },
+  { name: 'Messages', path: '/artist/messages', icon: '💬' },
+  { name: 'Subscription', path: '/artist/subscription', icon: '⭐' },
 ];
 
 const recruiterNavItems = [
   { name: 'Dashboard', path: '/recruiter/dashboard', icon: '🏠' },
-  { name: 'Post Job', path: '/recruiter/dashboard/post-job', icon: '✨' },
-  { name: 'My Listings', path: '/recruiter/dashboard/listings', icon: '📋' },
-  { name: 'Applicants', path: '/recruiter/dashboard/applicants', icon: '👥' },
-  { name: 'Company Profile', path: '/recruiter/dashboard/company', icon: '🏢' },
-  { name: 'Messages', path: '/recruiter/dashboard/messages', icon: '💬' },
-  { name: 'Analytics', path: '/recruiter/dashboard/analytics', icon: '📊' },
+  { name: 'Post Job', path: '/recruiter/post-job', icon: '✨' },
+  { name: 'My Listings', path: '/recruiter/listings', icon: '📋' },
+  { name: 'Applicants', path: '/recruiter/applicants', icon: '👥' },
+  { name: 'Company Profile', path: '/recruiter/company', icon: '🏢' },
+  { name: 'Messages', path: '/recruiter/messages', icon: '💬' },
+  { name: 'Analytics', path: '/recruiter/analytics', icon: '📊' },
 ];
 
 export default function DashboardLayout({ children }: DashboardLayoutProps) {
