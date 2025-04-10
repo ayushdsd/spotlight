@@ -1,6 +1,8 @@
 import { Request, Response } from 'express';
 import jwt from 'jsonwebtoken';
 import User from '../models/user.model';
+import { google } from 'googleapis';
+import { OAuth2Client } from 'google-auth-library';
 
 // Use environment variables
 const GOOGLE_ARTIST_CLIENT_ID = process.env.GOOGLE_ARTIST_CLIENT_ID;
@@ -11,179 +13,117 @@ const GOOGLE_REDIRECT_URI = process.env.GOOGLE_REDIRECT_URI;
 
 export const googleCallback = async (req: Request, res: Response) => {
   try {
-    // Check JWT_SECRET
-    const JWT_SECRET = process.env.JWT_SECRET;
-    if (!JWT_SECRET) {
-      console.error('JWT_SECRET is not defined in environment variables');
-      return res.status(500).json({ message: 'Server configuration error' });
-    }
-
-    console.log('Received request body:', req.body);
     const { code, role } = req.body;
 
-    if (!code) {
-      console.log('No authorization code provided');
-      return res.status(400).json({ message: 'Authorization code is required' });
+    if (!code || !role) {
+      console.error('Missing required fields:', { code: !!code, role });
+      return res.status(400).json({ message: 'Code and role are required' });
     }
 
-    console.log('Attempting to exchange code for tokens');
-    
-    // Validate client secret
+    console.log('Received Google callback:', {
+      code: code.substring(0, 10) + '...',
+      role,
+      redirect_uri: process.env.GOOGLE_REDIRECT_URI
+    });
+
+    // Get the appropriate client ID and secret based on role
+    const clientId = role === 'artist' 
+      ? process.env.GOOGLE_ARTIST_CLIENT_ID 
+      : process.env.GOOGLE_RECRUITER_CLIENT_ID;
     const clientSecret = role === 'artist'
       ? process.env.GOOGLE_ARTIST_CLIENT_SECRET
       : process.env.GOOGLE_RECRUITER_CLIENT_SECRET;
 
-    if (!clientSecret) {
-      console.error('Client secret is not defined for role:', role);
-      return res.status(500).json({ message: 'Server configuration error' });
-    }
-
-    // Log the request details (excluding secrets)
-    const requestBody = {
-      code,
-      client_id: role === 'artist' 
-        ? process.env.GOOGLE_ARTIST_CLIENT_ID
-        : process.env.GOOGLE_RECRUITER_CLIENT_ID,
-      redirect_uri: process.env.GOOGLE_REDIRECT_URI || 'http://localhost:5173',
-      grant_type: 'authorization_code'
-    };
-
-    console.log('Token exchange request details:', {
-      ...requestBody,
-      client_id_length: requestBody.client_id?.length,
-      code_length: code?.length,
-      client_secret_length: clientSecret.length,
-      client_secret_prefix: clientSecret.substring(0, 6) // Log just the prefix to verify format
-    });
-
-    // Verify credentials format
-    if (!requestBody.client_id?.endsWith('.apps.googleusercontent.com')) {
-      console.error('Client ID format is incorrect');
-      return res.status(500).json({ message: 'Invalid client ID format' });
-    }
-
-    if (!clientSecret.startsWith('GOCSPX-')) {
-      console.error('Client secret format is incorrect');
-      return res.status(500).json({ message: 'Invalid client secret format' });
-    }
-
-    // Create form data for token exchange
-    const formData = new URLSearchParams();
-    formData.append('code', code);
-    formData.append('client_id', requestBody.client_id);
-    formData.append('client_secret', clientSecret);
-    formData.append('redirect_uri', requestBody.redirect_uri);
-    formData.append('grant_type', requestBody.grant_type);
-
-    // Exchange code for tokens directly with Google
-    const tokenResponse = await fetch('https://oauth2.googleapis.com/token', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/x-www-form-urlencoded',
-        'Accept': 'application/json'
-      },
-      body: formData.toString()
-    });
-
-    if (!tokenResponse.ok) {
-      const error = await tokenResponse.json();
-      console.error('Token exchange error:', error);
-      console.error('Response status:', tokenResponse.status);
-      console.error('Response headers:', Object.fromEntries(tokenResponse.headers.entries()));
-      
-      // Log the full request details for debugging (excluding the actual client secret)
-      console.error('Full request details:', {
-        url: 'https://oauth2.googleapis.com/token',
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/x-www-form-urlencoded',
-          'Accept': 'application/json'
-        },
-        formData: {
-          ...requestBody,
-          client_secret: `[length: ${clientSecret.length}]`
-        }
+    if (!clientId || !clientSecret) {
+      console.error('Missing OAuth credentials:', {
+        hasArtistId: !!process.env.GOOGLE_ARTIST_CLIENT_ID,
+        hasArtistSecret: !!process.env.GOOGLE_ARTIST_CLIENT_SECRET,
+        hasRecruiterId: !!process.env.GOOGLE_RECRUITER_CLIENT_ID,
+        hasRecruiterSecret: !!process.env.GOOGLE_RECRUITER_CLIENT_SECRET
       });
-
-      // Try to get more detailed error information
-      const errorText = await tokenResponse.text().catch(() => 'Could not get response text');
-      console.error('Full error response:', errorText);
-      
-      return res.status(400).json({ 
-        message: 'Failed to exchange code for token', 
-        error,
-        details: {
-          status: tokenResponse.status,
-          headers: Object.fromEntries(tokenResponse.headers.entries()),
-          responseText: errorText
-        }
-      });
+      return res.status(500).json({ message: 'OAuth configuration error' });
     }
- 
-    const tokens = await tokenResponse.json();
-    const accessToken = tokens.access_token;
 
-    if (!accessToken) {
+    const oauth2Client = new OAuth2Client(
+      clientId,
+      clientSecret,
+      process.env.GOOGLE_REDIRECT_URI
+    );
+
+    console.log('Exchanging code for tokens...');
+    const { tokens } = await oauth2Client.getToken(code);
+    console.log('Token exchange successful');
+
+    if (!tokens.access_token) {
+      console.error('No access token received');
       return res.status(400).json({ message: 'Failed to get access token' });
     }
 
-    // Get user info from Google
-    const userInfoResponse = await fetch('https://www.googleapis.com/oauth2/v3/userinfo', {
-      headers: {
-        Authorization: `Bearer ${accessToken}`,
-      },
+    oauth2Client.setCredentials(tokens);
+
+    const oauth2 = google.oauth2({
+      auth: oauth2Client,
+      version: 'v2'
     });
 
-    if (!userInfoResponse.ok) {
-      throw new Error('Failed to get user info from Google');
-    }
+    const userInfo = await oauth2.userinfo.get();
+    console.log('Got user info:', {
+      id: userInfo.data.id,
+      email: userInfo.data.email,
+      name: userInfo.data.name
+    });
 
-    const userInfo = await userInfoResponse.json();
+    if (!userInfo.data.email) {
+      console.error('No email in user info');
+      return res.status(400).json({ message: 'Email not found in Google account' });
+    }
 
     // Find or create user
-    let user = await User.findOne({ email: userInfo.email });
+    let user = await User.findOne({ email: userInfo.data.email });
 
     if (!user) {
-      user = await User.create({
-        email: userInfo.email,
-        name: userInfo.name,
-        profilePicture: userInfo.picture,
-        role: role || 'artist' // Use provided role or default to artist
+      console.log('Creating new user');
+      user = new User({
+        email: userInfo.data.email,
+        name: userInfo.data.name,
+        profilePicture: userInfo.data.picture,
+        role: role
       });
-    } else {
-      // Update existing user's info
-      user.name = userInfo.name;
-      user.profilePicture = userInfo.picture || user.profilePicture;
-      user.role = role || user.role;
       await user.save();
+    } else {
+      console.log('Found existing user:', user._id);
     }
 
-    // Generate JWT token
-    const authToken = jwt.sign(
-      {
-        _id: user._id,
-        name: user.name,
-        email: user.email,
-        role: user.role,
-        profilePicture: user.profilePicture
-      },
-      JWT_SECRET,
-      { expiresIn: '7d' }
+    const token = jwt.sign(
+      { userId: user._id, role: user.role },
+      process.env.JWT_SECRET || 'your-secret-key',
+      { expiresIn: '24h' }
     );
 
-    res.json({
-      token: authToken,
+    console.log('Authentication successful, sending response');
+    return res.status(200).json({
+      token,
       user: {
         _id: user._id,
         name: user.name,
         email: user.email,
-        role: user.role,
-        profilePicture: user.profilePicture
+        profilePicture: user.profilePicture,
+        role: user.role
       }
     });
-  } catch (error) {
-    console.error('Auth callback error:', error);
-    res.status(500).json({ message: 'Authentication failed', error: error.message });
+
+  } catch (error: any) {
+    console.error('Google callback error:', {
+      message: error.message,
+      stack: error.stack,
+      details: error.response?.data
+    });
+    
+    return res.status(400).json({
+      message: 'Failed to exchange code for token',
+      error: error.message,
+      details: error.response?.data
+    });
   }
 };
 
