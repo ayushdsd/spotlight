@@ -12,7 +12,7 @@ export default function GoogleLogin({ role }: GoogleLoginProps) {
 
   const handleGoogleLogin = useGoogleLogin({
     flow: 'auth-code',
-    redirect_uri: window.location.origin.replace(/\/$/, ''),
+    redirect_uri: window.location.origin.replace(/\/$/, ''), // Remove trailing slash
     onSuccess: async (codeResponse) => {
       try {
         console.log('Google OAuth success:', {
@@ -30,65 +30,33 @@ export default function GoogleLogin({ role }: GoogleLoginProps) {
           body: JSON.stringify({
             code: codeResponse.code,
             role,
-            redirect_uri: window.location.origin.replace(/\/$/, '')
+            redirect_uri: window.location.origin.replace(/\/$/, '') // Remove trailing slash
           }),
         });
 
-        const data = await tokenResponse.json();
-        console.log('Server response:', {
-          status: tokenResponse.status,
-          ok: tokenResponse.ok,
-          data: {
-            ...data,
-            token: data.token ? '[REDACTED]' : undefined
-          }
-        });
-
         if (!tokenResponse.ok) {
-          console.error('Server error:', {
-            status: tokenResponse.status,
-            data
-          });
-          throw new Error(data.message || 'Failed to exchange code for token');
+          const errorData = await tokenResponse.json();
+          console.error('Token exchange failed:', errorData);
+          throw new Error(errorData.message || 'Failed to exchange token');
         }
 
-        if (!data.token || !data.user) {
-          console.error('Invalid server response:', {
-            hasToken: !!data.token,
-            hasUser: !!data.user
-          });
-          throw new Error('Invalid response from server');
-        }
-
-        console.log('Attempting login with:', {
-          hasId: !!data.user._id,
-          hasName: !!data.user.name,
-          hasEmail: !!data.user.email,
-          hasPicture: !!data.user.profilePicture,
-          role: data.user.role
-        });
-
-        // Login with role and token
-        await login({
+        const data = await tokenResponse.json();
+        console.log('Token exchange successful');
+        
+        // Update auth context with user data
+        login({
           sub: data.user._id,
           name: data.user.name,
           email: data.user.email,
           picture: data.user.profilePicture,
           role: data.user.role,
-          token: data.token,
+          token: data.token
         });
-
-        console.log('Login successful, navigating to dashboard');
-
-        // Redirect to the appropriate dashboard
-        if (role === 'artist') {
-          navigate('/artist/dashboard');
-        } else if (role === 'recruiter') {
-          navigate('/recruiter/dashboard');
-        }
-
-      } catch (error) {
-        console.error('Login error:', error);
+        
+        // Redirect based on role
+        navigate(role === 'artist' ? '/artist/dashboard' : '/recruiter/dashboard');
+      } catch (error: any) {
+        console.error('Google OAuth error:', error);
         // You can add a toast notification here to show the error to the user
       }
     },
