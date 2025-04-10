@@ -14,19 +14,38 @@ export const googleCallback = async (req: Request, res: Response) => {
   try {
     const { code, role, redirect_uri } = req.body;
 
+    // Log all environment variables (redacted)
+    console.log('Environment variables:', {
+      hasArtistId: !!process.env.GOOGLE_ARTIST_CLIENT_ID,
+      hasArtistSecret: !!process.env.GOOGLE_ARTIST_CLIENT_SECRET,
+      hasRecruiterId: !!process.env.GOOGLE_RECRUITER_CLIENT_ID,
+      hasRecruiterSecret: !!process.env.GOOGLE_RECRUITER_CLIENT_SECRET,
+      nodeEnv: process.env.NODE_ENV
+    });
+
     if (!code || !role || !redirect_uri) {
       console.error('Missing required fields:', { 
         hasCode: !!code, 
         hasRole: !!role,
-        hasRedirectUri: !!redirect_uri 
+        hasRedirectUri: !!redirect_uri,
+        body: req.body
       });
-      return res.status(400).json({ message: 'Code, role, and redirect_uri are required' });
+      return res.status(400).json({ 
+        message: 'Code, role, and redirect_uri are required',
+        received: {
+          hasCode: !!code,
+          hasRole: !!role,
+          hasRedirectUri: !!redirect_uri,
+          body: req.body
+        }
+      });
     }
 
     console.log('Received Google callback:', {
       code: '***redacted***',
       role,
-      redirect_uri
+      redirect_uri,
+      headers: req.headers
     });
 
     // Get the appropriate client ID and secret based on role
@@ -42,14 +61,23 @@ export const googleCallback = async (req: Request, res: Response) => {
         hasArtistId: !!process.env.GOOGLE_ARTIST_CLIENT_ID,
         hasArtistSecret: !!process.env.GOOGLE_ARTIST_CLIENT_SECRET,
         hasRecruiterId: !!process.env.GOOGLE_RECRUITER_CLIENT_ID,
-        hasRecruiterSecret: !!process.env.GOOGLE_RECRUITER_CLIENT_SECRET
+        hasRecruiterSecret: !!process.env.GOOGLE_RECRUITER_CLIENT_SECRET,
+        role
       });
-      return res.status(500).json({ message: 'OAuth configuration error' });
+      return res.status(500).json({ 
+        message: 'OAuth configuration error',
+        details: {
+          hasArtistId: !!process.env.GOOGLE_ARTIST_CLIENT_ID,
+          hasRecruiterId: !!process.env.GOOGLE_RECRUITER_CLIENT_ID,
+          role
+        }
+      });
     }
 
     console.log('Creating OAuth2Client with:', {
       clientIdPrefix: clientId.substring(0, 10) + '...',
-      redirectUri: redirect_uri
+      redirectUri: redirect_uri,
+      role
     });
 
     const oauth2Client = new OAuth2Client(
@@ -59,70 +87,86 @@ export const googleCallback = async (req: Request, res: Response) => {
     );
 
     console.log('Exchanging code for tokens...');
-    const { tokens } = await oauth2Client.getToken(code);
-    console.log('Token exchange successful:', {
-      hasAccessToken: !!tokens.access_token,
-      hasRefreshToken: !!tokens.refresh_token,
-      expiryDate: tokens.expiry_date
-    });
-
-    if (!tokens.access_token) {
-      console.error('No access token received');
-      return res.status(400).json({ message: 'Failed to get access token' });
-    }
-
-    oauth2Client.setCredentials(tokens);
-
-    const oauth2 = google.oauth2({
-      auth: oauth2Client,
-      version: 'v2'
-    });
-
-    const userInfo = await oauth2.userinfo.get();
-    console.log('Got user info:', {
-      hasId: !!userInfo.data.id,
-      hasEmail: !!userInfo.data.email,
-      hasName: !!userInfo.data.name
-    });
-
-    if (!userInfo.data.email) {
-      console.error('No email in user info');
-      return res.status(400).json({ message: 'Email not found in Google account' });
-    }
-
-    // Find or create user
-    let user = await User.findOne({ email: userInfo.data.email });
-
-    if (!user) {
-      console.log('Creating new user');
-      user = new User({
-        email: userInfo.data.email,
-        name: userInfo.data.name,
-        profilePicture: userInfo.data.picture,
-        role: role
+    
+    try {
+      const { tokens } = await oauth2Client.getToken(code);
+      console.log('Token exchange successful:', {
+        hasAccessToken: !!tokens.access_token,
+        hasRefreshToken: !!tokens.refresh_token,
+        expiryDate: tokens.expiry_date
       });
-      await user.save();
-    } else {
-      console.log('Found existing user:', user._id);
-    }
 
-    const token = jwt.sign(
-      { userId: user._id, role: user.role },
-      process.env.JWT_SECRET || 'your-secret-key',
-      { expiresIn: '24h' }
-    );
-
-    console.log('Authentication successful, sending response');
-    return res.status(200).json({
-      token,
-      user: {
-        _id: user._id,
-        name: user.name,
-        email: user.email,
-        profilePicture: user.profilePicture,
-        role: user.role
+      if (!tokens.access_token) {
+        console.error('No access token received');
+        return res.status(400).json({ message: 'Failed to get access token' });
       }
-    });
+
+      oauth2Client.setCredentials(tokens);
+
+      const oauth2 = google.oauth2({
+        auth: oauth2Client,
+        version: 'v2'
+      });
+
+      const userInfo = await oauth2.userinfo.get();
+      console.log('Got user info:', {
+        hasId: !!userInfo.data.id,
+        hasEmail: !!userInfo.data.email,
+        hasName: !!userInfo.data.name
+      });
+
+      if (!userInfo.data.email) {
+        console.error('No email in user info');
+        return res.status(400).json({ message: 'Email not found in Google account' });
+      }
+
+      // Find or create user
+      let user = await User.findOne({ email: userInfo.data.email });
+
+      if (!user) {
+        console.log('Creating new user');
+        user = new User({
+          email: userInfo.data.email,
+          name: userInfo.data.name,
+          profilePicture: userInfo.data.picture,
+          role: role
+        });
+        await user.save();
+      } else {
+        console.log('Found existing user:', user._id);
+      }
+
+      const token = jwt.sign(
+        { userId: user._id, role: user.role },
+        process.env.JWT_SECRET || 'your-secret-key',
+        { expiresIn: '24h' }
+      );
+
+      console.log('Authentication successful, sending response');
+      return res.status(200).json({
+        token,
+        user: {
+          _id: user._id,
+          name: user.name,
+          email: user.email,
+          profilePicture: user.profilePicture,
+          role: user.role
+        }
+      });
+    } catch (tokenError: any) {
+      console.error('Token exchange error:', {
+        message: tokenError.message,
+        code: tokenError.code,
+        details: tokenError.response?.data,
+        stack: tokenError.stack
+      });
+      
+      return res.status(400).json({
+        message: 'Failed to exchange code for token',
+        error: tokenError.message,
+        details: tokenError.response?.data
+      });
+    }
 
   } catch (error: any) {
     console.error('Google callback error:', {
