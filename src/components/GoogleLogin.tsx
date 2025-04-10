@@ -11,6 +11,8 @@ export default function GoogleLogin({ role }: GoogleLoginProps) {
   const navigate = useNavigate();
 
   const handleGoogleLogin = useGoogleLogin({
+    flow: 'auth-code',
+    redirect_uri: import.meta.env.VITE_REDIRECT_URI || 'http://localhost:5173',
     onSuccess: async (codeResponse) => {
       try {
         console.log('Google OAuth success:', { code: codeResponse.code, role });
@@ -63,8 +65,6 @@ export default function GoogleLogin({ role }: GoogleLoginProps) {
       console.error('Google OAuth error:', error);
       // You can add a toast notification here to show the error to the user
     },
-    flow: 'auth-code',
-    redirect_uri: 'https://spotlight-frontend.vercel.app',
   });
 
   return (

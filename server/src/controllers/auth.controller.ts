@@ -30,7 +30,7 @@ export const googleCallback = async (req: Request, res: Response) => {
         client_secret: role === 'artist'
           ? process.env.GOOGLE_ARTIST_CLIENT_SECRET as string
           : process.env.GOOGLE_RECRUITER_CLIENT_SECRET as string,
-        redirect_uri: 'https://spotlight-frontend.vercel.app',
+        redirect_uri: process.env.GOOGLE_REDIRECT_URI || 'http://localhost:5173',
         grant_type: 'authorization_code',
       }).toString(),
     });
