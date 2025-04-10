@@ -7,131 +7,123 @@ interface DashboardLayoutProps {
 }
 
 const artistNavItems = [
-  { name: 'Dashboard', path: '/dashboard', icon: '🏠' },
-  { name: 'Jobs', path: '/dashboard/jobs', icon: '💼' },
-  { name: 'My Applications', path: '/dashboard/applications', icon: '📝' },
-  { name: 'Profile', path: '/dashboard/profile', icon: '👤' },
-  { name: 'Portfolio', path: '/dashboard/portfolio', icon: '🎨' },
-  { name: 'Messages', path: '/dashboard/messages', icon: '💬' },
-  { name: 'Subscription', path: '/dashboard/subscription', icon: '⭐' },
+  { name: 'Dashboard', path: '/artist/dashboard', icon: '🏠' },
+  { name: 'Jobs', path: '/artist/dashboard/jobs', icon: '💼' },
+  { name: 'My Applications', path: '/artist/dashboard/applications', icon: '📝' },
+  { name: 'Profile', path: '/artist/dashboard/profile', icon: '👤' },
+  { name: 'Portfolio', path: '/artist/dashboard/portfolio', icon: '🎨' },
+  { name: 'Messages', path: '/artist/dashboard/messages', icon: '💬' },
+  { name: 'Subscription', path: '/artist/dashboard/subscription', icon: '⭐' },
 ];
 
 const recruiterNavItems = [
-  { name: 'Dashboard', path: '/dashboard', icon: '🏠' },
-  { name: 'Post Job', path: '/dashboard/post-job', icon: '✨' },
-  { name: 'My Listings', path: '/dashboard/listings', icon: '📋' },
-  { name: 'Applicants', path: '/dashboard/applicants', icon: '👥' },
-  { name: 'Company Profile', path: '/dashboard/company', icon: '🏢' },
-  { name: 'Messages', path: '/dashboard/messages', icon: '💬' },
-  { name: 'Analytics', path: '/dashboard/analytics', icon: '📊' },
+  { name: 'Dashboard', path: '/recruiter/dashboard', icon: '🏠' },
+  { name: 'Post Job', path: '/recruiter/dashboard/post-job', icon: '✨' },
+  { name: 'My Listings', path: '/recruiter/dashboard/listings', icon: '📋' },
+  { name: 'Applicants', path: '/recruiter/dashboard/applicants', icon: '👥' },
+  { name: 'Company Profile', path: '/recruiter/dashboard/company', icon: '🏢' },
+  { name: 'Messages', path: '/recruiter/dashboard/messages', icon: '💬' },
+  { name: 'Analytics', path: '/recruiter/dashboard/analytics', icon: '📊' },
 ];
 
 export default function DashboardLayout({ children }: DashboardLayoutProps) {
   const { user, logout } = useAuth();
   const location = useLocation();
-  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
-  const isRecruiter = user?.role === 'recruiter';
-  const navItems = isRecruiter ? recruiterNavItems : artistNavItems;
+  const [isSidebarOpen, setIsSidebarOpen] = useState(true);
+
+  // Select nav items based on user role
+  const navItems = user?.role === 'artist' ? artistNavItems : recruiterNavItems;
+
+  const isActiveRoute = (path: string) => {
+    return location.pathname === path;
+  };
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      {/* Mobile Header with Menu Button - Always visible on mobile */}
-      <div className="fixed top-0 left-0 right-0 lg:hidden bg-white border-b border-gray-200 p-4 z-30">
-        <button
-          onClick={() => setIsSidebarOpen(true)}
-          className="text-gray-600 hover:text-blue-600 p-2 text-2xl"
-        >
-          ☰
-        </button>
-      </div>
+    <div className="flex h-screen bg-gray-100">
+      {/* Sidebar */}
+      <aside
+        className={`${
+          isSidebarOpen ? 'translate-x-0' : '-translate-x-full'
+        } fixed inset-y-0 left-0 z-50 w-64 bg-white shadow-lg transform transition-transform duration-300 ease-in-out lg:translate-x-0 lg:static lg:inset-0`}
+      >
+        <div className="h-full flex flex-col">
+          {/* Logo */}
+          <div className="flex items-center justify-center h-16 border-b">
+            <img src="/spotlight-logo.png" alt="Spotlight" className="h-8" />
+          </div>
 
-      <div className="flex pt-[60px] lg:pt-0">
-        {/* Sidebar */}
-        <aside 
-          className={`fixed lg:sticky top-0 left-0 h-screen w-64 transform ${
-            isSidebarOpen ? 'translate-x-0' : '-translate-x-full'
-          } lg:translate-x-0 transition-transform duration-300 ease-in-out z-40 bg-white border-r border-gray-200 shadow-sm`}
-        >
-          <div className="h-full flex flex-col">
-            <div className="p-6 border-b border-gray-200 flex items-center justify-between">
-              <Link to="/" className="block">
-                <span className="text-2xl font-minimal font-bold text-gray-900">
-                  Spotlight
-                </span>
-              </Link>
-              <button 
-                onClick={() => setIsSidebarOpen(false)}
-                className="lg:hidden text-gray-500 hover:text-blue-600 text-xl"
-              >
-                ✕
-              </button>
-            </div>
+          {/* Navigation */}
+          <nav className="flex-1 overflow-y-auto py-4">
+            <ul className="space-y-2 px-4">
+              {navItems.map((item) => (
+                <li key={item.path}>
+                  <Link
+                    to={item.path}
+                    className={`flex items-center px-4 py-2 text-sm rounded-lg transition-colors ${
+                      isActiveRoute(item.path)
+                        ? 'bg-blue-50 text-blue-600'
+                        : 'text-gray-700 hover:bg-gray-50'
+                    }`}
+                  >
+                    <span className="mr-3">{item.icon}</span>
+                    {item.name}
+                  </Link>
+                </li>
+              ))}
+            </ul>
+          </nav>
 
-            <div className="flex-1 overflow-y-auto p-4">
-              <div className="flex items-center space-x-3 mb-6">
-                <div className="w-10 h-10 rounded-full bg-blue-50 flex items-center justify-center border border-blue-100">
-                  {user?.picture ? (
-                    <img src={user.picture} alt={user.name} className="w-10 h-10 rounded-full" />
-                  ) : (
-                    <span className="text-xl">{isRecruiter ? '🏢' : '👤'}</span>
-                  )}
-                </div>
-                <div className="flex-1 min-w-0">
-                  <p className="text-sm font-medium text-gray-900 truncate">{user?.name}</p>
-                  <p className="text-xs text-gray-500 truncate">{isRecruiter ? 'Recruiter' : 'Artist'}</p>
-                </div>
+          {/* User Menu */}
+          <div className="p-4 border-t">
+            <div className="flex items-center mb-4">
+              <img
+                src={user?.picture || '/default-avatar.png'}
+                alt={user?.name || 'User'}
+                className="w-10 h-10 rounded-full mr-3"
+              />
+              <div>
+                <div className="font-medium text-sm">{user?.name}</div>
+                <div className="text-xs text-gray-500">{user?.email}</div>
               </div>
-
-              <nav className="space-y-1">
-                {navItems.map((item) => {
-                  const isActive = location.pathname === item.path;
-                  return (
-                    <Link
-                      key={item.path}
-                      to={item.path}
-                      className={`flex items-center px-4 py-3 rounded-lg transition-all ${
-                        isActive
-                          ? 'bg-blue-50 text-blue-600'
-                          : 'text-gray-600 hover:bg-gray-50 hover:text-blue-600'
-                      }`}
-                    >
-                      <span className={`text-xl mr-3 ${isActive ? 'text-blue-600' : 'text-gray-500'}`}>
-                        {item.icon}
-                      </span>
-                      <span className="font-medium">{item.name}</span>
-                    </Link>
-                  );
-                })}
-              </nav>
             </div>
+            <button
+              onClick={logout}
+              className="w-full flex items-center px-4 py-2 text-sm text-red-600 rounded-lg hover:bg-red-50 transition-colors"
+            >
+              <span className="mr-3">🚪</span>
+              Logout
+            </button>
+          </div>
+        </div>
+      </aside>
 
-            <div className="p-4 border-t border-gray-200">
-              <button
-                onClick={logout}
-                className="w-full flex items-center px-4 py-3 text-gray-600 hover:bg-red-50 hover:text-red-600 rounded-lg transition-all group"
+      {/* Main Content */}
+      <div className="flex-1 flex flex-col overflow-hidden">
+        {/* Top Navigation */}
+        <header className="bg-white shadow-sm lg:hidden">
+          <div className="px-4 py-3">
+            <button
+              onClick={() => setIsSidebarOpen(!isSidebarOpen)}
+              className="text-gray-500 hover:text-gray-600"
+            >
+              <svg
+                className="h-6 w-6"
+                fill="none"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth="2"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
               >
-                <span className="text-xl mr-3 group-hover:text-red-600">🚪</span>
-                <span className="font-medium">Logout</span>
-              </button>
-            </div>
+                <path d="M4 6h16M4 12h16M4 18h16"></path>
+              </svg>
+            </button>
           </div>
-        </aside>
+        </header>
 
-        {/* Overlay */}
-        {isSidebarOpen && (
-          <div 
-            className="fixed inset-0 bg-black/20 lg:hidden z-30"
-            onClick={() => setIsSidebarOpen(false)}
-          />
-        )}
-
-        {/* Main Content */}
-        <main className="flex-1 min-w-0">
-          <div className="p-8">
-            <div className="max-w-7xl mx-auto">
-              {children}
-            </div>
-          </div>
+        {/* Page Content */}
+        <main className="flex-1 overflow-x-hidden overflow-y-auto bg-gray-100 p-6">
+          {children}
         </main>
       </div>
     </div>
