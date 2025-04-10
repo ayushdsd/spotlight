@@ -9,21 +9,24 @@ const GOOGLE_ARTIST_CLIENT_ID = process.env.GOOGLE_ARTIST_CLIENT_ID;
 const GOOGLE_ARTIST_CLIENT_SECRET = process.env.GOOGLE_ARTIST_CLIENT_SECRET;
 const GOOGLE_RECRUITER_CLIENT_ID = process.env.GOOGLE_RECRUITER_CLIENT_ID;
 const GOOGLE_RECRUITER_CLIENT_SECRET = process.env.GOOGLE_RECRUITER_CLIENT_SECRET;
-const GOOGLE_REDIRECT_URI = process.env.GOOGLE_REDIRECT_URI;
 
 export const googleCallback = async (req: Request, res: Response) => {
   try {
-    const { code, role } = req.body;
+    const { code, role, redirect_uri } = req.body;
 
-    if (!code || !role) {
-      console.error('Missing required fields:', { code: !!code, role });
-      return res.status(400).json({ message: 'Code and role are required' });
+    if (!code || !role || !redirect_uri) {
+      console.error('Missing required fields:', { 
+        hasCode: !!code, 
+        hasRole: !!role,
+        hasRedirectUri: !!redirect_uri 
+      });
+      return res.status(400).json({ message: 'Code, role, and redirect_uri are required' });
     }
 
     console.log('Received Google callback:', {
       code: '***redacted***',
       role,
-      redirect_uri: process.env.GOOGLE_REDIRECT_URI
+      redirect_uri
     });
 
     // Get the appropriate client ID and secret based on role
@@ -44,15 +47,24 @@ export const googleCallback = async (req: Request, res: Response) => {
       return res.status(500).json({ message: 'OAuth configuration error' });
     }
 
+    console.log('Creating OAuth2Client with:', {
+      clientIdPrefix: clientId.substring(0, 10) + '...',
+      redirectUri: redirect_uri
+    });
+
     const oauth2Client = new OAuth2Client(
       clientId,
       clientSecret,
-      process.env.GOOGLE_REDIRECT_URI
+      redirect_uri
     );
 
     console.log('Exchanging code for tokens...');
     const { tokens } = await oauth2Client.getToken(code);
-    console.log('Token exchange successful');
+    console.log('Token exchange successful:', {
+      hasAccessToken: !!tokens.access_token,
+      hasRefreshToken: !!tokens.refresh_token,
+      expiryDate: tokens.expiry_date
+    });
 
     if (!tokens.access_token) {
       console.error('No access token received');
@@ -68,9 +80,9 @@ export const googleCallback = async (req: Request, res: Response) => {
 
     const userInfo = await oauth2.userinfo.get();
     console.log('Got user info:', {
-      id: userInfo.data.id,
-      email: userInfo.data.email,
-      name: userInfo.data.name
+      hasId: !!userInfo.data.id,
+      hasEmail: !!userInfo.data.email,
+      hasName: !!userInfo.data.name
     });
 
     if (!userInfo.data.email) {

@@ -12,15 +12,13 @@ export default function GoogleLogin({ role }: GoogleLoginProps) {
 
   const handleGoogleLogin = useGoogleLogin({
     flow: 'auth-code',
-    redirect_uri: import.meta.env.VITE_GOOGLE_REDIRECT_URI || 'http://localhost:5173',
+    redirect_uri: window.location.origin,
     onSuccess: async (codeResponse) => {
       try {
-        console.log('Google OAuth success:', { 
-          code: codeResponse.code, 
+        console.log('Google OAuth success:', {
+          code_length: codeResponse.code?.length,
           role,
-          client_id: role === 'artist' 
-            ? import.meta.env.VITE_GOOGLE_ARTIST_CLIENT_ID 
-            : import.meta.env.VITE_GOOGLE_RECRUITER_CLIENT_ID
+          redirect_uri: window.location.origin
         });
         
         // Exchange code for tokens using our backend
@@ -32,29 +30,42 @@ export default function GoogleLogin({ role }: GoogleLoginProps) {
           body: JSON.stringify({
             code: codeResponse.code,
             role,
+            redirect_uri: window.location.origin
           }),
         });
 
         const data = await tokenResponse.json();
-        console.log('Server response:', data);
+        console.log('Server response:', {
+          status: tokenResponse.status,
+          ok: tokenResponse.ok,
+          data: {
+            ...data,
+            token: data.token ? '[REDACTED]' : undefined
+          }
+        });
 
         if (!tokenResponse.ok) {
-          console.error('Server error:', data);
+          console.error('Server error:', {
+            status: tokenResponse.status,
+            data
+          });
           throw new Error(data.message || 'Failed to exchange code for token');
         }
 
         if (!data.token || !data.user) {
-          console.error('Invalid server response:', data);
+          console.error('Invalid server response:', {
+            hasToken: !!data.token,
+            hasUser: !!data.user
+          });
           throw new Error('Invalid response from server');
         }
 
         console.log('Attempting login with:', {
-          sub: data.user._id,
-          name: data.user.name,
-          email: data.user.email,
-          picture: data.user.profilePicture,
-          role: data.user.role,
-          token: data.token ? 'present' : 'missing'
+          hasId: !!data.user._id,
+          hasName: !!data.user.name,
+          hasEmail: !!data.user.email,
+          hasPicture: !!data.user.profilePicture,
+          role: data.user.role
         });
 
         // Login with role and token
