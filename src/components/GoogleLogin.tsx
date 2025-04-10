@@ -12,13 +12,13 @@ export default function GoogleLogin({ role }: GoogleLoginProps) {
 
   const handleGoogleLogin = useGoogleLogin({
     flow: 'auth-code',
-    redirect_uri: window.location.origin,
+    redirect_uri: window.location.origin.replace(/\/$/, ''),
     onSuccess: async (codeResponse) => {
       try {
         console.log('Google OAuth success:', {
           code_length: codeResponse.code?.length,
           role,
-          redirect_uri: window.location.origin
+          redirect_uri: window.location.origin.replace(/\/$/, '')
         });
         
         // Exchange code for tokens using our backend
@@ -30,7 +30,7 @@ export default function GoogleLogin({ role }: GoogleLoginProps) {
           body: JSON.stringify({
             code: codeResponse.code,
             role,
-            redirect_uri: window.location.origin
+            redirect_uri: window.location.origin.replace(/\/$/, '')
           }),
         });
 
