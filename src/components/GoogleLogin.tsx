@@ -1,6 +1,7 @@
 import { useGoogleLogin } from '@react-oauth/google';
 import { useAuth } from '../contexts/AuthContext';
 import { useNavigate } from 'react-router-dom';
+import { useState } from 'react';
 
 interface GoogleLoginProps {
   role: 'artist' | 'recruiter';
@@ -9,6 +10,7 @@ interface GoogleLoginProps {
 export default function GoogleLogin({ role }: GoogleLoginProps) {
   const { login } = useAuth();
   const navigate = useNavigate();
+  const [isLoading, setIsLoading] = useState(false);
 
   // Get the redirect URI without trailing slash
   const redirectUri = window.location.origin.replace(/\/$/, '');
@@ -18,6 +20,7 @@ export default function GoogleLogin({ role }: GoogleLoginProps) {
     redirect_uri: redirectUri,
     onSuccess: async (codeResponse) => {
       try {
+        setIsLoading(true);
         const requestBody = {
           code: codeResponse.code,
           role,
@@ -64,15 +67,18 @@ export default function GoogleLogin({ role }: GoogleLoginProps) {
           token: data.token
         });
         
-        // Redirect based on role
-        navigate(role === 'artist' ? '/artist/dashboard' : '/recruiter/dashboard');
+        // Redirect based on user's role from server response
+        navigate(data.user.role === 'artist' ? '/artist/dashboard' : '/recruiter/dashboard');
       } catch (error: any) {
         console.error('Google OAuth error:', error);
         // You can add a toast notification here to show the error to the user
+      } finally {
+        setIsLoading(false);
       }
     },
     onError: (error) => {
       console.error('Google OAuth error:', error);
+      setIsLoading(false);
       // You can add a toast notification here to show the error to the user
     },
   });
@@ -80,14 +86,28 @@ export default function GoogleLogin({ role }: GoogleLoginProps) {
   return (
     <button
       onClick={() => handleGoogleLogin()}
-      className="w-full flex items-center justify-center px-4 py-3 border border-gray-300 rounded-lg text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors"
+      disabled={isLoading}
+      className="w-full flex items-center justify-center px-4 py-3 border border-gray-300 rounded-lg text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
     >
-      <img
-        src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg"
-        alt="Google"
-        className="w-5 h-5 mr-3"
-      />
-      <span className="font-medium">Continue with Google</span>
+      {isLoading ? (
+        <div className="flex items-center">
+          <img
+            src="/spotlight-logo.png"
+            alt="Loading"
+            className="w-5 h-5 mr-3 animate-spin"
+          />
+          <span className="font-medium">Logging in...</span>
+        </div>
+      ) : (
+        <>
+          <img
+            src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg"
+            alt="Google"
+            className="w-5 h-5 mr-3"
+          />
+          <span className="font-medium">Continue with Google</span>
+        </>
+      )}
     </button>
   );
 }
