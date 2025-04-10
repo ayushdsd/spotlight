@@ -9,53 +9,38 @@ export default function GoogleLogin({ role }: GoogleLoginProps) {
   const { login } = useAuth();
 
   const handleGoogleLogin = useGoogleLogin({
-    onSuccess: async (tokenResponse) => {
+    onSuccess: async (codeResponse) => {
       try {
-        // Get user info from Google
-        const userInfoResponse = await fetch('https://www.googleapis.com/oauth2/v3/userinfo', {
-          headers: {
-            Authorization: `Bearer ${tokenResponse.access_token}`,
-          },
-        });
-
-        if (!userInfoResponse.ok) {
-          throw new Error('Failed to get user info from Google');
-        }
-
-        const userInfo = await userInfoResponse.json();
-
-        // Get JWT token from our backend
-        const backendResponse = await fetch(`${import.meta.env.VITE_API_URL}/api/auth/google`, {
+        console.log('Google OAuth success:', { code: codeResponse.code, role });
+        
+        // Exchange code for tokens using our backend
+        const tokenResponse = await fetch(`${import.meta.env.VITE_API_URL}/api/auth/google/callback`, {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
           },
           body: JSON.stringify({
-            token: tokenResponse.access_token,
-            email: userInfo.email,
-            name: userInfo.name,
-            picture: userInfo.picture,
+            code: codeResponse.code,
             role,
           }),
         });
 
-        if (!backendResponse.ok) {
-          const errorData = await backendResponse.json().catch(() => ({ message: 'Failed to authenticate with backend' }));
-          throw new Error(errorData.message || 'Failed to authenticate with backend');
+        const data = await tokenResponse.json();
+
+        if (!tokenResponse.ok) {
+          throw new Error(data.message || 'Failed to exchange code for token');
         }
 
-        const data = await backendResponse.json();
-        
-        if (!data.token) {
-          throw new Error('No token received from backend');
+        if (!data.token || !data.userInfo) {
+          throw new Error('Invalid response from server');
         }
 
         // Login with role and token
         await login({
-          sub: userInfo.sub,
-          name: userInfo.name,
-          email: userInfo.email,
-          picture: userInfo.picture,
+          sub: data.userInfo.sub,
+          name: data.userInfo.name,
+          email: data.userInfo.email,
+          picture: data.userInfo.picture,
           role,
           token: data.token,
         });
@@ -69,8 +54,8 @@ export default function GoogleLogin({ role }: GoogleLoginProps) {
       console.error('Google OAuth error:', error);
       // You can add a toast notification here to show the error to the user
     },
-    flow: 'implicit',
-    scope: 'email profile',
+    flow: 'auth-code',
+    redirect_uri: 'https://spotlight-frontend.vercel.app',
   });
 
   return (

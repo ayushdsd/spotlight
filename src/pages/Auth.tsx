@@ -1,5 +1,5 @@
-import { useState } from 'react';
-import { Link } from 'react-router-dom';
+import { useState, useEffect } from 'react';
+import { Link, useSearchParams, Routes, Route, Navigate } from 'react-router-dom';
 import { GoogleOAuthProvider } from '@react-oauth/google';
 import GoogleLogin from '../components/GoogleLogin';
 import LoginAnimation from '../components/auth/LoginAnimation';
@@ -7,8 +7,17 @@ import LoginAnimation from '../components/auth/LoginAnimation';
 const ARTIST_CLIENT_ID = import.meta.env.VITE_GOOGLE_ARTIST_CLIENT_ID || '';
 const RECRUITER_CLIENT_ID = import.meta.env.VITE_GOOGLE_RECRUITER_CLIENT_ID || '';
 
-export default function Auth() {
-  const [selectedRole, setSelectedRole] = useState<'artist' | 'recruiter'>('artist');
+function LoginPage() {
+  const [selectedRole, setSelectedRole] = useState<'artist' | 'recruiter'>(() => {
+    // Try to get role from localStorage
+    const savedRole = localStorage.getItem('selectedRole');
+    return (savedRole === 'artist' || savedRole === 'recruiter') ? savedRole : 'artist';
+  });
+
+  // Save selected role to localStorage
+  useEffect(() => {
+    localStorage.setItem('selectedRole', selectedRole);
+  }, [selectedRole]);
 
   return (
     <div className="min-h-screen bg-gray-50 flex items-center justify-center p-4">
@@ -55,39 +64,61 @@ export default function Auth() {
             </div>
           </div>
 
-          {/* Google Login */}
+          {/* Google Sign In */}
           <div>
-            <div className="relative">
-              <div className="absolute inset-0 flex items-center">
-                <div className="w-full border-t border-gray-200"></div>
-              </div>
-              <div className="relative flex justify-center text-sm">
-                <span className="px-2 bg-white text-gray-500">Continue with</span>
-              </div>
-            </div>
-
-            <div className="mt-6">
-              <GoogleOAuthProvider 
-                clientId={selectedRole === 'artist' ? ARTIST_CLIENT_ID : RECRUITER_CLIENT_ID}
-              >
-                <GoogleLogin role={selectedRole} />
-              </GoogleOAuthProvider>
-            </div>
+            <GoogleOAuthProvider 
+              clientId={selectedRole === 'artist' ? ARTIST_CLIENT_ID : RECRUITER_CLIENT_ID}
+            >
+              <GoogleLogin role={selectedRole} />
+            </GoogleOAuthProvider>
           </div>
-        </div>
 
-        {/* Footer */}
-        <p className="mt-8 text-center text-sm text-gray-500">
-          By continuing, you agree to our{' '}
-          <Link to="/terms" className="text-blue-600 hover:text-blue-700">
-            Terms of Service
-          </Link>{' '}
-          and{' '}
-          <Link to="/privacy" className="text-blue-600 hover:text-blue-700">
-            Privacy Policy
-          </Link>
-        </p>
+          {/* Terms and Privacy */}
+          <p className="text-sm text-gray-500 text-center">
+            By continuing, you agree to our{' '}
+            <Link to="/terms" className="text-blue-600 hover:text-blue-700">
+              Terms of Service
+            </Link>{' '}
+            and{' '}
+            <Link to="/privacy" className="text-blue-600 hover:text-blue-700">
+              Privacy Policy
+            </Link>
+          </p>
+        </div>
       </div>
     </div>
+  );
+}
+
+export default function Auth() {
+  const [searchParams] = useSearchParams();
+
+  // Handle OAuth redirect
+  useEffect(() => {
+    const code = searchParams.get('code');
+    const error = searchParams.get('error');
+
+    if (error) {
+      console.error('Google OAuth error:', error);
+      return;
+    }
+
+    if (code) {
+      console.log('Received authorization code:', code);
+      // The code will be handled by @react-oauth/google automatically
+      // We just need to ensure the role is preserved during the redirect
+      const savedRole = localStorage.getItem('selectedRole');
+      if (savedRole === 'artist' || savedRole === 'recruiter') {
+        // Role is already saved in localStorage
+        console.log('Using saved role:', savedRole);
+      }
+    }
+  }, [searchParams]);
+
+  return (
+    <Routes>
+      <Route index element={<LoginPage />} />
+      <Route path="*" element={<Navigate to="/auth" replace />} />
+    </Routes>
   );
 }
