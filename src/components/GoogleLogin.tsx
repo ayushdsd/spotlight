@@ -18,10 +18,15 @@ export default function GoogleLogin({ role }: GoogleLoginProps) {
     redirect_uri: redirectUri,
     onSuccess: async (codeResponse) => {
       try {
-        console.log('Google OAuth success:', {
-          code_length: codeResponse.code?.length,
+        const requestBody = {
+          code: codeResponse.code,
           role,
           redirect_uri: redirectUri
+        };
+
+        console.log('Sending request to server:', {
+          ...requestBody,
+          code: requestBody.code ? `[${requestBody.code.length} chars]` : undefined
         });
         
         // Exchange code for tokens using our backend
@@ -30,20 +35,23 @@ export default function GoogleLogin({ role }: GoogleLoginProps) {
           headers: {
             'Content-Type': 'application/json',
           },
-          body: JSON.stringify({
-            code: codeResponse.code,
-            role,
-            redirect_uri: redirectUri
-          }),
+          body: JSON.stringify(requestBody),
         });
 
+        const data = await tokenResponse.json();
+
         if (!tokenResponse.ok) {
-          const errorData = await tokenResponse.json();
-          console.error('Token exchange failed:', errorData);
-          throw new Error(errorData.message || 'Failed to exchange token');
+          console.error('Token exchange failed:', {
+            status: tokenResponse.status,
+            data,
+            requestBody: {
+              ...requestBody,
+              code: requestBody.code ? `[${requestBody.code.length} chars]` : undefined
+            }
+          });
+          throw new Error(data.message || 'Failed to exchange token');
         }
 
-        const data = await tokenResponse.json();
         console.log('Token exchange successful');
         
         // Update auth context with user data

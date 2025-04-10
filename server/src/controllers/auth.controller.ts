@@ -12,6 +12,14 @@ const GOOGLE_RECRUITER_CLIENT_SECRET = process.env.GOOGLE_RECRUITER_CLIENT_SECRE
 
 export const googleCallback = async (req: Request, res: Response) => {
   try {
+    console.log('Received request:', {
+      body: req.body,
+      headers: {
+        'content-type': req.headers['content-type'],
+        origin: req.headers.origin
+      }
+    });
+
     const { code, role, redirect_uri } = req.body;
 
     // Log all environment variables (redacted)
@@ -28,7 +36,10 @@ export const googleCallback = async (req: Request, res: Response) => {
         hasCode: !!code, 
         hasRole: !!role,
         hasRedirectUri: !!redirect_uri,
-        body: req.body
+        body: {
+          ...req.body,
+          code: req.body.code ? `[${req.body.code.length} chars]` : undefined
+        }
       });
       return res.status(400).json({ 
         message: 'Code, role, and redirect_uri are required',
@@ -36,7 +47,10 @@ export const googleCallback = async (req: Request, res: Response) => {
           hasCode: !!code,
           hasRole: !!role,
           hasRedirectUri: !!redirect_uri,
-          body: req.body
+          body: {
+            ...req.body,
+            code: req.body.code ? `[${req.body.code.length} chars]` : undefined
+          }
         }
       });
     }
