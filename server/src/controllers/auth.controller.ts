@@ -7,12 +7,15 @@ const JWT_SECRET = process.env.JWT_SECRET;
 
 export const googleCallback = async (req: Request, res: Response) => {
   try {
+    console.log('Received request body:', req.body);
     const { code, role } = req.body;
 
     if (!code) {
+      console.log('No authorization code provided');
       return res.status(400).json({ message: 'Authorization code is required' });
     }
 
+    console.log('Attempting to exchange code for tokens');
     // Exchange code for tokens directly with Google
     const tokenResponse = await fetch('https://oauth2.googleapis.com/token', {
       method: 'POST',

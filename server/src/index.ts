@@ -18,35 +18,28 @@ dotenv.config();
 // Create Express app
 const app: Application = express();
 
-// CORS configuration
-const allowedOrigins = [
-  'http://localhost:5173',  // Local development
-  'https://spotlightcast.vercel.app', // Production frontend
-  'https://spotlight-app.vercel.app', // Alternative production frontend
-  process.env.CORS_ORIGIN, // Dynamic origin from environment
-].filter(Boolean); // Remove any undefined values
-
+// Middleware
 app.use(cors({
-  origin: (origin, callback) => {
-    // Allow requests with no origin (like mobile apps or curl requests)
-    if (!origin) return callback(null, true);
-    if (allowedOrigins.indexOf(origin) === -1) {
-      const msg = 'The CORS policy for this site does not allow access from the specified Origin.';
-      return callback(new Error(msg), false);
-    }
-    return callback(null, true);
-  },
+  origin: ['http://localhost:5173', 'https://spotlight-frontend.vercel.app'],
   credentials: true,
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
   allowedHeaders: ['Content-Type', 'Authorization'],
 }));
-
-// Body parser middleware
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
 // Cloudinary configuration
 cloudinaryConfig();
+
+// Connect to MongoDB
+mongoose
+  .connect(process.env.MONGODB_URI || 'mongodb://localhost:27017/spotlight')
+  .then(() => {
+    console.log('Connected to MongoDB');
+  })
+  .catch((err) => {
+    console.error('Error connecting to MongoDB:', err);
+  });
 
 // Routes
 app.use('/api/auth', authRoutes);
@@ -56,20 +49,21 @@ app.use('/api/users', userRoutes);
 app.use('/api/search', searchRoutes);
 app.use('/api/portfolio', portfolioRoutes);
 
-// Error handling middleware
-app.use((err: Error, req: Request, res: Response, next: NextFunction) => {
-  console.error(err.stack);
-  res.status(500).json({ message: 'Something broke!' });
+// Health check route
+app.get('/health', (req: Request, res: Response) => {
+  res.json({ status: 'ok' });
 });
 
-// Connect to MongoDB
-const MONGODB_URI = process.env.MONGODB_URI || 'mongodb://localhost:27017/spotlight';
-mongoose.connect(MONGODB_URI)
-  .then(() => console.log('Connected to MongoDB'))
-  .catch((err) => console.error('MongoDB connection error:', err));
+// Error handling middleware
+app.use((err: Error, req: Request, res: Response, next: NextFunction) => {
+  console.error('Error:', err);
+  res.status(500).json({ message: err.message || 'Something went wrong!' });
+});
+
+// Express configuration
+app.set('port', process.env.PORT || 5000);
 
 // Start server
-const PORT = process.env.PORT ? parseInt(process.env.PORT) : 5000;
-app.listen(PORT, () => {
-  console.log(`Server is running on port ${PORT}`);
+app.listen(app.get('port'), () => {
+  console.log(`Server is running on port ${app.get('port')}`);
 });
