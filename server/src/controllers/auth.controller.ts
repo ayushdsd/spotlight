@@ -21,7 +21,7 @@ export const googleCallback = async (req: Request, res: Response) => {
     }
 
     console.log('Received Google callback:', {
-      code: code.substring(0, 10) + '...',
+      code: '***redacted***',
       role,
       redirect_uri: process.env.GOOGLE_REDIRECT_URI
     });
