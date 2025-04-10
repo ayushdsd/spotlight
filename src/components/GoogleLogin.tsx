@@ -10,15 +10,18 @@ export default function GoogleLogin({ role }: GoogleLoginProps) {
   const { login } = useAuth();
   const navigate = useNavigate();
 
+  // Get the redirect URI without trailing slash
+  const redirectUri = window.location.origin.replace(/\/$/, '');
+
   const handleGoogleLogin = useGoogleLogin({
     flow: 'auth-code',
-    redirect_uri: window.location.origin.replace(/\/$/, ''), // Remove trailing slash
+    redirect_uri: redirectUri,
     onSuccess: async (codeResponse) => {
       try {
         console.log('Google OAuth success:', {
           code_length: codeResponse.code?.length,
           role,
-          redirect_uri: window.location.origin.replace(/\/$/, '')
+          redirect_uri: redirectUri
         });
         
         // Exchange code for tokens using our backend
@@ -30,7 +33,7 @@ export default function GoogleLogin({ role }: GoogleLoginProps) {
           body: JSON.stringify({
             code: codeResponse.code,
             role,
-            redirect_uri: window.location.origin.replace(/\/$/, '') // Remove trailing slash
+            redirect_uri: redirectUri
           }),
         });
 
