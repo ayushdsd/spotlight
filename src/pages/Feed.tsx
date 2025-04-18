@@ -4,6 +4,7 @@ import PostComposer from '../components/common/PostComposer';
 import PostItem from '../components/common/PostItem';
 import axios from 'axios';
 import { useAuth } from '../contexts/AuthContext';
+import { API_BASE_URL } from '../utils/api';
 
 export interface Post {
   _id: string;
@@ -19,8 +20,6 @@ export interface Post {
 }
 
 const PAGE_SIZE = 10;
-
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:5000';
 
 const Feed = () => {
   const { user } = useAuth();

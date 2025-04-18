@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import axios from 'axios';
 import JobList, { Job } from '../job/JobList';
+import { API_BASE_URL } from '../../utils/api';
 
 const BrowseGigs = () => {
   const [jobs, setJobs] = useState<Job[]>([]);
@@ -15,7 +16,7 @@ const BrowseGigs = () => {
     try {
       setLoading(true);
       setError(null);
-      const response = await axios.get('http://localhost:5000/api/jobs');
+      const response = await axios.get(`${API_BASE_URL}/api/jobs`);
       // Only show first 6 jobs on landing page
       setJobs(response.data.slice(0, 6));
     } catch (error: any) {

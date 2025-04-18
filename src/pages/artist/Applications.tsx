@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import axios from 'axios';
 import DashboardLayout from '../../components/layout/DashboardLayout';
 import { useAuth } from '../../contexts/AuthContext';
+import { API_BASE_URL } from '../../utils/api';
 
 interface Application {
   id: number;
@@ -34,7 +35,7 @@ const Applications = () => {
       setLoading(true);
       setError(null);
       const userToken = user?.token;
-      const response = await axios.get('http://localhost:5000/api/applications', {
+      const response = await axios.get(`${API_BASE_URL}/api/applications`, {
         headers: {
           Authorization: `Bearer ${userToken}`,
         },

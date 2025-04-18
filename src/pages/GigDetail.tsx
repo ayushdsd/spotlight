@@ -4,6 +4,7 @@ import axios from 'axios';
 import JobApplicationForm from '../components/job/JobApplicationForm';
 import DashboardLayout from '../components/layout/DashboardLayout';
 import { useAuth } from '../contexts/AuthContext';
+import { API_BASE_URL } from '../utils/api';
 
 interface Job {
   id: string;
@@ -43,7 +44,7 @@ const GigDetail = () => {
       setLoading(true);
       setError(null);
       const token = localStorage.getItem('token');
-      const response = await axios.get(`http://localhost:5000/api/jobs/${id}`, {
+      const response = await axios.get(`${API_BASE_URL}/api/jobs/${id}`, {
         headers: {
           Authorization: `Bearer ${token}`,
         },

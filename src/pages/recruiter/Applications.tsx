@@ -3,6 +3,7 @@ import { useParams, Navigate } from 'react-router-dom';
 import axios from 'axios';
 import DashboardLayout from '../../components/layout/DashboardLayout';
 import { useAuth } from '../../contexts/AuthContext';
+import { API_BASE_URL } from '../../utils/api';
 
 interface Application {
   _id: string;
@@ -63,10 +64,10 @@ const JobApplications = () => {
 
         const token = localStorage.getItem('token');
         const [jobResponse, applicationsResponse] = await Promise.all([
-          axios.get(`http://localhost:5000/api/jobs/${jobId}`, {
+          axios.get(`${API_BASE_URL}/api/jobs/${jobId}`, {
             headers: { Authorization: `Bearer ${token}` },
           }),
-          axios.get(`http://localhost:5000/api/jobs/${jobId}/applications`, {
+          axios.get(`${API_BASE_URL}/api/jobs/${jobId}/applications`, {
             headers: { Authorization: `Bearer ${token}` },
           }),
         ]);
@@ -88,7 +89,7 @@ const JobApplications = () => {
     try {
       const token = localStorage.getItem('token');
       await axios.patch(
-        `http://localhost:5000/api/applications/${applicationId}/status`,
+        `${API_BASE_URL}/api/applications/${applicationId}/status`,
         { status },
         {
           headers: { Authorization: `Bearer ${token}` },

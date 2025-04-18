@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
+import { API_BASE_URL } from '../../utils/api';
 
 interface JobApplicationFormProps {
   jobId: string;
@@ -34,7 +35,7 @@ const JobApplicationForm: React.FC<JobApplicationFormProps> = ({ jobId, onSubmit
       setLoading(true);
       setError(null);
       const token = localStorage.getItem('token');
-      const response = await axios.get('http://localhost:5000/api/users/profile', {
+      const response = await axios.get(`${API_BASE_URL}/api/users/profile`, {
         headers: {
           'Authorization': `Bearer ${token}`,
         },
@@ -59,7 +60,7 @@ const JobApplicationForm: React.FC<JobApplicationFormProps> = ({ jobId, onSubmit
       const token = localStorage.getItem('token');
       
       await axios.post(
-        `http://localhost:5000/api/jobs/${jobId}/apply`,
+        `${API_BASE_URL}/api/jobs/${jobId}/apply`,
         {
           ...formData,
           portfolioLinks: selectedLinks,

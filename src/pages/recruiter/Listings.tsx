@@ -3,6 +3,7 @@ import { Link, Navigate } from 'react-router-dom';
 import axios from 'axios';
 import DashboardLayout from '../../components/layout/DashboardLayout';
 import { useAuth } from '../../contexts/AuthContext';
+import { API_BASE_URL } from '../../utils/api';
 
 interface Job {
   _id: string;
@@ -49,7 +50,7 @@ const RecruiterListings = () => {
         setError(null);
 
         const token = localStorage.getItem('token');
-        const response = await axios.get('http://localhost:5000/api/recruiter/jobs', {
+        const response = await axios.get(`${API_BASE_URL}/api/recruiter/jobs`, {
           headers: {
             Authorization: `Bearer ${token}`,
           },
@@ -71,7 +72,7 @@ const RecruiterListings = () => {
     try {
       const token = localStorage.getItem('token');
       await axios.patch(
-        `http://localhost:5000/api/jobs/${jobId}/status`,
+        `${API_BASE_URL}/api/jobs/${jobId}/status`,
         { status: 'closed' },
         {
           headers: {
@@ -96,7 +97,7 @@ const RecruiterListings = () => {
 
     try {
       const token = localStorage.getItem('token');
-      await axios.delete(`http://localhost:5000/api/jobs/${jobId}`, {
+      await axios.delete(`${API_BASE_URL}/api/jobs/${jobId}`, {
         headers: {
           Authorization: `Bearer ${token}`,
         },

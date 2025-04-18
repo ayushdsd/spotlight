@@ -4,6 +4,7 @@ import axios from 'axios';
 import DashboardLayout from '../components/layout/DashboardLayout';
 import SearchBar from '../components/search/SearchBar';
 import FilterPanel, { SearchFilters } from '../components/search/FilterPanel';
+import { API_BASE_URL } from '../utils/api';
 
 interface Artist {
   _id: string;
@@ -46,7 +47,7 @@ const ArtistDiscovery = () => {
       });
 
       const token = localStorage.getItem('token');
-      const response = await axios.get(`http://localhost:5000/api/search/artists?${params}`, {
+      const response = await axios.get(`${API_BASE_URL}/api/search/artists?${params}`, {
         headers: {
           Authorization: `Bearer ${token}`,
         },

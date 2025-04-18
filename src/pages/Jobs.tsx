@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import DashboardLayout from '../components/layout/DashboardLayout';
 import JobList, { Job } from '../components/job/JobList';
 import axios from 'axios';
+import { API_BASE_URL } from '../utils/api';
 
 const categories = [
   { id: 'all', name: 'All Jobs' },
@@ -26,7 +27,7 @@ const Jobs = () => {
     try {
       setLoading(true);
       setError(null);
-      const response = await axios.get('http://localhost:5000/api/jobs');
+      const response = await axios.get(`${API_BASE_URL}/api/jobs`);
       setJobs(response.data);
     } catch (error: any) {
       console.error('Error fetching jobs:', error);

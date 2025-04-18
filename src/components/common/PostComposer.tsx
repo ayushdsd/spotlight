@@ -2,12 +2,11 @@ import { useState } from 'react';
 import axios from 'axios';
 import { useAuth } from '../../contexts/AuthContext';
 import { Post } from '../../pages/Feed';
+import { API_BASE_URL } from '../../utils/api';
 
 interface PostComposerProps {
   onPost: (post: Post) => void;
 }
-
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:5000';
 
 const PostComposer = ({ onPost }: PostComposerProps) => {
   const { user } = useAuth();

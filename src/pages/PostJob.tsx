@@ -3,6 +3,7 @@ import { useNavigate, Navigate } from 'react-router-dom';
 import DashboardLayout from '../components/layout/DashboardLayout';
 import { useAuth } from '../contexts/AuthContext';
 import axios from 'axios';
+import { API_BASE_URL } from '../utils/api';
 
 interface JobFormData {
   title: string;
@@ -66,7 +67,7 @@ const PostJob = () => {
 
       const token = localStorage.getItem('token');
       await axios.post(
-        'http://localhost:5000/api/jobs',
+        `${API_BASE_URL}/api/jobs`,
         formData,
         {
           headers: {
