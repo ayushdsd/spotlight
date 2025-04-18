@@ -33,9 +33,10 @@ const Applications = () => {
     try {
       setLoading(true);
       setError(null);
+      const userToken = user?.token;
       const response = await axios.get('http://localhost:5000/api/applications', {
         headers: {
-          Authorization: `Bearer ${user?.token}`,
+          Authorization: `Bearer ${userToken}`,
         },
       });
       setApplications(response.data);

@@ -82,6 +82,7 @@ const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:5000
 
 export default function Profile() {
   const { user } = useAuth();
+  const userId = user?._id || user?.id;
   const [formData, setFormData] = useState<ProfileFormData>(emptyFormData);
   const [saving, setSaving] = useState(false);
   const [loading, setLoading] = useState(true);
@@ -94,14 +95,14 @@ export default function Profile() {
   const [postsError, setPostsError] = useState<string | null>(null);
 
   useEffect(() => {
-    if (user?.id || user?._id) {
+    if (userId) {
       fetchUserProfile();
       fetchUserPosts();
     } else {
       setLoading(false);
       setError('Please log in to view your profile');
     }
-  }, [user?.id, user?._id]);
+  }, [userId]);
 
   const fetchUserProfile = async () => {
     try {
@@ -130,7 +131,7 @@ export default function Profile() {
       setPostsLoading(true);
       setPostsError(null);
       const token = localStorage.getItem('token');
-      const response = await axios.get(`${API_BASE_URL}/api/users/${user?._id || user?.id}/posts`, {
+      const response = await axios.get(`${API_BASE_URL}/api/users/${userId}/posts`, {
         headers: { Authorization: `Bearer ${token}` },
       });
       setPosts(response.data.posts || []);
@@ -229,8 +230,6 @@ export default function Profile() {
       </DashboardLayout>
     );
   }
-
-  const displayData = viewMode === 'edit' ? formData : formData; // For recruiter preview, you could mask/hide edit controls
 
   return (
     <DashboardLayout>

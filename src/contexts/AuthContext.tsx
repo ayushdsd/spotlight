@@ -1,12 +1,15 @@
 import { createContext, useContext, useState, ReactNode, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 
-interface User {
+// --- USER INTERFACE ---
+export interface User {
   id: string;
+  _id?: string; // Add for backend compatibility
   name: string;
   email: string;
   picture?: string;
   role: 'artist' | 'recruiter';
+  token?: string; // Add for backend compatibility
 }
 
 interface AuthContextType {
