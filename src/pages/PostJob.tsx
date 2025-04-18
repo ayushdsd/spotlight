@@ -1,6 +1,8 @@
 import { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Navigate } from 'react-router-dom';
 import DashboardLayout from '../components/layout/DashboardLayout';
+import { useAuth } from '../contexts/AuthContext';
+import axios from 'axios';
 
 interface JobFormData {
   title: string;
@@ -10,9 +12,16 @@ interface JobFormData {
   category: string;
   salary: string;
   description: string;
-  requirements: string;
-  deadline: string;
-  skills: string[];
+  requirements: string[];
+  benefits: string[];
+  applicationDeadline: string;
+  startDate: string;
+  companyInfo: {
+    name: string;
+    description: string;
+    website: string;
+    location: string;
+  };
 }
 
 const initialFormData: JobFormData = {
@@ -23,249 +32,380 @@ const initialFormData: JobFormData = {
   category: 'acting',
   salary: '',
   description: '',
-  requirements: '',
-  deadline: '',
-  skills: [],
+  requirements: [],
+  benefits: [],
+  applicationDeadline: '',
+  startDate: '',
+  companyInfo: {
+    name: '',
+    description: '',
+    website: '',
+    location: ''
+  }
 };
 
 const PostJob = () => {
   const navigate = useNavigate();
+  const { user } = useAuth();
   const [formData, setFormData] = useState<JobFormData>(initialFormData);
-  const [newSkill, setNewSkill] = useState('');
+  const [newRequirement, setNewRequirement] = useState('');
+  const [newBenefit, setNewBenefit] = useState('');
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
-  const handleSubmit = (e: React.FormEvent) => {
+  // Only recruiters can post jobs
+  if (!user || user.role !== 'recruiter') {
+    return <Navigate to="/auth" replace />;
+  }
+
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    // Handle job posting submission
-    console.log('Job posted:', formData);
-    navigate('/jobs');
+    try {
+      setLoading(true);
+      setError(null);
+
+      const token = localStorage.getItem('token');
+      await axios.post(
+        'http://localhost:5000/api/jobs',
+        formData,
+        {
+          headers: {
+            'Authorization': `Bearer ${token}`,
+            'Content-Type': 'application/json',
+          },
+        }
+      );
+
+      navigate('/recruiter/listings');
+    } catch (error: any) {
+      console.error('Error posting job:', error);
+      setError(error.response?.data?.error || 'Error posting job');
+    } finally {
+      setLoading(false);
+    }
   };
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target;
-    setFormData(prev => ({ ...prev, [name]: value }));
-  };
-
-  const addSkill = () => {
-    if (newSkill.trim() && !formData.skills.includes(newSkill.trim())) {
-      setFormData({
-        ...formData,
-        skills: [...formData.skills, newSkill.trim()],
-      });
-      setNewSkill('');
+    if (name.startsWith('companyInfo.')) {
+      const field = name.split('.')[1];
+      setFormData(prev => ({
+        ...prev,
+        companyInfo: {
+          ...prev.companyInfo,
+          [field]: value
+        }
+      }));
+    } else {
+      setFormData(prev => ({ ...prev, [name]: value }));
     }
   };
 
-  const removeSkill = (skillToRemove: string) => {
+  const addRequirement = () => {
+    if (newRequirement.trim() && !formData.requirements.includes(newRequirement.trim())) {
+      setFormData({
+        ...formData,
+        requirements: [...formData.requirements, newRequirement.trim()],
+      });
+      setNewRequirement('');
+    }
+  };
+
+  const removeRequirement = (index: number) => {
     setFormData({
       ...formData,
-      skills: formData.skills.filter(skill => skill !== skillToRemove),
+      requirements: formData.requirements.filter((_, i) => i !== index),
+    });
+  };
+
+  const addBenefit = () => {
+    if (newBenefit.trim() && !formData.benefits.includes(newBenefit.trim())) {
+      setFormData({
+        ...formData,
+        benefits: [...formData.benefits, newBenefit.trim()],
+      });
+      setNewBenefit('');
+    }
+  };
+
+  const removeBenefit = (index: number) => {
+    setFormData({
+      ...formData,
+      benefits: formData.benefits.filter((_, i) => i !== index),
     });
   };
 
   return (
     <DashboardLayout>
-      <div className="perspective-1000">
-        {/* Header Section */}
-        <div className="mb-8 transform-style-3d hover:translate-z-2 transition-transform">
-          <h1 className="text-3xl font-minimal font-bold text-gray-900 mb-2 animate-fade-in">Post a Job</h1>
-          <p className="text-gray-600">Create a new opportunity for talented artists</p>
+      <div className="max-w-4xl mx-auto py-8">
+        <div className="mb-8">
+          <h1 className="text-3xl font-bold text-gray-900">Post a New Job</h1>
+          <p className="mt-2 text-gray-600">Create a new opportunity for talented artists</p>
         </div>
 
-        {/* Form Section */}
-        <div className="max-w-3xl mx-auto">
-          <form onSubmit={handleSubmit} className="space-y-6">
-            <div className="bg-white rounded-xl border border-gray-100 p-6 shadow-sm transform-style-3d hover:translate-z-2 transition-transform">
-              {/* Basic Information */}
-              <div className="space-y-4">
-                <h2 className="text-xl font-minimal font-bold text-gray-900 mb-4">Basic Information</h2>
-                
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <div className="transform-style-3d hover:translate-z-1 transition-transform">
-                    <label className="block text-sm font-medium text-gray-700 mb-1">Job Title</label>
-                    <input
-                      type="text"
-                      name="title"
-                      value={formData.title}
-                      onChange={handleChange}
-                      required
-                      className="w-full px-4 py-2 rounded-lg border border-gray-200 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                      placeholder="e.g. Lead Actor, Dance Instructor"
-                    />
-                  </div>
+        {error && (
+          <div className="mb-6 bg-red-50 border border-red-200 text-red-600 px-4 py-3 rounded-lg">
+            {error}
+          </div>
+        )}
 
-                  <div className="transform-style-3d hover:translate-z-1 transition-transform">
-                    <label className="block text-sm font-medium text-gray-700 mb-1">Company Name</label>
-                    <input
-                      type="text"
-                      name="company"
-                      value={formData.company}
-                      onChange={handleChange}
-                      required
-                      className="w-full px-4 py-2 rounded-lg border border-gray-200 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                      placeholder="Your company name"
-                    />
-                  </div>
-                </div>
-
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <div className="transform-style-3d hover:translate-z-1 transition-transform">
-                    <label className="block text-sm font-medium text-gray-700 mb-1">Location</label>
-                    <input
-                      type="text"
-                      name="location"
-                      value={formData.location}
-                      onChange={handleChange}
-                      required
-                      className="w-full px-4 py-2 rounded-lg border border-gray-200 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                      placeholder="City, Country"
-                    />
-                  </div>
-
-                  <div className="transform-style-3d hover:translate-z-1 transition-transform">
-                    <label className="block text-sm font-medium text-gray-700 mb-1">Salary Range</label>
-                    <input
-                      type="text"
-                      name="salary"
-                      value={formData.salary}
-                      onChange={handleChange}
-                      required
-                      className="w-full px-4 py-2 rounded-lg border border-gray-200 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                      placeholder="e.g. $50k - $70k"
-                    />
-                  </div>
-                </div>
-
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <div className="transform-style-3d hover:translate-z-1 transition-transform">
-                    <label className="block text-sm font-medium text-gray-700 mb-1">Job Type</label>
-                    <select
-                      name="type"
-                      value={formData.type}
-                      onChange={handleChange}
-                      required
-                      className="w-full px-4 py-2 rounded-lg border border-gray-200 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                    >
-                      <option value="Full-time">Full-time</option>
-                      <option value="Part-time">Part-time</option>
-                      <option value="Contract">Contract</option>
-                      <option value="Freelance">Freelance</option>
-                    </select>
-                  </div>
-
-                  <div className="transform-style-3d hover:translate-z-1 transition-transform">
-                    <label className="block text-sm font-medium text-gray-700 mb-1">Category</label>
-                    <select
-                      name="category"
-                      value={formData.category}
-                      onChange={handleChange}
-                      required
-                      className="w-full px-4 py-2 rounded-lg border border-gray-200 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                    >
-                      <option value="acting">Acting</option>
-                      <option value="music">Music</option>
-                      <option value="dance">Dance</option>
-                      <option value="theater">Theater</option>
-                    </select>
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            {/* Job Details */}
-            <div className="bg-white rounded-xl border border-gray-100 p-6 shadow-sm transform-style-3d hover:translate-z-2 transition-transform">
-              <h2 className="text-xl font-minimal font-bold text-gray-900 mb-4">Job Details</h2>
-              
-              <div className="space-y-4">
-                <div className="transform-style-3d hover:translate-z-1 transition-transform">
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Job Description</label>
-                  <textarea
-                    name="description"
-                    value={formData.description}
-                    onChange={handleChange}
-                    required
-                    rows={6}
-                    className="w-full px-4 py-2 rounded-lg border border-gray-200 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                    placeholder="Describe the role, responsibilities, and expectations..."
-                  />
-                </div>
-
-                <div className="transform-style-3d hover:translate-z-1 transition-transform">
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Requirements</label>
-                  <textarea
-                    name="requirements"
-                    value={formData.requirements}
-                    onChange={handleChange}
-                    required
-                    rows={4}
-                    className="w-full px-4 py-2 rounded-lg border border-gray-200 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                    placeholder="List the required skills, experience, and qualifications..."
-                  />
-                </div>
-
-                <div className="transform-style-3d hover:translate-z-1 transition-transform">
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Application Deadline</label>
-                  <input
-                    type="date"
-                    name="deadline"
-                    value={formData.deadline}
-                    onChange={handleChange}
-                    required
-                    className="w-full px-4 py-2 rounded-lg border border-gray-200 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                  />
-                </div>
-              </div>
-            </div>
-
-            {/* Skills */}
-            <div className="bg-white rounded-xl border border-gray-100 p-6 shadow-sm transform-style-3d hover:translate-z-2 transition-transform">
-              <h2 className="text-xl font-minimal font-bold text-gray-900 mb-4">Required Skills</h2>
-              <div className="flex flex-wrap gap-2 mb-4">
-                {formData.skills.map((skill) => (
-                  <span
-                    key={skill}
-                    className="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-primary-50 text-primary-700"
-                  >
-                    {skill}
-                    <button
-                      type="button"
-                      onClick={() => removeSkill(skill)}
-                      className="ml-2 text-primary-600 hover:text-primary-800"
-                    >
-                      ×
-                    </button>
-                  </span>
-                ))}
-              </div>
-              <div className="flex gap-2">
+        <form onSubmit={handleSubmit} className="space-y-8">
+          {/* Basic Information */}
+          <div className="bg-white rounded-lg shadow p-6 space-y-6">
+            <h2 className="text-xl font-semibold text-gray-900">Basic Information</h2>
+            
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div>
+                <label className="block text-sm font-medium text-gray-700">Job Title</label>
                 <input
                   type="text"
-                  value={newSkill}
-                  onChange={(e) => setNewSkill(e.target.value)}
-                  className="flex-1 px-4 py-2 rounded-lg border border-gray-200 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                  placeholder="Add a required skill..."
-                  onKeyPress={(e) => e.key === 'Enter' && addSkill()}
+                  name="title"
+                  value={formData.title}
+                  onChange={handleChange}
+                  required
+                  className="mt-1 block w-full rounded-md border border-gray-300 py-2 px-3 shadow-sm focus:border-blue-500 focus:ring-blue-500"
+                  placeholder="e.g. Lead Actor"
+                />
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700">Location</label>
+                <input
+                  type="text"
+                  name="location"
+                  value={formData.location}
+                  onChange={handleChange}
+                  required
+                  className="mt-1 block w-full rounded-md border border-gray-300 py-2 px-3 shadow-sm focus:border-blue-500 focus:ring-blue-500"
+                  placeholder="e.g. New York, NY"
+                />
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700">Job Type</label>
+                <select
+                  name="type"
+                  value={formData.type}
+                  onChange={handleChange}
+                  required
+                  className="mt-1 block w-full rounded-md border border-gray-300 py-2 px-3 shadow-sm focus:border-blue-500 focus:ring-blue-500"
+                >
+                  <option value="Full-time">Full-time</option>
+                  <option value="Part-time">Part-time</option>
+                  <option value="Contract">Contract</option>
+                  <option value="Freelance">Freelance</option>
+                </select>
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700">Category</label>
+                <select
+                  name="category"
+                  value={formData.category}
+                  onChange={handleChange}
+                  required
+                  className="mt-1 block w-full rounded-md border border-gray-300 py-2 px-3 shadow-sm focus:border-blue-500 focus:ring-blue-500"
+                >
+                  <option value="acting">Acting</option>
+                  <option value="music">Music</option>
+                  <option value="dance">Dance</option>
+                  <option value="theater">Theater</option>
+                </select>
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700">Salary Range</label>
+                <input
+                  type="text"
+                  name="salary"
+                  value={formData.salary}
+                  onChange={handleChange}
+                  required
+                  className="mt-1 block w-full rounded-md border border-gray-300 py-2 px-3 shadow-sm focus:border-blue-500 focus:ring-blue-500"
+                  placeholder="e.g. $50,000 - $70,000"
+                />
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700">Start Date</label>
+                <input
+                  type="date"
+                  name="startDate"
+                  value={formData.startDate}
+                  onChange={handleChange}
+                  required
+                  className="mt-1 block w-full rounded-md border border-gray-300 py-2 px-3 shadow-sm focus:border-blue-500 focus:ring-blue-500"
+                />
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700">Application Deadline</label>
+                <input
+                  type="date"
+                  name="applicationDeadline"
+                  value={formData.applicationDeadline}
+                  onChange={handleChange}
+                  required
+                  className="mt-1 block w-full rounded-md border border-gray-300 py-2 px-3 shadow-sm focus:border-blue-500 focus:ring-blue-500"
+                />
+              </div>
+            </div>
+          </div>
+
+          {/* Job Details */}
+          <div className="bg-white rounded-lg shadow p-6 space-y-6">
+            <h2 className="text-xl font-semibold text-gray-900">Job Details</h2>
+
+            <div>
+              <label className="block text-sm font-medium text-gray-700">Job Description</label>
+              <textarea
+                name="description"
+                value={formData.description}
+                onChange={handleChange}
+                required
+                rows={6}
+                className="mt-1 block w-full rounded-md border border-gray-300 py-2 px-3 shadow-sm focus:border-blue-500 focus:ring-blue-500"
+                placeholder="Describe the role, responsibilities, and expectations..."
+              />
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">Requirements</label>
+              <div className="flex gap-2 mb-2">
+                <input
+                  type="text"
+                  value={newRequirement}
+                  onChange={(e) => setNewRequirement(e.target.value)}
+                  className="flex-1 rounded-md border border-gray-300 py-2 px-3 shadow-sm focus:border-blue-500 focus:ring-blue-500"
+                  placeholder="Add a requirement..."
                 />
                 <button
                   type="button"
-                  onClick={addSkill}
-                  className="px-4 py-2 bg-primary-600 text-white rounded-lg hover:bg-primary-700 transition-colors"
+                  onClick={addRequirement}
+                  className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700"
                 >
                   Add
                 </button>
               </div>
+              <ul className="space-y-2">
+                {formData.requirements.map((req, index) => (
+                  <li key={index} className="flex items-center gap-2">
+                    <span className="flex-1 text-gray-700">{req}</span>
+                    <button
+                      type="button"
+                      onClick={() => removeRequirement(index)}
+                      className="text-red-600 hover:text-red-700"
+                    >
+                      Remove
+                    </button>
+                  </li>
+                ))}
+              </ul>
             </div>
 
-            {/* Submit Button */}
-            <div className="flex justify-end transform-style-3d hover:translate-z-2 transition-transform">
-              <button
-                type="submit"
-                className="px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transform hover:-translate-y-0.5 transition-all"
-              >
-                Post Job
-              </button>
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">Benefits</label>
+              <div className="flex gap-2 mb-2">
+                <input
+                  type="text"
+                  value={newBenefit}
+                  onChange={(e) => setNewBenefit(e.target.value)}
+                  className="flex-1 rounded-md border border-gray-300 py-2 px-3 shadow-sm focus:border-blue-500 focus:ring-blue-500"
+                  placeholder="Add a benefit..."
+                />
+                <button
+                  type="button"
+                  onClick={addBenefit}
+                  className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700"
+                >
+                  Add
+                </button>
+              </div>
+              <ul className="space-y-2">
+                {formData.benefits.map((benefit, index) => (
+                  <li key={index} className="flex items-center gap-2">
+                    <span className="flex-1 text-gray-700">{benefit}</span>
+                    <button
+                      type="button"
+                      onClick={() => removeBenefit(index)}
+                      className="text-red-600 hover:text-red-700"
+                    >
+                      Remove
+                    </button>
+                  </li>
+                ))}
+              </ul>
             </div>
-          </form>
-        </div>
+          </div>
+
+          {/* Company Information */}
+          <div className="bg-white rounded-lg shadow p-6 space-y-6">
+            <h2 className="text-xl font-semibold text-gray-900">Company Information</h2>
+            
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div>
+                <label className="block text-sm font-medium text-gray-700">Company Name</label>
+                <input
+                  type="text"
+                  name="companyInfo.name"
+                  value={formData.companyInfo.name}
+                  onChange={handleChange}
+                  required
+                  className="mt-1 block w-full rounded-md border border-gray-300 py-2 px-3 shadow-sm focus:border-blue-500 focus:ring-blue-500"
+                />
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700">Company Website</label>
+                <input
+                  type="url"
+                  name="companyInfo.website"
+                  value={formData.companyInfo.website}
+                  onChange={handleChange}
+                  required
+                  className="mt-1 block w-full rounded-md border border-gray-300 py-2 px-3 shadow-sm focus:border-blue-500 focus:ring-blue-500"
+                  placeholder="https://..."
+                />
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700">Company Location</label>
+                <input
+                  type="text"
+                  name="companyInfo.location"
+                  value={formData.companyInfo.location}
+                  onChange={handleChange}
+                  required
+                  className="mt-1 block w-full rounded-md border border-gray-300 py-2 px-3 shadow-sm focus:border-blue-500 focus:ring-blue-500"
+                />
+              </div>
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium text-gray-700">Company Description</label>
+              <textarea
+                name="companyInfo.description"
+                value={formData.companyInfo.description}
+                onChange={handleChange}
+                required
+                rows={4}
+                className="mt-1 block w-full rounded-md border border-gray-300 py-2 px-3 shadow-sm focus:border-blue-500 focus:ring-blue-500"
+                placeholder="Tell us about your company..."
+              />
+            </div>
+          </div>
+
+          {/* Submit Button */}
+          <div className="flex justify-end">
+            <button
+              type="submit"
+              disabled={loading}
+              className="px-6 py-3 bg-blue-600 text-white font-semibold rounded-lg hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 disabled:opacity-50"
+            >
+              {loading ? 'Posting...' : 'Post Job'}
+            </button>
+          </div>
+        </form>
       </div>
     </DashboardLayout>
   );

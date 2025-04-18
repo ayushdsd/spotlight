@@ -31,6 +31,7 @@ export const getUserProfile = async (req: Request, res: Response) => {
       phone: user.phone,
       skills: user.skills || [],
       portfolioImages: user.portfolioImages || [],
+      portfolioLinks: user.portfolioLinks || [],
       experience: user.experience || [],
       education: user.education || [],
       socialLinks: user.socialLinks || {
@@ -38,6 +39,13 @@ export const getUserProfile = async (req: Request, res: Response) => {
         linkedin: '',
         twitter: '',
         instagram: '',
+      },
+      actorDetails: user.actorDetails || {
+        height: '',
+        weight: '',
+        eyeColor: '',
+        hairColor: '',
+        specialSkills: [],
       },
     });
   } catch (error) {
@@ -77,6 +85,7 @@ export const updateUserProfile = async (req: Request, res: Response) => {
       phone: user.phone,
       skills: user.skills || [],
       portfolioImages: user.portfolioImages || [],
+      portfolioLinks: user.portfolioLinks || [],
       experience: user.experience || [],
       education: user.education || [],
       socialLinks: user.socialLinks || {
@@ -84,6 +93,13 @@ export const updateUserProfile = async (req: Request, res: Response) => {
         linkedin: '',
         twitter: '',
         instagram: '',
+      },
+      actorDetails: user.actorDetails || {
+        height: '',
+        weight: '',
+        eyeColor: '',
+        hairColor: '',
+        specialSkills: [],
       },
     });
   } catch (error) {

@@ -1,17 +1,7 @@
-import { useState } from 'react';
-import { Link } from 'react-router-dom';
+import { useState, useEffect } from 'react';
 import DashboardLayout from '../components/layout/DashboardLayout';
-
-interface Job {
-  id: number;
-  title: string;
-  company: string;
-  location: string;
-  type: string;
-  category: string;
-  salary: string;
-  posted: string;
-}
+import JobList, { Job } from '../components/job/JobList';
+import axios from 'axios';
 
 const categories = [
   { id: 'all', name: 'All Jobs' },
@@ -21,33 +11,30 @@ const categories = [
   { id: 'theater', name: 'Theater' },
 ];
 
-const jobs: Job[] = [
-  {
-    id: 1,
-    title: 'Lead Actor',
-    company: 'Royal Theater Company',
-    location: 'London, UK',
-    type: 'Full-time',
-    category: 'acting',
-    salary: '$50k - $70k',
-    posted: '2d ago',
-  },
-  {
-    id: 2,
-    title: 'Dance Instructor',
-    company: 'Elite Dance Academy',
-    location: 'New York, USA',
-    type: 'Part-time',
-    category: 'dance',
-    salary: '$30-50/hr',
-    posted: '3d ago',
-  },
-  // Add more job listings as needed
-];
-
 const Jobs = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedCategory, setSelectedCategory] = useState('all');
+  const [jobs, setJobs] = useState<Job[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    fetchJobs();
+  }, []);
+
+  const fetchJobs = async () => {
+    try {
+      setLoading(true);
+      setError(null);
+      const response = await axios.get('http://localhost:5000/api/jobs');
+      setJobs(response.data);
+    } catch (error: any) {
+      console.error('Error fetching jobs:', error);
+      setError(error.response?.data?.error || 'Error loading jobs');
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const filteredJobs = jobs.filter(job => 
     (selectedCategory === 'all' || job.category === selectedCategory) &&
@@ -92,49 +79,8 @@ const Jobs = () => {
           </div>
         </div>
 
-        {/* Jobs Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {filteredJobs.map((job) => (
-            <Link
-              key={job.id}
-              to={`/jobs/${job.id}`}
-              className="block"
-            >
-              <div className="bg-white rounded-xl border border-gray-100 p-6 shadow-sm transform-style-3d hover:translate-z-4 hover:-translate-y-1 transition-all">
-                <div className="flex justify-between items-start mb-4">
-                  <div>
-                    <h3 className="text-lg font-medium text-gray-900">{job.title}</h3>
-                    <p className="text-gray-600">{job.company}</p>
-                  </div>
-                  <span className="px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
-                    {job.type}
-                  </span>
-                </div>
-                <div className="space-y-2">
-                  <div className="flex items-center text-gray-500 text-sm">
-                    <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
-                    </svg>
-                    {job.location}
-                  </div>
-                  <div className="flex items-center text-gray-500 text-sm">
-                    <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
-                    </svg>
-                    {job.posted}
-                  </div>
-                  <div className="flex items-center text-gray-500 text-sm">
-                    <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                    </svg>
-                    {job.salary}
-                  </div>
-                </div>
-              </div>
-            </Link>
-          ))}
-        </div>
+        {/* Job List */}
+        <JobList jobs={filteredJobs} loading={loading} error={error} />
       </div>
     </DashboardLayout>
   );

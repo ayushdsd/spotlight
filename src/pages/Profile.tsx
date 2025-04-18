@@ -1,8 +1,11 @@
-import { useState, useRef, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { useAuth } from '../contexts/AuthContext';
 import DashboardLayout from '../components/layout/DashboardLayout';
+import PortfolioLinkForm from '../components/profile/PortfolioLinkForm';
 import axios from 'axios';
+import PostItem from '../components/common/PostItem';
 
+// --- Types ---
 interface ProfileFormData {
   firstName: string;
   lastName: string;
@@ -11,7 +14,11 @@ interface ProfileFormData {
   location: string;
   bio: string;
   skills: string[];
-  portfolioImages: string[];
+  portfolioLinks: {
+    title: string;
+    url: string;
+    description: string;
+  }[];
   experience: {
     title: string;
     company: string;
@@ -32,6 +39,15 @@ interface ProfileFormData {
     twitter: string;
     instagram: string;
   };
+  actorDetails: {
+    height?: string;
+    weight?: string;
+    eyeColor?: string;
+    hairColor?: string;
+    specialSkills?: string[];
+  };
+  profilePicture?: string;
+  portfolioImages?: string[];
 }
 
 const emptyFormData: ProfileFormData = {
@@ -42,7 +58,7 @@ const emptyFormData: ProfileFormData = {
   location: '',
   bio: '',
   skills: [],
-  portfolioImages: [],
+  portfolioLinks: [],
   experience: [],
   education: [],
   socialLinks: {
@@ -51,146 +67,159 @@ const emptyFormData: ProfileFormData = {
     twitter: '',
     instagram: '',
   },
+  actorDetails: {
+    height: '',
+    weight: '',
+    eyeColor: '',
+    hairColor: '',
+    specialSkills: [],
+  },
+  profilePicture: '',
+  portfolioImages: [],
 };
+
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:5000';
 
 export default function Profile() {
   const { user } = useAuth();
   const [formData, setFormData] = useState<ProfileFormData>(emptyFormData);
-  const [uploading, setUploading] = useState(false);
   const [saving, setSaving] = useState(false);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const fileInputRef = useRef<HTMLInputElement>(null);
+  const [showLinkForm, setShowLinkForm] = useState(false);
+  const [viewMode, setViewMode] = useState<'edit' | 'recruiter'>('edit');
+  const [uploadingPhoto, setUploadingPhoto] = useState(false);
+  const [posts, setPosts] = useState([]);
+  const [postsLoading, setPostsLoading] = useState(false);
+  const [postsError, setPostsError] = useState<string | null>(null);
 
   useEffect(() => {
-    if (user?.id) {
+    if (user?.id || user?._id) {
       fetchUserProfile();
+      fetchUserPosts();
     } else {
       setLoading(false);
       setError('Please log in to view your profile');
     }
-  }, [user?.id]);
+  }, [user?.id, user?._id]);
 
   const fetchUserProfile = async () => {
     try {
       setLoading(true);
       setError(null);
       const token = localStorage.getItem('token');
-      const response = await axios.get('http://localhost:5000/api/users/profile', {
+      const response = await axios.get(`${API_BASE_URL}/api/users/profile`, {
         headers: {
           'Authorization': `Bearer ${token}`,
         },
       });
-
       if (response.data) {
-        setFormData(response.data);
+        setFormData({ ...emptyFormData, ...response.data });
       } else {
         setError('No profile data found');
       }
     } catch (error: any) {
-      console.error('Error fetching user profile:', error);
       setError(error.response?.data?.error || 'Error loading profile data. Please try again.');
     } finally {
       setLoading(false);
     }
   };
 
-  const handleSubmit = async (e: React.FormEvent | null) => {
-    if (e) {
-      e.preventDefault();
-    }
-    if (!user?.id) {
-      setError('Please log in to update your profile');
-      return;
-    }
-
+  const fetchUserPosts = async () => {
     try {
-      setSaving(true);
-      setError(null);
+      setPostsLoading(true);
+      setPostsError(null);
       const token = localStorage.getItem('token');
-      await axios.put('http://localhost:5000/api/users/profile', formData, {
+      const response = await axios.get(`${API_BASE_URL}/api/users/${user?._id || user?.id}/posts`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      setPosts(response.data.posts || []);
+    } catch (err: any) {
+      setPostsError(err.response?.data?.error || 'Error loading posts');
+    } finally {
+      setPostsLoading(false);
+    }
+  };
+
+  const handleChange = (field: keyof ProfileFormData, value: any) => {
+    setFormData(prev => ({ ...prev, [field]: value }));
+  };
+
+  const handleActorDetailChange = (field: keyof ProfileFormData['actorDetails'], value: any) => {
+    setFormData(prev => ({
+      ...prev,
+      actorDetails: { ...prev.actorDetails, [field]: value },
+    }));
+  };
+
+  const handlePhotoUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (!e.target.files || e.target.files.length === 0) return;
+    setUploadingPhoto(true);
+    setError(null);
+    const file = e.target.files[0];
+    const token = localStorage.getItem('token');
+    const form = new FormData();
+    form.append('image', file);
+    try {
+      const res = await axios.post(`${API_BASE_URL}/api/users/profile/picture`, form, {
+        headers: {
+          'Authorization': `Bearer ${token}`,
+        },
+      });
+      setFormData(prev => ({ ...prev, profilePicture: res.data.url }));
+    } catch (err: any) {
+      setError(err.response?.data?.error || 'Error uploading photo');
+    } finally {
+      setUploadingPhoto(false);
+    }
+  };
+
+  const handlePortfolioImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (!e.target.files || e.target.files.length === 0) return;
+    setUploadingPhoto(true);
+    setError(null);
+    const file = e.target.files[0];
+    const token = localStorage.getItem('token');
+    const form = new FormData();
+    form.append('image', file);
+    try {
+      const res = await axios.post(`${API_BASE_URL}/api/upload`, form, {
+        headers: {
+          'Authorization': `Bearer ${token}`,
+        },
+      });
+      setFormData(prev => ({
+        ...prev,
+        portfolioImages: [...(prev.portfolioImages || []), res.data.url],
+      }));
+    } catch (err: any) {
+      setError(err.response?.data?.error || 'Error uploading image');
+    } finally {
+      setUploadingPhoto(false);
+    }
+  };
+
+  const handleSubmit = async (e: React.FormEvent | null) => {
+    if (e) e.preventDefault();
+    setSaving(true);
+    setError(null);
+    const token = localStorage.getItem('token');
+    try {
+      await axios.put(`${API_BASE_URL}/api/users/profile`, formData, {
         headers: {
           'Authorization': `Bearer ${token}`,
           'Content-Type': 'application/json',
         },
       });
-
-      // Only show success message if this was triggered by a form submit
-      if (e) {
-        alert('Profile updated successfully!');
-      }
+      fetchUserProfile();
     } catch (error: any) {
-      console.error('Error updating profile:', error);
       setError(error.response?.data?.error || 'Error updating profile. Please try again.');
-      throw error; // Re-throw to handle in the upload function
     } finally {
       setSaving(false);
     }
   };
 
-  const handlePortfolioUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    if (!e.target.files || e.target.files.length === 0) return;
-
-    try {
-      setUploading(true);
-      setError(null);
-      const formData = new FormData();
-      Array.from(e.target.files).forEach((file) => {
-        formData.append('images', file);
-      });
-
-      const token = localStorage.getItem('token');
-      const response = await axios.post('http://localhost:5000/api/upload/portfolio-images', formData, {
-        headers: {
-          'Authorization': `Bearer ${token}`,
-          'Content-Type': 'multipart/form-data',
-        },
-      });
-
-      if (response.data.portfolioImages) {
-        setFormData(prev => ({
-          ...prev,
-          portfolioImages: response.data.portfolioImages,
-        }));
-      } else {
-        throw new Error('Invalid response format');
-      }
-    } catch (error: any) {
-      console.error('Error uploading portfolio images:', error);
-      setError(error.response?.data?.error || 'Error uploading images. Please try again.');
-    } finally {
-      setUploading(false);
-      if (fileInputRef.current) {
-        fileInputRef.current.value = '';
-      }
-    }
-  };
-
-  const removePortfolioImage = async (index: number) => {
-    try {
-      setSaving(true);
-      setError(null);
-      const updatedImages = formData.portfolioImages.filter((_, i) => i !== index);
-      
-      setFormData(prev => ({
-        ...prev,
-        portfolioImages: updatedImages,
-      }));
-
-      await handleSubmit(null as any);
-    } catch (error: any) {
-      console.error('Error removing portfolio image:', error);
-      setError(error.response?.data?.error || 'Error removing image. Please try again.');
-      // Restore the image if save failed
-      setFormData(prev => ({
-        ...prev,
-        portfolioImages: [...prev.portfolioImages],
-      }));
-    } finally {
-      setSaving(false);
-    }
-  };
-
+  // --- RENDER ---
   if (loading) {
     return (
       <DashboardLayout>
@@ -201,121 +230,201 @@ export default function Profile() {
     );
   }
 
+  const displayData = viewMode === 'edit' ? formData : formData; // For recruiter preview, you could mask/hide edit controls
+
   return (
     <DashboardLayout>
-      <div className="perspective-1000">
-        <div className="max-w-4xl mx-auto p-6 space-y-8">
-          {error && (
-            <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative" role="alert">
-              <span className="block sm:inline">{error}</span>
-            </div>
-          )}
-          
-          <form onSubmit={handleSubmit} className="space-y-6">
-            {/* Profile Information */}
-            <div className="bg-white p-6 rounded-lg shadow-lg transform hover:scale-[1.01] transition-transform duration-300">
-              <h2 className="text-2xl font-bold mb-4">Profile Information</h2>
+      <div className="max-w-4xl mx-auto p-6">
+        <div className="flex justify-between items-center mb-6">
+          <h1 className="text-3xl font-bold">Profile</h1>
+          <button
+            className="px-4 py-2 rounded bg-blue-600 text-white font-semibold hover:bg-blue-700"
+            onClick={() => setViewMode(viewMode === 'edit' ? 'recruiter' : 'edit')}
+          >
+            {viewMode === 'edit' ? 'View as Recruiter' : 'Edit Profile'}
+          </button>
+        </div>
+        {error && (
+          <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4">
+            {error}
+          </div>
+        )}
+        {viewMode === 'edit' ? (
+          <form onSubmit={handleSubmit} className="space-y-8">
+            {/* Basic Info */}
+            <div className="bg-white p-6 rounded shadow space-y-4">
+              <h2 className="text-xl font-semibold mb-2">Basic Information</h2>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-sm font-medium text-gray-700">First Name</label>
-                  <input
-                    type="text"
-                    value={formData.firstName}
-                    onChange={(e) => setFormData({ ...formData, firstName: e.target.value })}
-                    className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
-                  />
+                  <label>First Name</label>
+                  <input type="text" value={formData.firstName} onChange={e => handleChange('firstName', e.target.value)} className="input" />
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-gray-700">Last Name</label>
-                  <input
-                    type="text"
-                    value={formData.lastName}
-                    onChange={(e) => setFormData({ ...formData, lastName: e.target.value })}
-                    className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
-                  />
+                  <label>Last Name</label>
+                  <input type="text" value={formData.lastName} onChange={e => handleChange('lastName', e.target.value)} className="input" />
+                </div>
+                <div>
+                  <label>Email</label>
+                  <input type="email" value={formData.email} onChange={e => handleChange('email', e.target.value)} className="input" disabled />
+                </div>
+                <div>
+                  <label>Phone</label>
+                  <input type="text" value={formData.phone} onChange={e => handleChange('phone', e.target.value)} className="input" />
+                </div>
+                <div>
+                  <label>Location</label>
+                  <input type="text" value={formData.location} onChange={e => handleChange('location', e.target.value)} className="input" />
+                </div>
+                <div>
+                  <label>Bio</label>
+                  <textarea value={formData.bio} onChange={e => handleChange('bio', e.target.value)} className="input" />
                 </div>
               </div>
             </div>
-
-            {/* Portfolio Section */}
-            <div className="bg-white p-6 rounded-lg shadow-lg transform hover:scale-[1.01] transition-transform duration-300">
-              <h2 className="text-2xl font-bold mb-4">Portfolio</h2>
-              <div className="space-y-4">
+            {/* Actor Details */}
+            <div className="bg-white p-6 rounded shadow space-y-4">
+              <h2 className="text-xl font-semibold mb-2">Physical Details</h2>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Upload Images
-                  </label>
-                  <input
-                    type="file"
-                    ref={fileInputRef}
-                    onChange={handlePortfolioUpload}
-                    multiple
-                    accept="image/*"
-                    className="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100"
-                    disabled={uploading || saving}
-                  />
+                  <label>Height</label>
+                  <input type="text" value={formData.actorDetails?.height || ''} onChange={e => handleActorDetailChange('height', e.target.value)} className="input" />
                 </div>
-
-                {(uploading || saving) && (
-                  <div className="flex items-center space-x-2">
-                    <div className="animate-spin rounded-full h-4 w-4 border-t-2 border-b-2 border-blue-500"></div>
-                    <span className="text-sm text-gray-500">
-                      {uploading ? 'Uploading...' : 'Saving...'}
-                    </span>
-                  </div>
-                )}
-
-                <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
-                  {formData.portfolioImages.map((image, index) => (
-                    <div
-                      key={index}
-                      className="relative group transform hover:scale-105 transition-transform duration-300"
-                    >
-                      <img
-                        src={image}
-                        alt={`Portfolio ${index + 1}`}
-                        className="w-full h-48 object-cover rounded-lg shadow-md"
-                      />
-                      <button
-                        type="button"
-                        onClick={() => removePortfolioImage(index)}
-                        className="absolute top-2 right-2 bg-red-500 text-white rounded-full p-1 opacity-0 group-hover:opacity-100 transition-opacity duration-300"
-                        disabled={saving}
-                      >
-                        <svg
-                          xmlns="http://www.w3.org/2000/svg"
-                          className="h-4 w-4"
-                          fill="none"
-                          viewBox="0 0 24 24"
-                          stroke="currentColor"
-                        >
-                          <path
-                            strokeLinecap="round"
-                            strokeLinejoin="round"
-                            strokeWidth={2}
-                            d="M6 18L18 6M6 6l12 12"
-                          />
-                        </svg>
-                      </button>
-                    </div>
-                  ))}
+                <div>
+                  <label>Weight</label>
+                  <input type="text" value={formData.actorDetails?.weight || ''} onChange={e => handleActorDetailChange('weight', e.target.value)} className="input" />
+                </div>
+                <div>
+                  <label>Eye Color</label>
+                  <input type="text" value={formData.actorDetails?.eyeColor || ''} onChange={e => handleActorDetailChange('eyeColor', e.target.value)} className="input" />
+                </div>
+                <div>
+                  <label>Hair Color</label>
+                  <input type="text" value={formData.actorDetails?.hairColor || ''} onChange={e => handleActorDetailChange('hairColor', e.target.value)} className="input" />
+                </div>
+                <div className="col-span-2">
+                  <label>Special Skills (comma separated)</label>
+                  <input type="text" value={formData.actorDetails?.specialSkills?.join(', ') || ''} onChange={e => handleActorDetailChange('specialSkills', e.target.value.split(',').map(s => s.trim()))} className="input" />
                 </div>
               </div>
             </div>
-
-            {/* Save Button */}
-            <div className="flex justify-end">
-              <button
-                type="submit"
-                className="bg-blue-500 text-white px-6 py-2 rounded-lg hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transform hover:scale-105 transition-all duration-300 disabled:opacity-50"
-                disabled={uploading || saving}
-              >
-                {saving ? 'Saving...' : 'Save Changes'}
+            {/* Photo Upload */}
+            <div className="bg-white p-6 rounded shadow space-y-4">
+              <h2 className="text-xl font-semibold mb-2">Profile Photo</h2>
+              <div className="flex items-center space-x-4">
+                {formData.profilePicture && <img src={formData.profilePicture} alt="Profile" className="h-24 w-24 rounded-full object-cover border" />}
+                <input type="file" accept="image/*" onChange={handlePhotoUpload} disabled={uploadingPhoto} />
+                {uploadingPhoto && <span>Uploading...</span>}
+              </div>
+            </div>
+            {/* Portfolio Images */}
+            <div className="bg-white p-6 rounded shadow space-y-4">
+              <h2 className="text-xl font-semibold mb-2">Portfolio Images</h2>
+              <div className="flex flex-wrap gap-4">
+                {(formData.portfolioImages || []).map((img, idx) => (
+                  <img key={idx} src={img} alt="Portfolio" className="h-24 w-24 object-cover border rounded" />
+                ))}
+                <input type="file" accept="image/*" onChange={handlePortfolioImageUpload} disabled={uploadingPhoto} />
+              </div>
+            </div>
+            {/* Portfolio Links */}
+            <div className="bg-white p-6 rounded shadow space-y-4">
+              <h2 className="text-xl font-semibold mb-2">Portfolio Links</h2>
+              <div className="mb-4">
+                <button
+                  type="button"
+                  className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"
+                  onClick={() => setShowLinkForm(true)}
+                >
+                  Add Portfolio Link
+                </button>
+              </div>
+              {showLinkForm && (
+                <PortfolioLinkForm
+                  onSubmit={link => {
+                    setFormData(prev => ({ ...prev, portfolioLinks: [...(prev.portfolioLinks || []), link] }));
+                    setShowLinkForm(false);
+                  }}
+                  onCancel={() => setShowLinkForm(false)}
+                />
+              )}
+              <ul>
+                {(formData.portfolioLinks || []).map((link, idx) => (
+                  <li key={idx} className="mb-2">
+                    <a href={link.url} target="_blank" rel="noopener noreferrer" className="text-blue-600 underline font-semibold">{link.title}</a>
+                    <span className="ml-2 text-gray-600">{link.description}</span>
+                  </li>
+                ))}
+              </ul>
+            </div>
+            <div>
+              <button type="submit" className="px-6 py-2 bg-green-600 text-white rounded hover:bg-green-700 font-semibold" disabled={saving}>
+                {saving ? 'Saving...' : 'Save Profile'}
               </button>
             </div>
           </form>
+        ) : (
+          // Recruiter View
+          <div className="bg-white p-8 rounded shadow space-y-8">
+            <div className="flex items-center space-x-6">
+              {formData.profilePicture && <img src={formData.profilePicture} alt="Profile" className="h-28 w-28 rounded-full object-cover border" />}
+              <div>
+                <h2 className="text-2xl font-bold">{formData.firstName} {formData.lastName}</h2>
+                <div className="text-gray-600">{formData.bio}</div>
+                <div className="text-gray-500 text-sm">{formData.location}</div>
+              </div>
+            </div>
+            <div>
+              <h3 className="font-semibold">Physical Details</h3>
+              <div className="grid grid-cols-2 gap-2">
+                <div><span className="font-medium">Height:</span> {formData.actorDetails?.height}</div>
+                <div><span className="font-medium">Weight:</span> {formData.actorDetails?.weight}</div>
+                <div><span className="font-medium">Eye Color:</span> {formData.actorDetails?.eyeColor}</div>
+                <div><span className="font-medium">Hair Color:</span> {formData.actorDetails?.hairColor}</div>
+                <div className="col-span-2"><span className="font-medium">Special Skills:</span> {(formData.actorDetails?.specialSkills || []).join(', ')}</div>
+              </div>
+            </div>
+            <div>
+              <h3 className="font-semibold">Portfolio Images</h3>
+              <div className="flex flex-wrap gap-4">
+                {(formData.portfolioImages || []).map((img, idx) => (
+                  <img key={idx} src={img} alt="Portfolio" className="h-24 w-24 object-cover border rounded" />
+                ))}
+              </div>
+            </div>
+            <div>
+              <h3 className="font-semibold">Portfolio Links</h3>
+              <ul>
+                {(formData.portfolioLinks || []).map((link, idx) => (
+                  <li key={idx} className="mb-2">
+                    <a href={link.url} target="_blank" rel="noopener noreferrer" className="text-blue-600 underline font-semibold">{link.title}</a>
+                    <span className="ml-2 text-gray-600">{link.description}</span>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          </div>
+        )}
+        {/* User Feed Posts */}
+        <div className="max-w-4xl mx-auto mt-12">
+          <h2 className="text-2xl font-bold mb-4">My Posts</h2>
+          {postsLoading && <div className="text-gray-500">Loading...</div>}
+          {postsError && <div className="text-red-600">{postsError}</div>}
+          {posts.length === 0 && !postsLoading && (
+            <div className="text-gray-400">You haven't posted anything yet.</div>
+          )}
+          <div className="space-y-6">
+            {posts.map((post: any) => (
+              <PostItem key={post._id} post={post} />
+            ))}
+          </div>
         </div>
       </div>
     </DashboardLayout>
   );
 }
+
+// Add some basic styling for .input
+// You can move this to your CSS file
+const inputStyle = document.createElement('style');
+inputStyle.innerHTML = `.input { width: 100%; padding: 0.5rem; border-radius: 0.375rem; border: 1px solid #d1d5db; margin-top: 0.25rem; margin-bottom: 0.5rem; }`;
+document.head.appendChild(inputStyle);

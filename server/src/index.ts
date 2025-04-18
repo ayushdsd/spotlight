@@ -11,6 +11,9 @@ import messageRoutes from './routes/message.routes';
 import userRoutes from './routes/user.routes';
 import searchRoutes from './routes/search.routes';
 import portfolioRoutes from './routes/portfolio.routes';
+import jobRoutes from './routes/job.routes';
+import feedRoutes from './routes/feed';
+// import feedRoutes from './routes/feed.routes';
 
 // Load environment variables
 dotenv.config({ path: '.env' });
@@ -61,6 +64,8 @@ app.use('/api/messages', messageRoutes);
 app.use('/api/users', userRoutes);
 app.use('/api/search', searchRoutes);
 app.use('/api/portfolio', portfolioRoutes);
+app.use('/api/jobs', jobRoutes);
+app.use('/api/feed', feedRoutes);
 
 // Health check route
 app.get('/health', (req: Request, res: Response) => {

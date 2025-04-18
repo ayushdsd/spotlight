@@ -4,6 +4,7 @@ import { ChevronDownIcon } from '@heroicons/react/24/outline';
 import Splash from '../components/common/Splash';
 import spotlightLogo from '../assets/SPOTLIGHT.png';
 import herobg from '../assets/herobg.jpg';
+import BrowseGigs from '../components/landing/BrowseGigs';
 
 const Landing = () => {
   const { openIndex, toggleAccordion } = useAccordion();
@@ -186,6 +187,9 @@ const Landing = () => {
         </div>
       </section>
 
+      {/* Browse Gigs Section */}
+      <BrowseGigs />
+
       {/* Featured Recruiters */}
       <section className="py-8 sm:py-12 lg:py-16 bg-gray-50 w-full overflow-hidden">
         <div className="w-full">
@@ -270,10 +274,9 @@ const Landing = () => {
             className="bg-white text-blue-500 px-6 sm:px-8 py-2.5 sm:py-3 rounded-lg font-semibold hover:bg-blue-50 transition-colors inline-block text-sm sm:text-base"
           >
             Get Started Now
-        </Link>
-  </div>
-</section>
-
+          </Link>
+        </div>
+      </section>
 
       {/* Footer */}
       <footer className="bg-black animate-fade-in" aria-labelledby="footer-heading">

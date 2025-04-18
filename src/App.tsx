@@ -17,6 +17,7 @@ const GigDetail = lazy(() => import('./pages/GigDetail'));
 const ArtistProfile = lazy(() => import('./pages/ArtistProfile'));
 const Pricing = lazy(() => import('./pages/Pricing'));
 const Auth = lazy(() => import('./pages/Auth'));
+const Feed = lazy(() => import('./pages/Feed'));
 
 function App() {
   return (
@@ -95,6 +96,7 @@ function App() {
             />
 
             {/* Common Routes */}
+            <Route path="/feed" element={<Feed />} />
             <Route path="/gigs" element={<GigListings />} />
             <Route path="/gigs/:id" element={<GigDetail />} />
             <Route path="/artists/:id" element={<ArtistProfile />} />

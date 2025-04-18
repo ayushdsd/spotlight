@@ -7,6 +7,7 @@ interface DashboardLayoutProps {
 }
 
 const artistNavItems = [
+  { name: 'Feed', path: '/feed', icon: '📰' },
   { name: 'Dashboard', path: '/artist/dashboard', icon: '🏠' },
   { name: 'Jobs', path: '/artist/jobs', icon: '💼' },
   { name: 'My Applications', path: '/artist/applications', icon: '📝' },
@@ -17,6 +18,7 @@ const artistNavItems = [
 ];
 
 const recruiterNavItems = [
+  { name: 'Feed', path: '/feed', icon: '📰' },
   { name: 'Dashboard', path: '/recruiter/dashboard', icon: '🏠' },
   { name: 'Post Job', path: '/recruiter/post-job', icon: '✨' },
   { name: 'My Listings', path: '/recruiter/listings', icon: '📋' },
@@ -29,7 +31,7 @@ const recruiterNavItems = [
 export default function DashboardLayout({ children }: DashboardLayoutProps) {
   const { user, logout } = useAuth();
   const location = useLocation();
-  const [isSidebarOpen, setIsSidebarOpen] = useState(true);
+  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
 
   // Select nav items based on user role
   const navItems = user?.role === 'artist' ? artistNavItems : recruiterNavItems;
@@ -40,6 +42,14 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
 
   return (
     <div className="flex h-screen bg-gray-100">
+      {/* Mobile Overlay */}
+      {isSidebarOpen && (
+        <div
+          className="fixed inset-0 bg-black bg-opacity-50 z-40 lg:hidden"
+          onClick={() => setIsSidebarOpen(false)}
+        ></div>
+      )}
+
       {/* Sidebar */}
       <aside
         className={`${
@@ -47,9 +57,25 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
         } fixed inset-y-0 left-0 z-50 w-64 bg-white shadow-lg transform transition-transform duration-300 ease-in-out lg:translate-x-0 lg:static lg:inset-0`}
       >
         <div className="h-full flex flex-col">
-          {/* Logo */}
-          <div className="flex items-center justify-center h-16 border-b">
+          {/* Logo and Close Button */}
+          <div className="flex items-center justify-between h-16 border-b px-4">
             <img src="/spotlight-logo.png" alt="Spotlight" className="h-8" />
+            <button
+              onClick={() => setIsSidebarOpen(false)}
+              className="lg:hidden text-gray-500 hover:text-gray-600"
+            >
+              <svg
+                className="h-6 w-6"
+                fill="none"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth="2"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+              >
+                <path d="M6 18L18 6M6 6l12 12"></path>
+              </svg>
+            </button>
           </div>
 
           {/* Navigation */}
@@ -100,11 +126,11 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
       {/* Main Content */}
       <div className="flex-1 flex flex-col overflow-hidden">
         {/* Top Navigation */}
-        <header className="bg-white shadow-sm lg:hidden">
-          <div className="px-4 py-3">
+        <header className="bg-white shadow-sm lg:hidden sticky top-0 z-30">
+          <div className="flex items-center justify-between px-4 py-3">
             <button
-              onClick={() => setIsSidebarOpen(!isSidebarOpen)}
-              className="text-gray-500 hover:text-gray-600"
+              onClick={() => setIsSidebarOpen(true)}
+              className="text-gray-600 hover:text-gray-900 focus:outline-none focus:text-gray-900"
             >
               <svg
                 className="h-6 w-6"
@@ -118,6 +144,7 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
                 <path d="M4 6h16M4 12h16M4 18h16"></path>
               </svg>
             </button>
+            <span className="text-lg font-semibold text-gray-900">Spotlight</span>
           </div>
         </header>
 

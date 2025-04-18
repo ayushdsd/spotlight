@@ -23,6 +23,20 @@ export interface ISocialLinks {
   instagram?: string;
 }
 
+export interface IPortfolioLink {
+  title: string;
+  url: string;
+  description: string;
+}
+
+export interface IActorDetails {
+  height?: string;
+  weight?: string;
+  eyeColor?: string;
+  hairColor?: string;
+  specialSkills?: string[];
+}
+
 export interface IUser extends Document {
   firstName?: string;
   lastName?: string;
@@ -35,9 +49,11 @@ export interface IUser extends Document {
   phone?: string;
   skills?: string[];
   portfolioImages?: string[];
+  portfolioLinks?: IPortfolioLink[];
   experience?: IExperience[];
   education?: IEducation[];
   socialLinks?: ISocialLinks;
+  actorDetails?: IActorDetails;
   createdAt: Date;
   updatedAt: Date;
 }
@@ -69,6 +85,11 @@ const userSchema = new Schema<IUser>({
   phone: String,
   skills: [String],
   portfolioImages: [String],
+  portfolioLinks: [{
+    title: String,
+    url: String,
+    description: String,
+  }],
   experience: [{
     title: String,
     company: String,
@@ -88,6 +109,13 @@ const userSchema = new Schema<IUser>({
     linkedin: String,
     twitter: String,
     instagram: String,
+  },
+  actorDetails: {
+    height: String,
+    weight: String,
+    eyeColor: String,
+    hairColor: String,
+    specialSkills: [String],
   },
 }, {
   timestamps: true,
