@@ -1,22 +1,10 @@
-import { Router, Request, Response } from 'express';
+import express, { Request, Response } from 'express';
 import Post from '../models/post.model';
 import auth from '../middleware/auth';
 import upload from '../middleware/multer';
 import { cloudinaryUpload } from '../utils/cloudinary';
 
-// Use real auth middleware
-function authenticate(req: Request, res: Response, next: Function) {
-  // In production, set req.user using your real authentication
-  req.user = req.user || {
-    id: 'demoUser',
-    name: 'Demo User',
-    picture: '',
-    role: 'artist',
-  };
-  next();
-}
-
-const router = Router();
+const router = express.Router();
 
 router.use(auth);
 

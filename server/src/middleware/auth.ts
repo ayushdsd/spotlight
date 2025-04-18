@@ -27,11 +27,15 @@ const auth = async (
 
     const decoded = jwt.verify(token, process.env.JWT_SECRET || 'your-secret-key') as User;
     // Fetch the user from the database using _id from the JWT
-    const user = await User.findById((decoded as any)._id);
+    const user = await User.findById((decoded as any)._id).lean();
     if (!user) {
       return res.status(404).json({ message: 'User not found' });
     }
-    req.user = user;
+    // Ensure _id is a string
+    req.user = {
+      ...user,
+      _id: user._id.toString(),
+    };
     next();
   } catch (err) {
     console.error('Auth middleware error:', err);
