@@ -5,6 +5,7 @@ import DashboardLayout from '../components/layout/DashboardLayout';
 import SearchBar from '../components/search/SearchBar';
 import FilterPanel, { SearchFilters } from '../components/search/FilterPanel';
 import { useAuth } from '../contexts/AuthContext';
+import { API_BASE_URL } from '../utils/api';
 
 interface Job {
   _id: string;
@@ -65,7 +66,7 @@ const GigListings = () => {
       });
 
       const token = localStorage.getItem('token');
-      const response = await axios.get(`http://localhost:5000/api/search/jobs?${params}`, {
+      const response = await axios.get(`${API_BASE_URL}/api/search/jobs?${params}`, {
         headers: {
           Authorization: `Bearer ${token}`,
         },

@@ -1,4 +1,5 @@
 import axios from 'axios';
+import { API_BASE_URL } from '../utils/api';
 
 const DUMMY_POSTS = [
   {
@@ -20,7 +21,7 @@ async function seedFeed() {
   }
   for (const post of DUMMY_POSTS) {
     try {
-      await axios.post('http://localhost:5000/api/feed', post, {
+      await axios.post(`${API_BASE_URL}/api/feed`, post, {
         headers: { Authorization: `Bearer ${token}` },
       });
       // eslint-disable-next-line no-console
