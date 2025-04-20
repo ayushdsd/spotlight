@@ -1,7 +1,6 @@
 import { useEffect, useState } from 'react';
 import axios from 'axios';
 import DashboardLayout from '../../components/layout/DashboardLayout';
-import { useAuth } from '../../contexts/AuthContext';
 import { API_BASE_URL } from '../../utils/api';
 import { Link } from 'react-router-dom';
 

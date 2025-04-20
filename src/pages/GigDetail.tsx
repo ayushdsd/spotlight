@@ -14,8 +14,8 @@ interface Job {
   type: string;
   payRange: string;
   description: string;
-  requirements: string[];
-  benefits: string[];
+  requirements: string[] | string;
+  benefits: string[] | string;
   applicationDeadline: string;
   startDate: string;
   companyInfo: {
