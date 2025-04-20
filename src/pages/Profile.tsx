@@ -495,7 +495,7 @@ export default function Profile() {
           </div>
         )}
         {/* User Feed Posts */}
-        <div className="max-w-4xl mx-auto mt-12">
+        <div className="w-full mt-8 px-0 sm:px-2">
           <h2 className="text-2xl font-bold mb-4">My Posts</h2>
           {postsLoading && <div className="text-gray-500">Loading...</div>}
           {postsError && <div className="text-red-600">{postsError}</div>}

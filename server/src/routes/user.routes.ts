@@ -37,7 +37,7 @@ router.get('/:userId/posts', async (req, res) => {
     const { userId } = req.params;
     const posts = await Post.find({ author: userId })
       .sort({ createdAt: -1 })
-      .populate('author', 'name picture role');
+      .populate('author', 'name picture role firstName lastName');
     res.json({ posts });
   } catch (err) {
     res.status(500).json({ error: 'Could not fetch user posts' });

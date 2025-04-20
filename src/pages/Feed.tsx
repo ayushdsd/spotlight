@@ -13,6 +13,8 @@ export interface Post {
     name: string;
     picture?: string;
     role: string;
+    firstName?: string;
+    lastName?: string;
   };
   content: string;
   imageUrl?: string;
@@ -74,7 +76,7 @@ const Feed = () => {
 
   return (
     <DashboardLayout>
-      <div className="max-w-2xl mx-auto py-8 px-4">
+      <div className="w-full py-8 px-0 sm:px-2">
         <h1 className="text-3xl font-bold mb-6">Feed</h1>
         <PostComposer onPost={handleNewPost} />
         <div className="space-y-6 mt-8">

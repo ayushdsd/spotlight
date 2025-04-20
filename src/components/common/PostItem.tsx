@@ -8,8 +8,8 @@ interface PostItemProps {
 
 const PostItem = ({ post, onDelete }: PostItemProps & { onDelete?: (id: string) => void }) => {
   const { user } = useAuth();
-  const userId = user?._id; // Always use _id
-  const isOwner = userId && post.author && post.author._id === userId;
+  const userId = user?._id || user?.id; // Always use _id
+  const isOwner = userId && post.author && String(post.author._id) === String(userId);
 
   // Dropdown state
   const [dropdownOpen, setDropdownOpen] = useState(false);
@@ -33,8 +33,8 @@ const PostItem = ({ post, onDelete }: PostItemProps & { onDelete?: (id: string) 
   }, [dropdownOpen]);
 
   return (
-    <div className="bg-white rounded-lg shadow p-4 relative">
-      <div className="flex items-center gap-3 mb-2">
+    <div className="bg-white rounded-lg shadow p-0 sm:px-2 relative">
+      <div className="flex items-center gap-3 mb-2 ml-2 mt-2">
         {post.author.picture ? (
           <img
             src={post.author.picture}
@@ -46,10 +46,10 @@ const PostItem = ({ post, onDelete }: PostItemProps & { onDelete?: (id: string) 
             <span className="text-lg text-gray-500">{post.author.name.charAt(0)}</span>
           </div>
         )}
-        <div>
+        <div className="ml-1 mt-1">
           <div className="font-semibold text-gray-900 cursor-pointer hover:underline"
                onClick={() => window.location.href = `/profile/${post.author._id}?view=recruiter`}>
-            {post.author.name}
+            {(post.author.firstName && post.author.lastName && `${post.author.firstName} ${post.author.lastName}`) || post.author.name}
           </div>
           <div className="text-xs text-gray-500">{new Date(post.createdAt).toLocaleString()}</div>
         </div>
@@ -76,7 +76,7 @@ const PostItem = ({ post, onDelete }: PostItemProps & { onDelete?: (id: string) 
           </div>
         )}
       </div>
-      <div className="mb-2 whitespace-pre-line">{post.content}</div>
+      <div className="mb-2 whitespace-pre-line text-left">{post.content}</div>
       {post.imageUrl && (
         <img src={post.imageUrl} alt="Post" className="max-h-80 w-auto rounded border mx-auto my-2" />
       )}

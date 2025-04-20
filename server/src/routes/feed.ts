@@ -46,7 +46,7 @@ router.post('/', upload.single('image'), async (req: Request, res: Response) => 
       imageUrl: imageUrl || undefined,
     });
     await post.save();
-    await post.populate('author', 'name picture role');
+    await post.populate('author', 'name picture role firstName lastName');
     console.log('[FEED] Post created:', post);
     res.json({ post });
   } catch (err) {
@@ -65,7 +65,7 @@ router.get('/', async (req: Request, res: Response) => {
       .sort({ createdAt: -1 })
       .skip(skip)
       .limit(limit)
-      .populate('author', 'name picture role');
+      .populate('author', 'name picture role firstName lastName');
     res.json({ posts });
   } catch (err) {
     res.status(500).json({ error: 'Could not fetch feed' });
