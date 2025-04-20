@@ -1,6 +1,7 @@
 import { Request, Response } from 'express';
 import Message from '../models/message.model';
 import Conversation from '../models/conversation.model';
+import User from '../models/user.model';
 
 // Get all conversations for a user
 export const getConversations = async (req: Request, res: Response) => {
@@ -125,5 +126,52 @@ export const createConversation = async (req: Request, res: Response) => {
   } catch (error) {
     console.error('Error creating conversation:', error);
     res.status(500).json({ error: 'Error creating conversation' });
+  }
+};
+
+// Helper to get or create a conversation between two users
+export const getOrCreateConversation = async (req: Request, res: Response) => {
+  try {
+    const userId = req.user?._id;
+    const recipientId = req.body.recipientId;
+    if (!userId || !recipientId || userId === recipientId) {
+      return res.status(400).json({ error: 'Invalid recipient' });
+    }
+    let conversation = await Conversation.findOne({
+      participants: { $all: [userId, recipientId], $size: 2 },
+    });
+    if (!conversation) {
+      conversation = new Conversation({ participants: [userId, recipientId] });
+      await conversation.save();
+    }
+    res.json({ conversationId: conversation._id });
+  } catch (error) {
+    console.error('Error getting/creating conversation:', error);
+    res.status(500).json({ error: 'Error getting/creating conversation' });
+  }
+};
+
+// Get message contacts
+export const getMessageContacts = async (req: Request, res: Response) => {
+  try {
+    if (!req.user?._id) {
+      return res.status(401).json({ error: 'User not authenticated' });
+    }
+
+    // Find all users who are mutual followers with current user
+    const mutuals = await User.find({
+      _id: { $ne: req.user._id },
+      followers: req.user._id,
+      following: req.user._id,
+    }).select('name profilePicture');
+
+    res.json(mutuals.map((u: any) => ({
+      _id: u._id,
+      name: u.name,
+      picture: u.profilePicture,
+    })));
+  } catch (error) {
+    console.error('Error fetching contacts:', error);
+    res.status(500).json({ error: 'Error fetching contacts' });
   }
 };

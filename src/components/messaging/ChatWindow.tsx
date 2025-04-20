@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useAuth } from '../../contexts/AuthContext';
+import axios from 'axios';
 
 interface Message {
   _id: string;
@@ -29,25 +30,73 @@ export default function ChatWindow({ recipientId, recipientName, recipientPictur
   const [newMessage, setNewMessage] = useState('');
   const [attachment, setAttachment] = useState<File | null>(null);
   const [loading, setLoading] = useState(false);
+  const [canMessage, setCanMessage] = useState<boolean>(true);
+  const [checkingFollow, setCheckingFollow] = useState<boolean>(true);
+  const [conversationId, setConversationId] = useState<string | null>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
+
+  // Check mutual following before allowing messaging
+  useEffect(() => {
+    const checkMutualFollow = async () => {
+      setCheckingFollow(true);
+      try {
+        const token = localStorage.getItem('token');
+        const res = await axios.get(`${import.meta.env.VITE_API_URL || ''}/api/users/${recipientId}/follow-status`, {
+          headers: { Authorization: `Bearer ${token}` },
+        });
+        setCanMessage(res.data.isFollowing && res.data.isFollowedBy);
+      } catch {
+        setCanMessage(false);
+      } finally {
+        setCheckingFollow(false);
+      }
+    };
+    checkMutualFollow();
+  }, [recipientId]);
+
+  // Fetch or create conversation on recipientId change
+  useEffect(() => {
+    const getConversationId = async () => {
+      if (!recipientId) return;
+      try {
+        const token = localStorage.getItem('token');
+        const res = await fetch(`${import.meta.env.VITE_API_URL}/api/messages/conversations/by-user`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            Authorization: `Bearer ${token}`,
+          },
+          body: JSON.stringify({ recipientId }),
+        });
+        const data = await res.json();
+        setConversationId(data.conversationId);
+      } catch (error) {
+        setConversationId(null);
+      }
+    };
+    getConversationId();
+  }, [recipientId]);
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   };
 
   useEffect(() => {
-    fetchMessages();
-    const interval = setInterval(fetchMessages, 5000); // Poll every 5 seconds
-    return () => clearInterval(interval);
-  }, [recipientId]);
+    if (canMessage && conversationId) {
+      fetchMessages();
+      const interval = setInterval(fetchMessages, 5000);
+      return () => clearInterval(interval);
+    }
+  }, [conversationId, canMessage]);
 
   useEffect(() => {
     scrollToBottom();
   }, [messages]);
 
   const fetchMessages = async () => {
+    if (!conversationId) return;
     try {
-      const response = await fetch(`${import.meta.env.VITE_API_URL}/api/messages/${recipientId}`, {
+      const response = await fetch(`${import.meta.env.VITE_API_URL}/api/messages/conversations/${conversationId}/messages`, {
         headers: {
           Authorization: `Bearer ${localStorage.getItem('token')}`,
         },
@@ -79,14 +128,15 @@ export default function ChatWindow({ recipientId, recipientName, recipientPictur
         attachmentData = await uploadResponse.json();
       }
 
-      const response = await fetch(`${import.meta.env.VITE_API_URL}/api/messages`, {
+      if (!conversationId) return;
+      const response = await fetch(`${import.meta.env.VITE_API_URL}/api/messages/conversations/${conversationId}/messages`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
           Authorization: `Bearer ${localStorage.getItem('token')}`,
         },
         body: JSON.stringify({
-          recipient: recipientId,
+          conversationId,
           content: newMessage,
           attachments: attachmentData ? [attachmentData] : undefined,
         }),
@@ -102,6 +152,16 @@ export default function ChatWindow({ recipientId, recipientName, recipientPictur
       setLoading(false);
     }
   };
+
+  if (checkingFollow) {
+    return <div className="flex items-center justify-center h-full text-gray-500">Checking follow status...</div>;
+  }
+
+  if (!canMessage) {
+    return <div className="flex items-center justify-center h-full text-gray-500 text-center">
+      You can only message users who follow you back. Please follow each other to start messaging.
+    </div>;
+  }
 
   return (
     <div className="flex flex-col h-full bg-white rounded-lg shadow-lg">
@@ -119,7 +179,7 @@ export default function ChatWindow({ recipientId, recipientName, recipientPictur
 
       {/* Messages */}
       <div className="flex-1 overflow-y-auto p-4 space-y-4">
-        {messages.map((message) => (
+        {messages.filter(m => m.sender).map((message) => (
           <div
             key={message._id}
             className={`flex ${message.sender._id === user?.id ? 'justify-end' : 'justify-start'}`}

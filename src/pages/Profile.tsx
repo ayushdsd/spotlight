@@ -5,6 +5,7 @@ import PortfolioLinkForm from '../components/profile/PortfolioLinkForm';
 import axios from 'axios';
 import PostItem from '../components/common/PostItem';
 import { API_BASE_URL } from '../utils/api';
+import { useParams, useSearchParams } from 'react-router-dom';
 
 // --- Types ---
 interface ProfileFormData {
@@ -81,17 +82,27 @@ const emptyFormData: ProfileFormData = {
 
 export default function Profile() {
   const { user } = useAuth();
-  const userId = user?._id || user?.id;
+  const { id: profileUserId } = useParams();
+  const [searchParams] = useSearchParams();
+  const queryView = searchParams.get('view');
+  const isOwnProfile = !profileUserId || profileUserId === user?._id || profileUserId === user?.id;
+  const userId = isOwnProfile ? (user?._id || user?.id) : profileUserId;
   const [formData, setFormData] = useState<ProfileFormData>(emptyFormData);
   const [saving, setSaving] = useState(false);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [showLinkForm, setShowLinkForm] = useState(false);
-  const [viewMode, setViewMode] = useState<'edit' | 'recruiter'>('edit');
+  // If viewing someone else's profile, default to recruiter view
+  const [viewMode, setViewMode] = useState<'edit' | 'recruiter'>(queryView === 'edit' ? 'edit' : (!isOwnProfile ? 'recruiter' : 'edit'));
   const [uploadingPhoto, setUploadingPhoto] = useState(false);
   const [posts, setPosts] = useState([]);
   const [postsLoading, setPostsLoading] = useState(false);
   const [postsError, setPostsError] = useState<string | null>(null);
+
+  // --- FOLLOW STATE ---
+  const [isFollowing, setIsFollowing] = useState<boolean>(false);
+  const [isFollowedBy, setIsFollowedBy] = useState<boolean>(false);
+  const [followLoading, setFollowLoading] = useState<boolean>(false);
 
   useEffect(() => {
     if (userId) {
@@ -103,12 +114,29 @@ export default function Profile() {
     }
   }, [userId]);
 
+  // Update view mode if query param changes
+  useEffect(() => {
+    if (!isOwnProfile && queryView === 'edit') setViewMode('edit');
+    else if (!isOwnProfile) setViewMode('recruiter');
+    else if (queryView === 'recruiter') setViewMode('recruiter');
+    else setViewMode('edit');
+  }, [queryView, isOwnProfile]);
+
+  useEffect(() => {
+    if (!isOwnProfile && userId) {
+      fetchFollowStatus();
+    }
+  }, [userId, isOwnProfile]);
+
   const fetchUserProfile = async () => {
     try {
       setLoading(true);
       setError(null);
       const token = localStorage.getItem('token');
-      const response = await axios.get(`${API_BASE_URL}/api/users/profile`, {
+      const url = isOwnProfile
+        ? `${API_BASE_URL}/api/users/profile`
+        : `${API_BASE_URL}/api/users/${userId}`;
+      const response = await axios.get(url, {
         headers: {
           'Authorization': `Bearer ${token}`,
         },
@@ -130,7 +158,10 @@ export default function Profile() {
       setPostsLoading(true);
       setPostsError(null);
       const token = localStorage.getItem('token');
-      const response = await axios.get(`${API_BASE_URL}/api/users/${userId}/posts`, {
+      const url = isOwnProfile
+        ? `${API_BASE_URL}/api/users/${userId}/posts`
+        : `${API_BASE_URL}/api/users/${userId}/posts`;
+      const response = await axios.get(url, {
         headers: { Authorization: `Bearer ${token}` },
       });
       setPosts(response.data.posts || []);
@@ -140,6 +171,52 @@ export default function Profile() {
       setPostsLoading(false);
     }
   };
+
+  const fetchFollowStatus = async () => {
+    try {
+      setFollowLoading(true);
+      const token = localStorage.getItem('token');
+      // Assume API returns { isFollowing: boolean, isFollowedBy: boolean }
+      const res = await axios.get(`${API_BASE_URL}/api/users/${userId}/follow-status`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      setIsFollowing(res.data.isFollowing);
+      setIsFollowedBy(res.data.isFollowedBy);
+    } catch (err) {
+      setIsFollowing(false);
+      setIsFollowedBy(false);
+    } finally {
+      setFollowLoading(false);
+    }
+  };
+
+  const handleFollow = async () => {
+    setFollowLoading(true);
+    try {
+      const token = localStorage.getItem('token');
+      await axios.post(`${API_BASE_URL}/api/users/${userId}/follow`, {}, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      setIsFollowing(true);
+    } catch {}
+    setFollowLoading(false);
+  };
+
+  const handleUnfollow = async () => {
+    setFollowLoading(true);
+    try {
+      const token = localStorage.getItem('token');
+      await axios.delete(`${API_BASE_URL}/api/users/${userId}/follow`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      setIsFollowing(false);
+    } catch {}
+    setFollowLoading(false);
+  };
+
+  // Only allow edit, upload, and delete on own profile
+  const canEdit = isOwnProfile && viewMode === 'edit';
+  const canDeletePost = isOwnProfile;
 
   const handleChange = (field: keyof ProfileFormData, value: any) => {
     setFormData(prev => ({ ...prev, [field]: value }));
@@ -159,7 +236,7 @@ export default function Profile() {
     const file = e.target.files[0];
     const token = localStorage.getItem('token');
     const form = new FormData();
-    form.append('image', file);
+    form.append('file', file); // <-- field name must match backend
     try {
       const res = await axios.post(`${API_BASE_URL}/api/users/profile/picture`, form, {
         headers: {
@@ -219,6 +296,20 @@ export default function Profile() {
     }
   };
 
+  // --- DELETE POST HANDLER ---
+  const handleDeletePost = async (postId: string) => {
+    if (!window.confirm('Are you sure you want to delete this post?')) return;
+    try {
+      const token = localStorage.getItem('token');
+      await axios.delete(`${API_BASE_URL}/api/feed/${postId}`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      setPosts(posts => posts.filter((p: any) => p._id !== postId));
+    } catch (err: any) {
+      alert(err.response?.data?.error || 'Failed to delete post');
+    }
+  };
+
   // --- RENDER ---
   if (loading) {
     return (
@@ -235,12 +326,24 @@ export default function Profile() {
       <div className="max-w-4xl mx-auto p-6">
         <div className="flex justify-between items-center mb-6">
           <h1 className="text-3xl font-bold">Profile</h1>
-          <button
-            className="px-4 py-2 rounded bg-blue-600 text-white font-semibold hover:bg-blue-700"
-            onClick={() => setViewMode(viewMode === 'edit' ? 'recruiter' : 'edit')}
-          >
-            {viewMode === 'edit' ? 'View as Recruiter' : 'Edit Profile'}
-          </button>
+          <div className="flex gap-2">
+            {!isOwnProfile && (
+              <button
+                className={`px-4 py-2 rounded font-semibold transition ${isFollowing ? 'bg-gray-200 text-gray-700 hover:bg-gray-300' : 'bg-blue-600 text-white hover:bg-blue-700'}`}
+                disabled={followLoading}
+                onClick={isFollowing ? handleUnfollow : handleFollow}
+              >
+                {followLoading ? '...' : isFollowing ? 'Unfollow' : 'Follow'}
+              </button>
+            )}
+            <button
+              className="px-4 py-2 rounded bg-blue-600 text-white font-semibold hover:bg-blue-700"
+              onClick={() => setViewMode(viewMode === 'edit' ? 'recruiter' : 'edit')}
+              disabled={!isOwnProfile}
+            >
+              {viewMode === 'edit' ? 'View as Recruiter' : 'Edit Profile'}
+            </button>
+          </div>
         </div>
         {error && (
           <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4">
@@ -412,7 +515,7 @@ export default function Profile() {
           )}
           <div className="space-y-6">
             {posts.map((post: any) => (
-              <PostItem key={post._id} post={post} />
+              <PostItem key={post._id} post={post} onDelete={canDeletePost ? handleDeletePost : undefined} />
             ))}
           </div>
         </div>

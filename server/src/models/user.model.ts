@@ -54,56 +54,49 @@ export interface IUser extends Document {
   education?: IEducation[];
   socialLinks?: ISocialLinks;
   actorDetails?: IActorDetails;
+  followers?: Schema.Types.ObjectId[];
+  following?: Schema.Types.ObjectId[];
   createdAt: Date;
   updatedAt: Date;
 }
 
 const userSchema = new Schema<IUser>({
-  firstName: {
-    type: String,
-  },
-  lastName: {
-    type: String,
-  },
-  name: {
-    type: String,
-    required: true,
-  },
-  email: {
-    type: String,
-    required: true,
-    unique: true,
-  },
-  role: {
-    type: String,
-    enum: ['artist', 'recruiter'],
-    required: true,
-  },
-  profilePicture: String,
-  bio: String,
-  location: String,
-  phone: String,
-  skills: [String],
-  portfolioImages: [String],
-  portfolioLinks: [{
-    title: String,
-    url: String,
-    description: String,
-  }],
-  experience: [{
-    title: String,
-    company: String,
-    startDate: String,
-    endDate: String,
-    current: Boolean,
-    description: String,
-  }],
-  education: [{
-    school: String,
-    degree: String,
-    field: String,
-    graduationYear: String,
-  }],
+  firstName: { type: String },
+  lastName: { type: String },
+  name: { type: String, required: true },
+  email: { type: String, required: true, unique: true },
+  role: { type: String, enum: ['artist', 'recruiter'], required: true },
+  profilePicture: { type: String },
+  bio: { type: String },
+  location: { type: String },
+  phone: { type: String },
+  skills: [{ type: String }],
+  portfolioImages: [{ type: String }],
+  portfolioLinks: [
+    {
+      title: String,
+      url: String,
+      description: String,
+    },
+  ],
+  experience: [
+    {
+      title: String,
+      company: String,
+      startDate: String,
+      endDate: String,
+      current: Boolean,
+      description: String,
+    },
+  ],
+  education: [
+    {
+      school: String,
+      degree: String,
+      field: String,
+      graduationYear: String,
+    },
+  ],
   socialLinks: {
     website: String,
     linkedin: String,
@@ -117,6 +110,8 @@ const userSchema = new Schema<IUser>({
     hairColor: String,
     specialSkills: [String],
   },
+  followers: [{ type: Schema.Types.ObjectId, ref: 'User', default: [] }],
+  following: [{ type: Schema.Types.ObjectId, ref: 'User', default: [] }],
 }, {
   timestamps: true,
 });

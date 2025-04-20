@@ -55,4 +55,36 @@ router.get('/', async (req: Request, res: Response) => {
   }
 });
 
+// DELETE /api/feed/:postId - Delete a post and its image from Cloudinary
+router.delete('/:postId', async (req: Request, res: Response) => {
+  try {
+    const user = req.user;
+    const { postId } = req.params;
+    if (!user) {
+      return res.status(401).json({ error: 'Missing user' });
+    }
+    const post = await Post.findById(postId);
+    if (!post) {
+      return res.status(404).json({ error: 'Post not found' });
+    }
+    if (post.author.toString() !== user._id.toString()) {
+      return res.status(403).json({ error: 'Unauthorized' });
+    }
+    // Delete image from Cloudinary if exists
+    if (post.imageUrl) {
+      try {
+        const { cloudinaryDelete } = await import('../utils/cloudinary');
+        await cloudinaryDelete(post.imageUrl);
+      } catch (err) {
+        // Log error but allow post deletion to continue
+        console.error('Cloudinary delete error:', err);
+      }
+    }
+    await post.deleteOne();
+    res.json({ message: 'Post deleted successfully' });
+  } catch (err) {
+    res.status(500).json({ error: 'Could not delete post' });
+  }
+});
+
 export default router;
