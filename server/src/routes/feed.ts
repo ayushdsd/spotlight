@@ -11,20 +11,31 @@ router.use(auth);
 // POST /api/feed - Create a post in MongoDB (with optional image)
 router.post('/', upload.single('image'), async (req: Request, res: Response) => {
   try {
+    console.log('[FEED] Incoming POST /api/feed');
+    console.log('[FEED] req.body:', req.body);
+    console.log('[FEED] req.file:', req.file);
     const { content } = req.body;
     const user = req.user;
     let imageUrl = '';
     if (req.file) {
-      // Upload image to cloudinary
-      const result = await cloudinaryUpload(req.file, { folder: `feed` });
-      imageUrl = result.secure_url;
+      try {
+        const result = await cloudinaryUpload(req.file, { folder: `feed` });
+        console.log('[FEED] Cloudinary upload result:', result);
+        imageUrl = result.secure_url;
+      } catch (cloudErr) {
+        console.error('[FEED] Cloudinary upload error:', cloudErr);
+        return res.status(500).json({ error: 'Cloudinary upload failed', details: cloudErr });
+      }
     }
     if (!content && !imageUrl) {
+      console.warn('[FEED] Post must have text or an image');
       return res.status(400).json({ error: 'Post must have text or an image' });
     }
     if (!user) {
+      console.error('[FEED] Missing user');
       return res.status(400).json({ error: 'Missing user' });
     }
+    console.log('[FEED] Creating post with:', { author: user._id, content, imageUrl });
     const post = new Post({
       author: user._id,
       content,
@@ -32,9 +43,11 @@ router.post('/', upload.single('image'), async (req: Request, res: Response) => 
     });
     await post.save();
     await post.populate('author', 'name picture role');
+    console.log('[FEED] Post created:', post);
     res.json({ post });
   } catch (err) {
-    res.status(500).json({ error: 'Could not create post' });
+    console.error('[FEED] Error in POST /api/feed:', err);
+    res.status(500).json({ error: 'Could not create post', details: err });
   }
 });
 
