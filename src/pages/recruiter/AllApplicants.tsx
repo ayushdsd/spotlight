@@ -35,7 +35,6 @@ interface Application {
 }
 
 const AllApplicants = () => {
-  const { user } = useAuth();
   const [applications, setApplications] = useState<Application[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);

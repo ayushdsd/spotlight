@@ -96,6 +96,8 @@ const GigDetail = () => {
       reqs = job.requirements as string[];
     } else if (typeof job.requirements === 'string') {
       reqs = job.requirements.split(/\n|,/).map((r: string) => r.trim()).filter(Boolean);
+    } else {
+      reqs = [];
     }
     if (!Array.isArray(reqs)) return null;
     return (
@@ -115,6 +117,8 @@ const GigDetail = () => {
       benefits = job.benefits as string[];
     } else if (typeof job.benefits === 'string') {
       benefits = job.benefits.split(/\n|,/).map((b: string) => b.trim()).filter(Boolean);
+    } else {
+      benefits = [];
     }
     if (!Array.isArray(benefits)) return null;
     return (
