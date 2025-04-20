@@ -17,6 +17,7 @@ router.post('/', upload.single('image'), async (req: Request, res: Response) => 
     const { content } = req.body;
     const user = req.user;
     let imageUrl = '';
+    let postContent = content;
     if (req.file) {
       try {
         const result = await cloudinaryUpload(req.file, { folder: `feed` });
@@ -27,7 +28,10 @@ router.post('/', upload.single('image'), async (req: Request, res: Response) => 
         return res.status(500).json({ error: 'Cloudinary upload failed', details: cloudErr });
       }
     }
-    if (!content && !imageUrl) {
+    if (!postContent && imageUrl) {
+      postContent = ' ';
+    }
+    if (!postContent && !imageUrl) {
       console.warn('[FEED] Post must have text or an image');
       return res.status(400).json({ error: 'Post must have text or an image' });
     }
@@ -35,10 +39,10 @@ router.post('/', upload.single('image'), async (req: Request, res: Response) => 
       console.error('[FEED] Missing user');
       return res.status(400).json({ error: 'Missing user' });
     }
-    console.log('[FEED] Creating post with:', { author: user._id, content, imageUrl });
+    console.log('[FEED] Creating post with:', { author: user._id, content: postContent, imageUrl });
     const post = new Post({
       author: user._id,
-      content,
+      content: postContent,
       imageUrl: imageUrl || undefined,
     });
     await post.save();
