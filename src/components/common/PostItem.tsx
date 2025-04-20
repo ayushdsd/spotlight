@@ -1,5 +1,6 @@
 import { Post } from '../../pages/Feed';
 import { useAuth } from '../../contexts/AuthContext';
+import { useState, useRef, useEffect } from 'react';
 
 interface PostItemProps {
   post: Post;
@@ -9,6 +10,28 @@ const PostItem = ({ post, onDelete }: PostItemProps & { onDelete?: (id: string) 
   const { user } = useAuth();
   const userId = user?._id; // Always use _id
   const isOwner = userId && post.author && post.author._id === userId;
+
+  // Dropdown state
+  const [dropdownOpen, setDropdownOpen] = useState(false);
+  const dropdownRef = useRef<HTMLDivElement>(null);
+
+  // Close dropdown if clicked outside
+  useEffect(() => {
+    function handleClickOutside(event: MouseEvent) {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
+        setDropdownOpen(false);
+      }
+    }
+    if (dropdownOpen) {
+      document.addEventListener('mousedown', handleClickOutside);
+    } else {
+      document.removeEventListener('mousedown', handleClickOutside);
+    }
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, [dropdownOpen]);
+
   return (
     <div className="bg-white rounded-lg shadow p-4 relative">
       <div className="flex items-center gap-3 mb-2">
@@ -31,13 +54,25 @@ const PostItem = ({ post, onDelete }: PostItemProps & { onDelete?: (id: string) 
           <div className="text-xs text-gray-500">{new Date(post.createdAt).toLocaleString()}</div>
         </div>
         {isOwner && onDelete && (
-          <button
-            className="ml-auto px-2 py-1 text-xs bg-red-100 text-red-600 rounded hover:bg-red-200 transition absolute top-2 right-2"
-            onClick={() => onDelete(post._id)}
-            aria-label="Delete Post"
-          >
-            Delete
-          </button>
+          <div className="ml-auto relative" ref={dropdownRef}>
+            <button
+              className="px-2 py-1 text-xs bg-gray-100 text-gray-600 rounded hover:bg-gray-200 transition"
+              onClick={() => setDropdownOpen((open) => !open)}
+              aria-label="Post Actions"
+            >
+              ⋮
+            </button>
+            {dropdownOpen && (
+              <div className="absolute right-0 mt-2 w-32 bg-white border border-gray-200 rounded shadow-lg z-10">
+                <button
+                  className="block w-full text-left px-4 py-2 text-red-600 hover:bg-red-50"
+                  onClick={() => { onDelete(post._id); setDropdownOpen(false); }}
+                >
+                  Delete Post
+                </button>
+              </div>
+            )}
+          </div>
         )}
       </div>
       <div className="mb-2 whitespace-pre-line">{post.content}</div>
