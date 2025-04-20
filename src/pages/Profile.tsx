@@ -101,7 +101,6 @@ export default function Profile() {
 
   // --- FOLLOW STATE ---
   const [isFollowing, setIsFollowing] = useState<boolean>(false);
-  const [isFollowedBy, setIsFollowedBy] = useState<boolean>(false);
   const [followLoading, setFollowLoading] = useState<boolean>(false);
 
   useEffect(() => {
@@ -181,10 +180,8 @@ export default function Profile() {
         headers: { Authorization: `Bearer ${token}` },
       });
       setIsFollowing(res.data.isFollowing);
-      setIsFollowedBy(res.data.isFollowedBy);
     } catch (err) {
       setIsFollowing(false);
-      setIsFollowedBy(false);
     } finally {
       setFollowLoading(false);
     }
@@ -215,7 +212,6 @@ export default function Profile() {
   };
 
   // Only allow edit, upload, and delete on own profile
-  const canEdit = isOwnProfile && viewMode === 'edit';
   const canDeletePost = isOwnProfile;
 
   const handleChange = (field: keyof ProfileFormData, value: any) => {

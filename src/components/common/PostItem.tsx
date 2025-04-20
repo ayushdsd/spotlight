@@ -7,8 +7,8 @@ interface PostItemProps {
 
 const PostItem = ({ post, onDelete }: PostItemProps & { onDelete?: (id: string) => void }) => {
   const { user } = useAuth();
-  const userId = user?._id || user?.id;
-  const isOwner = userId && post.author && (post.author._id === userId || post.author.id === userId);
+  const userId = user?._id; // Always use _id
+  const isOwner = userId && post.author && post.author._id === userId;
   return (
     <div className="bg-white rounded-lg shadow p-4 relative">
       <div className="flex items-center gap-3 mb-2">
@@ -25,7 +25,7 @@ const PostItem = ({ post, onDelete }: PostItemProps & { onDelete?: (id: string) 
         )}
         <div>
           <div className="font-semibold text-gray-900 cursor-pointer hover:underline"
-               onClick={() => window.location.href = `/profile/${post.author._id || post.author.id}?view=recruiter`}>
+               onClick={() => window.location.href = `/profile/${post.author._id}?view=recruiter`}>
             {post.author.name}
           </div>
           <div className="text-xs text-gray-500">{new Date(post.createdAt).toLocaleString()}</div>
