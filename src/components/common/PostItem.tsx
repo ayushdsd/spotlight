@@ -78,7 +78,16 @@ const PostItem = ({ post, onDelete }: PostItemProps & { onDelete?: (id: string) 
       </div>
       <div className="mb-2 whitespace-pre-line text-left">{post.content}</div>
       {post.imageUrl && (
-        <img src={post.imageUrl} alt="Post" className="max-h-80 w-auto rounded border mx-auto my-2" />
+        <div className="w-full flex justify-center my-2">
+          <div className="aspect-[4/5] w-full max-w-xs sm:max-w-sm md:max-w-md lg:max-w-lg xl:max-w-xl overflow-hidden rounded border bg-gray-100">
+            <img
+              src={post.imageUrl}
+              alt="Post"
+              className="object-cover w-full h-full"
+              style={{ aspectRatio: '4 / 5', display: 'block' }}
+            />
+          </div>
+        </div>
       )}
       {/* Media support can be added here */}
     </div>

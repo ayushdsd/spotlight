@@ -5,19 +5,30 @@ import { useAuth } from '../../contexts/AuthContext';
 import { API_BASE_URL } from '../../utils/api';
 
 interface Application {
-  id: number;
-  jobId: number;
+  _id: string;
   job: {
+    _id: string;
     title: string;
     company: string;
     location: string;
+    type: string;
+    category: string;
+    salary: {
+      min: number;
+      max: number;
+      currency: string;
+    };
+    description: string;
+    requirements: string;
+    benefits?: string;
+    deadline?: string;
   };
   status: 'pending' | 'reviewed' | 'accepted' | 'rejected';
-  appliedDate: string;
-  coverLetter: string;
-  availability: string;
-  expectedSalary: string;
-  portfolioLinks: string[];
+  appliedAt: string;
+  coverLetter?: string;
+  availability?: string;
+  expectedSalary?: string;
+  portfolioLinks?: string[];
 }
 
 const Applications = () => {
@@ -35,7 +46,8 @@ const Applications = () => {
       setLoading(true);
       setError(null);
       const userToken = user?.token;
-      const response = await axios.get(`${API_BASE_URL}/api/applications`, {
+      console.log('User token:', userToken);
+      const response = await axios.get(`${API_BASE_URL}/api/jobs/applications/me`, {
         headers: {
           Authorization: `Bearer ${userToken}`,
         },
@@ -86,40 +98,25 @@ const Applications = () => {
             <p className="mt-2 text-gray-600">Start applying to jobs to see your applications here</p>
           </div>
         ) : (
-          <div className="bg-white shadow rounded-lg overflow-hidden">
-            <ul className="divide-y divide-gray-200">
-              {applications.map((application) => (
-                <li key={application.id} className="p-6 hover:bg-gray-50 transition-colors">
-                  <div className="flex items-center justify-between">
-                    <div className="flex-1 min-w-0">
-                      <h3 className="text-lg font-semibold text-gray-900 truncate">
-                        {application.job.title}
-                      </h3>
-                      <div className="mt-1 flex items-center text-sm text-gray-500">
-                        <span>{application.job.company}</span>
-                        <span className="mx-2">•</span>
-                        <span>{application.job.location}</span>
-                      </div>
-                      <div className="mt-2 flex items-center space-x-4">
-                        <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${getStatusColor(application.status)}`}>
-                          {application.status.charAt(0).toUpperCase() + application.status.slice(1)}
-                        </span>
-                        <span className="text-sm text-gray-500">
-                          Applied {new Date(application.appliedDate).toLocaleDateString()}
-                        </span>
-                      </div>
-                    </div>
-                    <button
-                      onClick={() => {/* View application details */}}
-                      className="ml-4 text-sm font-medium text-blue-600 hover:text-blue-500"
-                    >
-                      View Details
-                    </button>
-                  </div>
-                </li>
-              ))}
-            </ul>
-          </div>
+          <ul>
+            {applications.map((app) => (
+              <li key={app._id} className="mb-8 p-6 bg-white rounded-lg shadow">
+                <h3 className="text-xl font-semibold text-gray-900">{app.job.title}</h3>
+                <div className="text-gray-700 mb-1">{app.job.company} &bull; {app.job.location} &bull; {app.job.type}</div>
+                <div className="text-gray-500 mb-2">Category: {app.job.category}</div>
+                <div className="mb-2"><span className="font-medium">Salary:</span> {app.job.salary.min} - {app.job.salary.max} {app.job.salary.currency}</div>
+                <div className="mb-2"><span className="font-medium">Status:</span> <span className={getStatusColor(app.status)}>{app.status}</span></div>
+                <div className="mb-2"><span className="font-medium">Applied On:</span> {new Date(app.appliedAt).toLocaleDateString()}</div>
+                <div className="mb-2"><span className="font-medium">Description:</span> {app.job.description}</div>
+                {app.job.benefits && <div className="mb-2"><span className="font-medium">Benefits:</span> <ul className="list-disc list-inside">{app.job.benefits.split('\n').map((b, i) => <li key={i}>{b}</li>)}</ul></div>}
+                <div className="mb-2"><span className="font-medium">Requirements:</span> <ul className="list-disc list-inside">{app.job.requirements.split('\n').map((r, i) => <li key={i}>{r}</li>)}</ul></div>
+                {app.coverLetter && <div className="mb-2"><span className="font-medium">Your Cover Letter:</span> {app.coverLetter}</div>}
+                {app.availability && <div className="mb-2"><span className="font-medium">Availability:</span> {app.availability}</div>}
+                {app.expectedSalary && <div className="mb-2"><span className="font-medium">Expected Salary:</span> {app.expectedSalary}</div>}
+                {app.portfolioLinks && <div className="mb-2"><span className="font-medium">Portfolio Links:</span> <ul className="list-disc list-inside">{app.portfolioLinks.map((link, i) => <li key={i}>{link}</li>)}</ul></div>}
+              </li>
+            ))}
+          </ul>
         )}
       </div>
     </DashboardLayout>

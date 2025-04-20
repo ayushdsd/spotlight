@@ -88,6 +88,44 @@ const GigDetail = () => {
     );
   }
 
+  // Render requirements
+  const renderRequirements = () => {
+    if (!job) return null;
+    let reqs: string[] = [];
+    if (Array.isArray(job.requirements)) {
+      reqs = job.requirements as string[];
+    } else if (typeof job.requirements === 'string') {
+      reqs = job.requirements.split(/\n|,/).map((r: string) => r.trim()).filter(Boolean);
+    }
+    if (!Array.isArray(reqs)) return null;
+    return (
+      <ul className="list-disc list-inside space-y-2 text-gray-600">
+        {reqs.map((req, index) => (
+          <li key={index}>{req}</li>
+        ))}
+      </ul>
+    );
+  };
+
+  // Render benefits
+  const renderBenefits = () => {
+    if (!job) return null;
+    let benefits: string[] = [];
+    if (Array.isArray(job.benefits)) {
+      benefits = job.benefits as string[];
+    } else if (typeof job.benefits === 'string') {
+      benefits = job.benefits.split(/\n|,/).map((b: string) => b.trim()).filter(Boolean);
+    }
+    if (!Array.isArray(benefits)) return null;
+    return (
+      <ul className="list-disc list-inside space-y-2 text-gray-600">
+        {benefits.map((benefit, index) => (
+          <li key={index}>{benefit}</li>
+        ))}
+      </ul>
+    );
+  };
+
   return (
     <DashboardLayout>
       <div className="min-h-screen bg-gray-50">
@@ -148,20 +186,12 @@ const GigDetail = () => {
 
                   <section>
                     <h2 className="text-xl font-semibold text-gray-900 mb-4">Requirements</h2>
-                    <ul className="list-disc list-inside space-y-2 text-gray-600">
-                      {job.requirements.map((req, index) => (
-                        <li key={index}>{req}</li>
-                      ))}
-                    </ul>
+                    {renderRequirements()}
                   </section>
 
                   <section>
                     <h2 className="text-xl font-semibold text-gray-900 mb-4">Benefits</h2>
-                    <ul className="list-disc list-inside space-y-2 text-gray-600">
-                      {job.benefits.map((benefit, index) => (
-                        <li key={index}>{benefit}</li>
-                      ))}
-                    </ul>
+                    {renderBenefits()}
                   </section>
                 </div>
 
@@ -186,25 +216,29 @@ const GigDetail = () => {
                   </section>
 
                   <section className="bg-gray-50 rounded-lg p-6">
-                    <h2 className="text-lg font-semibold text-gray-900 mb-4">About {job.companyInfo.name}</h2>
-                    <p className="text-sm text-gray-600 mb-4">{job.companyInfo.description}</p>
+                    <h2 className="text-lg font-semibold text-gray-900 mb-4">About {job.companyInfo?.name || job.company || 'Company'}</h2>
+                    <p className="text-sm text-gray-600 mb-4">{job.companyInfo?.description || ''}</p>
                     <dl className="space-y-4">
                       <div>
                         <dt className="text-sm font-medium text-gray-500">Website</dt>
                         <dd className="mt-1">
-                          <a
-                            href={job.companyInfo.website}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            className="text-sm text-blue-600 hover:text-blue-500"
-                          >
-                            {job.companyInfo.website}
-                          </a>
+                          {job.companyInfo?.website ? (
+                            <a
+                              href={job.companyInfo.website}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="text-sm text-blue-600 hover:text-blue-500"
+                            >
+                              {job.companyInfo.website}
+                            </a>
+                          ) : (
+                            <span className="text-sm text-gray-400">N/A</span>
+                          )}
                         </dd>
                       </div>
                       <div>
                         <dt className="text-sm font-medium text-gray-500">Location</dt>
-                        <dd className="mt-1 text-sm text-gray-900">{job.companyInfo.location}</dd>
+                        <dd className="mt-1 text-sm text-gray-900">{job.companyInfo?.location || job.location || 'N/A'}</dd>
                       </div>
                     </dl>
                   </section>

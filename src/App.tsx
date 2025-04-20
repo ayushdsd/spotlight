@@ -18,6 +18,7 @@ const ArtistProfile = lazy(() => import('./pages/ArtistProfile'));
 const Pricing = lazy(() => import('./pages/Pricing'));
 const Auth = lazy(() => import('./pages/Auth'));
 const Feed = lazy(() => import('./pages/Feed'));
+const CompanyProfile = lazy(() => import('./pages/recruiter/CompanyProfile'));
 
 function App() {
   return (
@@ -68,6 +69,17 @@ function App() {
                 </RouteGuard>
               }
             />
+            <Route
+              path="/artist/applications"
+              element={
+                <RouteGuard allowedRoles={['artist']}>
+                  {(() => {
+                    const Applications = lazy(() => import('./pages/artist/Applications'));
+                    return <Applications />;
+                  })()}
+                </RouteGuard>
+              }
+            />
 
             {/* Recruiter Routes */}
             <Route
@@ -91,6 +103,47 @@ function App() {
               element={
                 <RouteGuard allowedRoles={['recruiter']}>
                   <Messages />
+                </RouteGuard>
+              }
+            />
+            <Route
+              path="/recruiter/company"
+              element={
+                <RouteGuard allowedRoles={['recruiter']}>
+                  <CompanyProfile />
+                </RouteGuard>
+              }
+            />
+            <Route
+              path="/recruiter/listings"
+              element={
+                <RouteGuard allowedRoles={['recruiter']}>
+                  {(() => {
+                    const RecruiterListings = lazy(() => import('./pages/recruiter/Listings'));
+                    return <RecruiterListings />;
+                  })()}
+                </RouteGuard>
+              }
+            />
+            <Route
+              path="/recruiter/applications/:jobId"
+              element={
+                <RouteGuard allowedRoles={['recruiter']}>
+                  {(() => {
+                    const RecruiterApplications = lazy(() => import('./pages/recruiter/Applications'));
+                    return <RecruiterApplications />;
+                  })()}
+                </RouteGuard>
+              }
+            />
+            <Route
+              path="/recruiter/applicants"
+              element={
+                <RouteGuard allowedRoles={['recruiter']}>
+                  {(() => {
+                    const AllApplicants = lazy(() => import('./pages/recruiter/AllApplicants'));
+                    return <AllApplicants />;
+                  })()}
                 </RouteGuard>
               }
             />

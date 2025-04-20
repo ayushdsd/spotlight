@@ -13,6 +13,7 @@ import searchRoutes from './routes/search.routes';
 import portfolioRoutes from './routes/portfolio.routes';
 import jobRoutes from './routes/job.routes';
 import feedRoutes from './routes/feed';
+import companyRoutes from './routes/company.routes';
 // import feedRoutes from './routes/feed.routes';
 
 // Load environment variables
@@ -66,6 +67,7 @@ app.use('/api/search', searchRoutes);
 app.use('/api/portfolio', portfolioRoutes);
 app.use('/api/jobs', jobRoutes);
 app.use('/api/feed', feedRoutes);
+app.use('/api/company-profile', companyRoutes);
 
 // Health check route
 app.get('/health', (req: Request, res: Response) => {

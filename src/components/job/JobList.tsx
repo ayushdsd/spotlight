@@ -1,13 +1,14 @@
 import { Link } from 'react-router-dom';
 
 export interface Job {
-  id: number;
+  _id?: string;
+  id?: number;
   title: string;
   company: string;
   location: string;
   type: string;
   category: string;
-  salary: string;
+  salary: string | { min: string; max: string; currency: string };
   posted: string;
 }
 
@@ -53,15 +54,15 @@ const JobList = ({ jobs, loading = false, error = null }: JobListProps) => {
     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
       {jobs.map((job) => (
         <Link
-          key={job.id}
-          to={`/gigs/${job.id}`}
+          key={job._id || job.id}
+          to={`/gigs/${job._id || job.id}`}
           className="group bg-white p-6 rounded-xl shadow-sm border border-gray-100 transform-style-3d hover:translate-z-2 transition-transform"
         >
           <h3 className="font-minimal text-lg font-semibold text-gray-900 group-hover:text-blue-600 transition-colors">
             {job.title}
           </h3>
           <p className="text-gray-600 mt-1">{job.company}</p>
-          <div className="mt-4 flex flex-wrap gap-2">
+          <div className="mt-2 flex flex-wrap gap-2">
             <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
               {job.type}
             </span>
@@ -69,7 +70,9 @@ const JobList = ({ jobs, loading = false, error = null }: JobListProps) => {
               {job.location}
             </span>
             <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
-              {job.salary}
+              {typeof job.salary === 'object' && job.salary !== null
+                ? `${job.salary.min} - ${job.salary.max} ${job.salary.currency}`
+                : job.salary}
             </span>
           </div>
           <div className="mt-4 text-sm text-gray-500">Posted {job.posted}</div>

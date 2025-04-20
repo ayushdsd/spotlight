@@ -4,7 +4,6 @@ import { ChevronDownIcon } from '@heroicons/react/24/outline';
 import Splash from '../components/common/Splash';
 import spotlightLogo from '../assets/SPOTLIGHT.png';
 import herobg from '../assets/herobg.jpg';
-import BrowseGigs from '../components/landing/BrowseGigs';
 
 const Landing = () => {
   const { openIndex, toggleAccordion } = useAccordion();
@@ -24,7 +23,7 @@ const Landing = () => {
   const faqItems = [
     { 
       question: 'How does Spotlight work?', 
-      answer: 'Spotlight connects talented artists with top recruiters in the industry. Create your profile, showcase your work, and apply to opportunities that match your skills.' 
+      answer: 'Spotlight connects talented artists with top recruiters in the performing arts industry. Create your profile, showcase your work, and apply to opportunities that match your skills.' 
     },
     { 
       question: 'Is Spotlight free to use?', 
@@ -102,8 +101,6 @@ const Landing = () => {
 
             {/* Navigation */}
             <div className="hidden md:flex md:items-center md:space-x-8">
-              <Link to="/artists" className="text-gray-600 hover:text-blue-500">Find Artists</Link>
-              <Link to="/gigs" className="text-gray-600 hover:text-blue-500">Browse Gigs</Link>
               <Link to="/pricing" className="text-gray-600 hover:text-blue-500">Pricing</Link>
               <Link to="/about" className="text-gray-600 hover:text-blue-500">About</Link>
             </div>
@@ -186,9 +183,6 @@ const Landing = () => {
           </div>
         </div>
       </section>
-
-      {/* Browse Gigs Section */}
-      <BrowseGigs />
 
       {/* Featured Recruiters */}
       <section className="py-8 sm:py-12 lg:py-16 bg-gray-50 w-full overflow-hidden">

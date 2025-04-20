@@ -17,12 +17,6 @@ interface JobFormData {
   benefits: string[];
   applicationDeadline: string;
   startDate: string;
-  companyInfo: {
-    name: string;
-    description: string;
-    website: string;
-    location: string;
-  };
 }
 
 const initialFormData: JobFormData = {
@@ -37,12 +31,6 @@ const initialFormData: JobFormData = {
   benefits: [],
   applicationDeadline: '',
   startDate: '',
-  companyInfo: {
-    name: '',
-    description: '',
-    website: '',
-    location: ''
-  }
 };
 
 const PostJob = () => {
@@ -88,18 +76,7 @@ const PostJob = () => {
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target;
-    if (name.startsWith('companyInfo.')) {
-      const field = name.split('.')[1];
-      setFormData(prev => ({
-        ...prev,
-        companyInfo: {
-          ...prev.companyInfo,
-          [field]: value
-        }
-      }));
-    } else {
-      setFormData(prev => ({ ...prev, [name]: value }));
-    }
+    setFormData(prev => ({ ...prev, [name]: value }));
   };
 
   const addRequirement = () => {
@@ -336,63 +313,6 @@ const PostJob = () => {
                   </li>
                 ))}
               </ul>
-            </div>
-          </div>
-
-          {/* Company Information */}
-          <div className="bg-white rounded-lg shadow p-6 space-y-6">
-            <h2 className="text-xl font-semibold text-gray-900">Company Information</h2>
-            
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <div>
-                <label className="block text-sm font-medium text-gray-700">Company Name</label>
-                <input
-                  type="text"
-                  name="companyInfo.name"
-                  value={formData.companyInfo.name}
-                  onChange={handleChange}
-                  required
-                  className="mt-1 block w-full rounded-md border border-gray-300 py-2 px-3 shadow-sm focus:border-blue-500 focus:ring-blue-500"
-                />
-              </div>
-
-              <div>
-                <label className="block text-sm font-medium text-gray-700">Company Website</label>
-                <input
-                  type="url"
-                  name="companyInfo.website"
-                  value={formData.companyInfo.website}
-                  onChange={handleChange}
-                  required
-                  className="mt-1 block w-full rounded-md border border-gray-300 py-2 px-3 shadow-sm focus:border-blue-500 focus:ring-blue-500"
-                  placeholder="https://..."
-                />
-              </div>
-
-              <div>
-                <label className="block text-sm font-medium text-gray-700">Company Location</label>
-                <input
-                  type="text"
-                  name="companyInfo.location"
-                  value={formData.companyInfo.location}
-                  onChange={handleChange}
-                  required
-                  className="mt-1 block w-full rounded-md border border-gray-300 py-2 px-3 shadow-sm focus:border-blue-500 focus:ring-blue-500"
-                />
-              </div>
-            </div>
-
-            <div>
-              <label className="block text-sm font-medium text-gray-700">Company Description</label>
-              <textarea
-                name="companyInfo.description"
-                value={formData.companyInfo.description}
-                onChange={handleChange}
-                required
-                rows={4}
-                className="mt-1 block w-full rounded-md border border-gray-300 py-2 px-3 shadow-sm focus:border-blue-500 focus:ring-blue-500"
-                placeholder="Tell us about your company..."
-              />
             </div>
           </div>
 

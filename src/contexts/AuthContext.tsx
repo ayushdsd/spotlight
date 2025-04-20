@@ -85,6 +85,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         email: userData.email,
         picture: userData.picture,
         role: userData.role,
+        token: userData.token, // Ensure token is included in user object
       };
 
       // Store data in localStorage

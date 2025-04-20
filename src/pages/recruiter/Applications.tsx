@@ -88,15 +88,15 @@ const JobApplications = () => {
   const updateApplicationStatus = async (applicationId: string, status: Application['status']) => {
     try {
       const token = localStorage.getItem('token');
-      await axios.patch(
-        `${API_BASE_URL}/api/applications/${applicationId}/status`,
+      await axios.put(
+        `${API_BASE_URL}/api/jobs/applications/${applicationId}/status`,
         { status },
         {
           headers: { Authorization: `Bearer ${token}` },
         }
       );
 
-      setApplications(applications.map(app => 
+      setApplications(applications.map(app =>
         app._id === applicationId ? { ...app, status } : app
       ));
     } catch (error: any) {
@@ -223,6 +223,14 @@ const JobApplications = () => {
                           {selectedApplication.applicant.name}
                         </h4>
                         <p className="text-gray-600">{selectedApplication.applicant.email}</p>
+                        <a
+                          href={`/artists/${selectedApplication.applicant._id}`}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="mt-2 inline-block text-blue-600 hover:underline text-sm"
+                        >
+                          View Profile
+                        </a>
                       </div>
                     </div>
                   </div>
