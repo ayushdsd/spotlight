@@ -82,7 +82,7 @@ const emptyFormData: ProfileFormData = {
 
 export default function Profile() {
   const { user } = useAuth();
-  const { id: profileUserId } = useParams();
+  const { userId: profileUserId } = useParams();
   const [searchParams] = useSearchParams();
   const queryView = searchParams.get('view');
   const isOwnProfile = !profileUserId || profileUserId === user?._id || profileUserId === user?.id;
