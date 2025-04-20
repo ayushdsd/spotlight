@@ -54,13 +54,14 @@ const PostItem = ({ post, onDelete }: PostItemProps & { onDelete?: (id: string) 
           <div className="text-xs text-gray-500">{new Date(post.createdAt).toLocaleString()}</div>
         </div>
         {isOwner && onDelete && (
-          <div className="ml-auto relative" ref={dropdownRef}>
+          <div className="ml-auto relative flex items-center" ref={dropdownRef}>
             <button
-              className="px-2 py-1 text-xs bg-gray-100 text-gray-600 rounded hover:bg-gray-200 transition"
+              className="px-2 py-1 text-xs bg-gray-100 text-gray-600 rounded hover:bg-gray-200 transition flex items-center justify-center focus:outline-none focus:ring-2 focus:ring-blue-400"
+              style={{ minWidth: 32, minHeight: 32, fontSize: 24, lineHeight: 1 }}
               onClick={() => setDropdownOpen((open) => !open)}
               aria-label="Post Actions"
             >
-              ⋮
+              &#8942;
             </button>
             {dropdownOpen && (
               <div className="absolute right-0 mt-2 w-32 bg-white border border-gray-200 rounded shadow-lg z-10">

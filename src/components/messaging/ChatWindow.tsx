@@ -164,9 +164,9 @@ export default function ChatWindow({ recipientId, recipientName, recipientPictur
   }
 
   return (
-    <div className="flex flex-col h-full bg-white rounded-lg shadow-lg">
+    <div className="flex flex-col h-full max-h-screen w-full sm:max-w-full overflow-x-auto">
       {/* Header */}
-      <div className="flex items-center p-4 border-b">
+      <div className="flex items-center p-4 border-b sm:p-2">
         <img
           src={recipientPicture || '/default-avatar.png'}
           alt={recipientName}
@@ -178,7 +178,7 @@ export default function ChatWindow({ recipientId, recipientName, recipientPictur
       </div>
 
       {/* Messages */}
-      <div className="flex-1 overflow-y-auto p-4 space-y-4">
+      <div className="flex-1 overflow-y-auto p-4 sm:p-2 bg-gray-50" style={{ minHeight: 0 }}>
         {messages.filter(m => m.sender).map((message) => (
           <div
             key={message._id}
@@ -209,50 +209,47 @@ export default function ChatWindow({ recipientId, recipientName, recipientPictur
       </div>
 
       {/* Input */}
-      <form onSubmit={handleSubmit} className="p-4 border-t">
-        <div className="flex items-center space-x-2">
-          <input
-            type="file"
-            accept="image/*,video/*"
-            onChange={(e) => setAttachment(e.target.files?.[0] || null)}
-            className="hidden"
-            id="attachment"
-          />
-          <label
-            htmlFor="attachment"
-            className="p-2 hover:bg-gray-100 rounded-full cursor-pointer"
+      <form onSubmit={handleSubmit} className="flex items-center gap-2 border-t p-4 bg-white sm:p-2">
+        <input
+          type="file"
+          accept="image/*,video/*"
+          onChange={(e) => setAttachment(e.target.files?.[0] || null)}
+          className="hidden"
+          id="attachment"
+        />
+        <label
+          htmlFor="attachment"
+          className="p-2 hover:bg-gray-100 rounded-full cursor-pointer"
+        >
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            className="h-6 w-6 text-gray-500"
+            fill="none"
+            viewBox="0 0 24 24"
+            stroke="currentColor"
           >
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              className="h-6 w-6 text-gray-500"
-              fill="none"
-              viewBox="0 0 24 24"
-              stroke="currentColor"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={2}
-                d="M15.172 7l-6.586 6.586a2 2 0 102.828 2.828l6.414-6.586a4 4 0 00-5.656-5.656l-6.415 6.585a6 6 0 108.486 8.486L20.5 13"
-              />
-            </svg>
-          </label>
-          <input
-            type="text"
-            value={newMessage}
-            onChange={(e) => setNewMessage(e.target.value)}
-            placeholder="Type a message..."
-            className="flex-1 p-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-            disabled={loading}
-          />
-          <button
-            type="submit"
-            disabled={loading}
-            className="p-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 disabled:opacity-50"
-          >
-            Send
-          </button>
-        </div>
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              strokeWidth={2}
+              d="M15.172 7l-6.586 6.586a2 2 0 102.828 2.828l6.414-6.586a4 4 0 00-5.656-5.656l-6.415 6.585a6 6 0 108.486 8.486L20.5 13"
+            />
+          </svg>
+        </label>
+        <input
+          className="flex-1 border rounded px-3 py-2 sm:px-2 sm:py-1 focus:outline-none focus:ring-2 focus:ring-blue-400"
+          type="text"
+          value={newMessage}
+          onChange={e => setNewMessage(e.target.value)}
+          placeholder="Type your message..."
+          style={{ minWidth: 0 }}
+        />
+        <button
+          type="submit"
+          className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 transition sm:px-2 sm:py-1"
+        >
+          Send
+        </button>
         {attachment && (
           <div className="mt-2 flex items-center space-x-2">
             <span className="text-sm text-gray-500">{attachment.name}</span>
