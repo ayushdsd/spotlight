@@ -374,12 +374,27 @@ export default function Profile() {
             {/* Actor Details */}
             <div className="bg-white p-6 rounded shadow space-y-4">
               <h2 className="text-xl font-semibold mb-2">Physical Details</h2>
-              <div className="grid grid-cols-2 gap-2 sm:grid-cols-1">
-                <div><span className="font-medium">Height:</span> {formData.actorDetails?.height}</div>
-                <div><span className="font-medium">Weight:</span> {formData.actorDetails?.weight}</div>
-                <div><span className="font-medium">Eye Color:</span> {formData.actorDetails?.eyeColor}</div>
-                <div><span className="font-medium">Hair Color:</span> {formData.actorDetails?.hairColor}</div>
-                <div className="col-span-2"><span className="font-medium">Special Skills:</span> {(formData.actorDetails?.specialSkills || []).join(', ')}</div>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                  <label>Height</label>
+                  <input type="text" value={formData.actorDetails?.height || ''} onChange={e => setFormData(prev => ({ ...prev, actorDetails: { ...prev.actorDetails, height: e.target.value } }))} className="input" />
+                </div>
+                <div>
+                  <label>Weight</label>
+                  <input type="text" value={formData.actorDetails?.weight || ''} onChange={e => setFormData(prev => ({ ...prev, actorDetails: { ...prev.actorDetails, weight: e.target.value } }))} className="input" />
+                </div>
+                <div>
+                  <label>Eye Color</label>
+                  <input type="text" value={formData.actorDetails?.eyeColor || ''} onChange={e => setFormData(prev => ({ ...prev, actorDetails: { ...prev.actorDetails, eyeColor: e.target.value } }))} className="input" />
+                </div>
+                <div>
+                  <label>Hair Color</label>
+                  <input type="text" value={formData.actorDetails?.hairColor || ''} onChange={e => setFormData(prev => ({ ...prev, actorDetails: { ...prev.actorDetails, hairColor: e.target.value } }))} className="input" />
+                </div>
+                <div className="col-span-2">
+                  <label>Special Skills (comma separated)</label>
+                  <input type="text" value={formData.actorDetails?.specialSkills?.join(', ') || ''} onChange={e => setFormData(prev => ({ ...prev, actorDetails: { ...prev.actorDetails, specialSkills: e.target.value.split(',').map(s => s.trim()) } }))} className="input" />
+                </div>
               </div>
             </div>
             {/* Photo Upload */}
