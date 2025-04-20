@@ -27,8 +27,11 @@ const auth = async (
 
     const decoded = jwt.verify(token, process.env.JWT_SECRET || 'your-secret-key') as User;
     // Fetch the user from the database using _id from the JWT
+    console.log('[AUTH] Decoded JWT:', decoded);
     const user = await User.findById((decoded as any)._id).lean();
+    console.log('[AUTH] MongoDB User:', user);
     if (!user) {
+      console.error('[AUTH] User not found for _id:', (decoded as any)._id);
       return res.status(404).json({ message: 'User not found' });
     }
     // Ensure _id is a string
