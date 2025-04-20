@@ -218,13 +218,6 @@ export default function Profile() {
     setFormData(prev => ({ ...prev, [field]: value }));
   };
 
-  const handleActorDetailChange = (field: keyof ProfileFormData['actorDetails'], value: any) => {
-    setFormData(prev => ({
-      ...prev,
-      actorDetails: { ...prev.actorDetails, [field]: value },
-    }));
-  };
-
   const handlePhotoUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     if (!e.target.files || e.target.files.length === 0) return;
     setUploadingPhoto(true);

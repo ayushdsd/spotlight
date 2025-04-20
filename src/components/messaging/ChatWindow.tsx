@@ -29,7 +29,6 @@ export default function ChatWindow({ recipientId, recipientName, recipientPictur
   const [messages, setMessages] = useState<Message[]>([]);
   const [newMessage, setNewMessage] = useState('');
   const [attachment, setAttachment] = useState<File | null>(null);
-  const [loading, setLoading] = useState(false);
   const [canMessage, setCanMessage] = useState<boolean>(true);
   const [checkingFollow, setCheckingFollow] = useState<boolean>(true);
   const [conversationId, setConversationId] = useState<string | null>(null);
@@ -112,7 +111,6 @@ export default function ChatWindow({ recipientId, recipientName, recipientPictur
     e.preventDefault();
     if (!newMessage.trim() && !attachment) return;
 
-    setLoading(true);
     try {
       let attachmentData;
       if (attachment) {
@@ -148,8 +146,6 @@ export default function ChatWindow({ recipientId, recipientName, recipientPictur
       setAttachment(null);
     } catch (error) {
       console.error('Error sending message:', error);
-    } finally {
-      setLoading(false);
     }
   };
 
