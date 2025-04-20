@@ -100,8 +100,8 @@ function App() {
             <Route path="/gigs" element={<GigListings />} />
             <Route path="/gigs/:id" element={<GigDetail />} />
             <Route path="/artists/:id" element={<ArtistProfile />} />
+            <Route path="/profile/:userId" element={<Profile />} />
             <Route path="/pricing" element={<Pricing />} />
-            <Route path="/profile/:id" element={<Profile />} />
           </Routes>
         </Suspense>
       </AuthProvider>
