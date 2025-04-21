@@ -4,12 +4,15 @@ import DashboardLayout from '../components/layout/DashboardLayout';
 import { useEffect, useState } from 'react';
 import axios from 'axios';
 import { API_BASE_URL } from '../utils/api';
+import { TbClipboardList, TbMessages } from 'react-icons/tb';
+import { FiUsers } from 'react-icons/fi';
+import { MdOutlineDashboard } from 'react-icons/md';
 
 interface StatCardProps {
   title: string;
   value: string | number;
   trend?: number;
-  icon: string;
+  icon: JSX.Element;
 }
 
 function StatCard({ title, value, trend, icon }: StatCardProps) {
@@ -93,10 +96,10 @@ export default function RecruiterDashboard() {
   const { user } = useAuth();
 
   const stats = [
-    { title: 'Active Listings', value: 8, trend: 5, icon: '📋' },
-    { title: 'Total Applicants', value: 156, trend: 15, icon: '👥' },
-    { title: 'Messages', value: 24, trend: 8, icon: '💬' },
-    { title: 'Profile Views', value: 52, trend: 10, icon: '👀' },
+    { title: 'Active Listings', value: 8, trend: 5, icon: <TbClipboardList className="text-2xl text-yellow-500" /> },
+    { title: 'Total Applicants', value: 156, trend: 15, icon: <FiUsers className="text-2xl text-pink-500" /> },
+    { title: 'Messages', value: 24, trend: 8, icon: <TbMessages className="text-2xl text-cyan-500" /> },
+    { title: 'Profile Views', value: 52, trend: 10, icon: <MdOutlineDashboard className="text-2xl text-indigo-500" /> },
   ];
 
   const [recentListings, setRecentListings] = useState<Job[]>([]);

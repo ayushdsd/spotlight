@@ -1,12 +1,14 @@
 import { useAuth } from '../contexts/AuthContext';
 import { Link } from 'react-router-dom';
 import DashboardLayout from '../components/layout/DashboardLayout';
+import { TbClipboardList, TbMessages } from 'react-icons/tb';
+import { MdOutlineWorkOutline, MdOutlineDashboard } from 'react-icons/md';
 
 interface StatCardProps {
   title: string;
   value: string;
   trend?: number;
-  icon?: string;
+  icon?: JSX.Element;
 }
 
 function StatCard({ title, value, trend, icon }: StatCardProps) {
@@ -23,7 +25,7 @@ function StatCard({ title, value, trend, icon }: StatCardProps) {
           )}
         </div>
         {icon && (
-          <span className="text-2xl">{icon}</span>
+          <span>{icon}</span>
         )}
       </div>
     </div>
@@ -65,10 +67,10 @@ const Dashboard = () => {
   const { user } = useAuth();
 
   const stats = [
-    { title: 'Applications', value: '24', trend: 12, icon: '📝' },
-    { title: 'Interviews', value: '8', trend: 5, icon: '🎯' },
-    { title: 'Profile Views', value: '156', trend: 25, icon: '👁️' },
-    { title: 'Messages', value: '12', icon: '💬' },
+    { title: 'Applications', value: '24', trend: 12, icon: <TbClipboardList className="text-2xl text-yellow-500" /> },
+    { title: 'Interviews', value: '8', trend: 5, icon: <MdOutlineWorkOutline className="text-2xl text-green-500" /> },
+    { title: 'Profile Views', value: '156', trend: 25, icon: <MdOutlineDashboard className="text-2xl text-indigo-500" /> },
+    { title: 'Messages', value: '12', icon: <TbMessages className="text-2xl text-cyan-500" /> },
   ];
 
   const recentActivity = [
