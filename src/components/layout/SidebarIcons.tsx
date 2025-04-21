@@ -1,4 +1,4 @@
-import { FiHome, FiBriefcase, FiUser, FiMessageSquare, FiStar, FiClipboard, FiBarChart2, FiUsers, FiFileText, FiMail, FiBookOpen } from 'react-icons/fi';
+import { FiUser, FiUsers } from 'react-icons/fi';
 import { MdOutlineWorkOutline, MdOutlineDashboard, MdOutlineSubscriptions, MdOutlineAnalytics, MdOutlinePalette, MdOutlineFeed } from 'react-icons/md';
 import { TbMessages, TbClipboardList, TbBuilding } from 'react-icons/tb';
 
