@@ -1,31 +1,36 @@
 import { ReactNode, useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { useAuth } from '../../contexts/AuthContext';
+import spotlightLogo from '../../assets/SPOTLIGHT.png';
+import { ArtistSidebarIcons, RecruiterSidebarIcons } from './SidebarIcons';
 
 interface DashboardLayoutProps {
   children: ReactNode;
 }
 
-const artistNavItems = [
-  { name: 'Feed', path: '/feed', icon: '📰' },
-  { name: 'Dashboard', path: '/artist/dashboard', icon: '🏠' },
-  { name: 'Jobs', path: '/artist/jobs', icon: '💼' },
-  { name: 'My Applications', path: '/artist/applications', icon: '📝' },
-  { name: 'Profile', path: '/artist/profile', icon: '👤' },
-  { name: 'Portfolio', path: '/artist/portfolio', icon: '🎨' },
-  { name: 'Messages', path: '/artist/messages', icon: '💬' },
-  { name: 'Subscription', path: '/artist/subscription', icon: '⭐' },
+// Update NavItem type to allow icon as JSX.Element
+type NavItem = { name: string; path: string; icon: JSX.Element; external?: boolean };
+
+const artistNavItems: NavItem[] = [
+  { name: 'Feed', path: '/feed', icon: ArtistSidebarIcons.Feed },
+  { name: 'Dashboard', path: '/artist/dashboard', icon: ArtistSidebarIcons.Dashboard },
+  { name: 'Jobs', path: '/artist/jobs', icon: ArtistSidebarIcons.Jobs },
+  { name: 'My Applications', path: '/artist/applications', icon: ArtistSidebarIcons['My Applications'] },
+  { name: 'Profile', path: '/artist/profile', icon: ArtistSidebarIcons.Profile },
+  // Portfolio nav item will be handled below
+  { name: 'Messages', path: '/artist/messages', icon: ArtistSidebarIcons.Messages },
+  { name: 'Subscription', path: '/artist/subscription', icon: ArtistSidebarIcons.Subscription },
 ];
 
-const recruiterNavItems = [
-  { name: 'Feed', path: '/feed', icon: '📰' },
-  { name: 'Dashboard', path: '/recruiter/dashboard', icon: '🏠' },
-  { name: 'Post Job', path: '/recruiter/post-job', icon: '✨' },
-  { name: 'My Listings', path: '/recruiter/listings', icon: '📋' },
-  { name: 'Applicants', path: '/recruiter/applicants', icon: '👥' },
-  { name: 'Company Profile', path: '/recruiter/company', icon: '🏢' },
-  { name: 'Messages', path: '/recruiter/messages', icon: '💬' },
-  { name: 'Analytics', path: '/recruiter/analytics', icon: '📊' },
+const recruiterNavItems: NavItem[] = [
+  { name: 'Feed', path: '/feed', icon: RecruiterSidebarIcons.Feed },
+  { name: 'Dashboard', path: '/recruiter/dashboard', icon: RecruiterSidebarIcons.Dashboard },
+  { name: 'Post Job', path: '/recruiter/post-job', icon: RecruiterSidebarIcons['Post Job'] },
+  { name: 'My Listings', path: '/recruiter/listings', icon: RecruiterSidebarIcons['My Listings'] },
+  { name: 'Applicants', path: '/recruiter/applicants', icon: RecruiterSidebarIcons.Applicants },
+  { name: 'Company Profile', path: '/recruiter/company', icon: RecruiterSidebarIcons['Company Profile'] },
+  { name: 'Messages', path: '/recruiter/messages', icon: RecruiterSidebarIcons.Messages },
+  { name: 'Analytics', path: '/recruiter/analytics', icon: RecruiterSidebarIcons.Analytics },
 ];
 
 export default function DashboardLayout({ children }: DashboardLayoutProps) {
@@ -34,14 +39,23 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
 
   // Select nav items based on user role
-  const navItems = user?.role === 'artist' ? artistNavItems : recruiterNavItems;
+  let navItems = user?.role === 'artist' ? artistNavItems : recruiterNavItems;
+
+  // For artists, inject portfolio link if available
+  if (user?.role === 'artist' && user?.portfolioLink) {
+    navItems = [
+      ...artistNavItems.slice(0, 5),
+      { name: 'Portfolio', path: user.portfolioLink, icon: ArtistSidebarIcons.Portfolio, external: true },
+      ...artistNavItems.slice(5)
+    ];
+  }
 
   const isActiveRoute = (path: string) => {
     return location.pathname === path;
   };
 
   return (
-    <div className="flex h-screen bg-gray-100">
+    <div className="flex h-screen bg-cream-50">
       {/* Mobile Overlay */}
       {isSidebarOpen && (
         <div
@@ -54,12 +68,12 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
       <aside
         className={`${
           isSidebarOpen ? 'translate-x-0' : '-translate-x-full'
-        } fixed inset-y-0 left-0 z-50 w-64 bg-white shadow-lg transform transition-transform duration-300 ease-in-out lg:translate-x-0 lg:static lg:inset-0`}
+        } fixed inset-y-0 left-0 z-50 w-64 bg-blue-50 shadow-lg transform transition-transform duration-300 ease-in-out lg:translate-x-0 lg:static lg:inset-0`}
       >
         <div className="h-full flex flex-col">
           {/* Logo and Close Button */}
-          <div className="flex items-center justify-between h-16 border-b px-4">
-            <img src="/spotlight-logo.png" alt="Spotlight" className="h-8" />
+          <div className="flex items-center justify-between h-16 border-b px-4 bg-blue-50">
+            <img src={spotlightLogo} alt="Spotlight" className="h-8" />
             <button
               onClick={() => setIsSidebarOpen(false)}
               className="lg:hidden text-gray-500 hover:text-gray-600"
@@ -81,21 +95,31 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
           {/* Navigation */}
           <nav className="flex-1 overflow-y-auto py-4">
             <ul className="space-y-2 px-4">
-              {navItems.map((item) => (
-                <li key={item.path}>
-                  <Link
-                    to={item.path}
-                    className={`flex items-center px-4 py-2 text-sm rounded-lg transition-colors ${
-                      isActiveRoute(item.path)
-                        ? 'bg-blue-50 text-blue-600'
-                        : 'text-gray-700 hover:bg-gray-50'
-                    }`}
-                  >
-                    <span className="mr-3">{item.icon}</span>
-                    {item.name}
-                  </Link>
-                </li>
-              ))}
+              {navItems.map((item) =>
+                item.external ? (
+                  <li key={item.name}>
+                    <a
+                      href={item.path}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className={`flex items-center gap-2 px-6 py-3 rounded-lg transition-colors ${isActiveRoute(item.path) ? 'bg-blue-100 text-blue-700 font-semibold' : 'text-gray-700 hover:bg-blue-100'}`}
+                    >
+                      <span className="mr-4 flex items-center">{item.icon}</span>
+                      <span>{item.name}</span>
+                    </a>
+                  </li>
+                ) : (
+                  <li key={item.name}>
+                    <Link
+                      to={item.path}
+                      className={`flex items-center gap-2 px-6 py-3 rounded-lg transition-colors ${isActiveRoute(item.path) ? 'bg-blue-100 text-blue-700 font-semibold' : 'text-gray-700 hover:bg-blue-100'}`}
+                    >
+                      <span className="mr-4 flex items-center">{item.icon}</span>
+                      <span>{item.name}</span>
+                    </Link>
+                  </li>
+                )
+              )}
             </ul>
           </nav>
 
@@ -114,9 +138,8 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
             </div>
             <button
               onClick={logout}
-              className="w-full flex items-center px-4 py-2 text-sm text-red-600 rounded-lg hover:bg-red-50 transition-colors"
+              className="mt-8 mx-4 px-4 py-2 bg-blue-400 hover:bg-blue-500 text-white rounded-lg font-medium shadow"
             >
-              <span className="mr-3">🚪</span>
               Logout
             </button>
           </div>
@@ -149,7 +172,7 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
         </header>
 
         {/* Page Content */}
-        <main className="flex-1 overflow-x-hidden overflow-y-auto bg-gray-100 p-0 sm:p-2">
+        <main className="flex-1 overflow-y-auto p-6 bg-cream-50">
           {children}
         </main>
       </div>

@@ -90,95 +90,82 @@ const JobApplicationForm: React.FC<JobApplicationFormProps> = ({ jobId, onSubmit
   }
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-6">
+    <form
+      onSubmit={handleSubmit}
+      className="bg-blue-50 border border-blue-100 rounded-xl shadow p-8 max-w-xl mx-auto mt-6"
+    >
+      <h2 className="text-2xl font-bold text-blue-500 mb-4">Apply for this Job</h2>
       {error && (
-        <div className="bg-red-50 border border-red-200 text-red-600 px-4 py-3 rounded-lg">
+        <div className="mb-4 bg-red-50 border border-red-200 text-red-600 px-4 py-2 rounded-lg">
           {error}
         </div>
       )}
-
-      <div>
-        <label className="block text-sm font-medium text-gray-700">Cover Letter</label>
+      <div className="mb-4">
+        <label className="block text-gray-900 font-medium mb-1">Cover Letter</label>
         <textarea
+          className="w-full border border-blue-100 rounded-lg p-2 bg-cream-50 text-gray-900 focus:ring-2 focus:ring-blue-200 focus:outline-none"
+          rows={4}
           value={formData.coverLetter}
-          onChange={(e) => setFormData({ ...formData, coverLetter: e.target.value })}
-          rows={6}
-          className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-primary-500 focus:ring-primary-500"
+          onChange={e => setFormData({ ...formData, coverLetter: e.target.value })}
           required
         />
       </div>
-
-      <div>
-        <label className="block text-sm font-medium text-gray-700">Availability</label>
+      <div className="mb-4">
+        <label className="block text-gray-900 font-medium mb-1">Availability</label>
         <input
+          className="w-full border border-blue-100 rounded-lg p-2 bg-cream-50 text-gray-900 focus:ring-2 focus:ring-blue-200 focus:outline-none"
           type="text"
           value={formData.availability}
-          onChange={(e) => setFormData({ ...formData, availability: e.target.value })}
-          placeholder="e.g., Available immediately, evenings and weekends"
-          className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-primary-500 focus:ring-primary-500"
+          onChange={e => setFormData({ ...formData, availability: e.target.value })}
           required
         />
       </div>
-
-      <div>
-        <label className="block text-sm font-medium text-gray-700">Expected Salary (Optional)</label>
+      <div className="mb-4">
+        <label className="block text-gray-900 font-medium mb-1">Expected Salary</label>
         <input
+          className="w-full border border-blue-100 rounded-lg p-2 bg-cream-50 text-gray-900 focus:ring-2 focus:ring-blue-200 focus:outline-none"
           type="text"
           value={formData.expectedSalary}
-          onChange={(e) => setFormData({ ...formData, expectedSalary: e.target.value })}
-          placeholder="e.g., $2000-$3000 per week"
-          className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-primary-500 focus:ring-primary-500"
+          onChange={e => setFormData({ ...formData, expectedSalary: e.target.value })}
         />
       </div>
-
-      <div>
-        <label className="block text-sm font-medium text-gray-700 mb-2">
-          Select Portfolio Items to Include
-        </label>
-        <div className="space-y-2">
-          {portfolioLinks.map((link) => (
-            <label key={link.url} className="flex items-start space-x-3">
-              <input
-                type="checkbox"
-                checked={selectedLinks.includes(link.url)}
-                onChange={(e) => {
-                  if (e.target.checked) {
-                    setSelectedLinks([...selectedLinks, link.url]);
-                  } else {
-                    setSelectedLinks(selectedLinks.filter(url => url !== link.url));
-                  }
-                }}
-                className="mt-1 h-4 w-4 text-primary-600 focus:ring-primary-500 border-gray-300 rounded"
-              />
-              <div className="flex-1">
-                <p className="font-medium">{link.title}</p>
-                <p className="text-sm text-gray-500">{link.description}</p>
-                <a
-                  href={link.url}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="text-sm text-primary-600 hover:text-primary-700"
-                >
-                  {link.url}
-                </a>
-              </div>
-            </label>
-          ))}
+      {portfolioLinks.length > 0 && (
+        <div className="mb-4">
+          <label className="block text-gray-900 font-medium mb-1">Select Portfolio Links</label>
+          <div className="flex flex-col gap-2">
+            {portfolioLinks.map(link => (
+              <label key={link.url} className="flex items-center gap-2">
+                <input
+                  type="checkbox"
+                  checked={selectedLinks.includes(link.url)}
+                  onChange={e => {
+                    if (e.target.checked) {
+                      setSelectedLinks([...selectedLinks, link.url]);
+                    } else {
+                      setSelectedLinks(selectedLinks.filter(url => url !== link.url));
+                    }
+                  }}
+                />
+                <span className="text-blue-500 font-medium">{link.title}</span>
+                <a href={link.url} target="_blank" rel="noopener noreferrer" className="text-blue-400 hover:underline text-sm">View</a>
+                <span className="text-gray-500 text-xs">{link.description}</span>
+              </label>
+            ))}
+          </div>
         </div>
-      </div>
-
-      <div className="flex justify-end space-x-3">
+      )}
+      <div className="flex justify-end gap-3 mt-6">
         <button
           type="button"
           onClick={onCancel}
-          className="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500"
+          className="px-4 py-2 rounded-lg bg-cream-100 hover:bg-cream-200 text-gray-900 border border-blue-100 font-medium shadow-sm"
           disabled={submitting}
         >
           Cancel
         </button>
         <button
           type="submit"
-          className="px-4 py-2 text-sm font-medium text-white bg-primary-600 border border-transparent rounded-md hover:bg-primary-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500"
+          className="px-6 py-2 rounded-lg bg-blue-400 hover:bg-blue-500 text-white font-semibold shadow-md border border-blue-400"
           disabled={submitting}
         >
           {submitting ? 'Submitting...' : 'Submit Application'}

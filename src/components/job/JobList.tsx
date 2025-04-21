@@ -10,6 +10,7 @@ export interface Job {
   category: string;
   salary: string | { min: string; max: string; currency: string };
   posted: string;
+  status?: string;
 }
 
 interface JobListProps {

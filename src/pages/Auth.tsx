@@ -20,16 +20,16 @@ function LoginPage() {
   }, [selectedRole]);
 
   return (
-    <div className="min-h-screen bg-gray-50 flex items-center justify-center p-4">
-      <div className="max-w-md w-full bg-white rounded-xl shadow-sm border border-gray-200 p-8">
+    <div className="min-h-screen bg-cream-50 flex items-center justify-center p-4">
+      <div className="max-w-md w-full bg-white rounded-xl shadow-lg border border-cream-200 p-8">
         {/* Login Animation */}
         <div className="mb-6">
           <LoginAnimation />
         </div>
 
         <div className="text-center mb-8">
-          <h1 className="text-3xl font-minimal font-bold text-gray-900 mb-2">Welcome to Spotlight</h1>
-          <p className="text-gray-600">Sign in to continue to your dashboard</p>
+          <h1 className="text-3xl font-minimal font-bold text-blue-900 mb-2">Welcome to Spotlight</h1>
+          <p className="text-blue-700">Sign in to continue to your dashboard</p>
         </div>
 
         <div className="space-y-6">
@@ -41,10 +41,10 @@ function LoginPage() {
             <div className="grid grid-cols-2 gap-4">
               <button
                 onClick={() => setSelectedRole('artist')}
-                className={`p-4 rounded-lg border transition-all ${
+                className={`p-4 rounded-lg border transition-all font-semibold ${
                   selectedRole === 'artist'
-                    ? 'bg-blue-50 border-blue-200 text-blue-600'
-                    : 'border-gray-200 text-gray-600 hover:bg-gray-50'
+                    ? 'bg-blue-50 border-blue-200 text-blue-600 shadow'
+                    : 'border-cream-200 text-gray-600 hover:bg-cream-100'
                 }`}
               >
                 <span className="block text-2xl mb-2">👤</span>
@@ -52,10 +52,10 @@ function LoginPage() {
               </button>
               <button
                 onClick={() => setSelectedRole('recruiter')}
-                className={`p-4 rounded-lg border transition-all ${
+                className={`p-4 rounded-lg border transition-all font-semibold ${
                   selectedRole === 'recruiter'
-                    ? 'bg-blue-50 border-blue-200 text-blue-600'
-                    : 'border-gray-200 text-gray-600 hover:bg-gray-50'
+                    ? 'bg-blue-50 border-blue-200 text-blue-600 shadow'
+                    : 'border-cream-200 text-gray-600 hover:bg-cream-100'
                 }`}
               >
                 <span className="block text-2xl mb-2">🏢</span>
@@ -74,7 +74,7 @@ function LoginPage() {
           </div>
 
           {/* Terms and Privacy */}
-          <p className="text-sm text-gray-500 text-center">
+          <p className="text-sm text-blue-700 text-center">
             By continuing, you agree to our{' '}
             <Link to="/terms" className="text-blue-600 hover:text-blue-700">
               Terms of Service

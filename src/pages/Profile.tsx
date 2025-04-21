@@ -81,7 +81,7 @@ const emptyFormData: ProfileFormData = {
 };
 
 export default function Profile() {
-  const { user } = useAuth();
+  const { user, setPortfolioLink } = useAuth();
   const { userId: profileUserId } = useParams();
   const [searchParams] = useSearchParams();
   const queryView = searchParams.get('view');
@@ -278,6 +278,12 @@ export default function Profile() {
         },
       });
       fetchUserProfile();
+      // If artist, update portfolioLink in AuthContext to match the first portfolio link url (if any)
+      if (user?.role === 'artist') {
+        // Find the first non-empty portfolio link URL
+        const firstValidLink = (formData.portfolioLinks || []).find(link => link.url && link.url.trim() !== '');
+        setPortfolioLink(firstValidLink ? firstValidLink.url : '');
+      }
     } catch (error: any) {
       setError(error.response?.data?.error || 'Error updating profile. Please try again.');
     } finally {
@@ -429,13 +435,15 @@ export default function Profile() {
                 </button>
               </div>
               {showLinkForm && (
-                <PortfolioLinkForm
-                  onSubmit={link => {
-                    setFormData(prev => ({ ...prev, portfolioLinks: [...(prev.portfolioLinks || []), link] }));
-                    setShowLinkForm(false);
-                  }}
-                  onCancel={() => setShowLinkForm(false)}
-                />
+                <div className="mb-4"> {/* Prevent nested form warning */}
+                  <PortfolioLinkForm
+                    onSubmit={link => {
+                      setFormData(prev => ({ ...prev, portfolioLinks: [...(prev.portfolioLinks || []), link] }));
+                      setShowLinkForm(false);
+                    }}
+                    onCancel={() => setShowLinkForm(false)}
+                  />
+                </div>
               )}
               <ul>
                 {(formData.portfolioLinks || []).map((link, idx) => (

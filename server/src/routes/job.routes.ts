@@ -223,4 +223,53 @@ router.put('/applications/:applicationId/status', authenticateToken, async (req:
   }
 });
 
+// Update job status (active/inactive/open/closed/draft)
+router.put('/:id/status', authenticateToken, async (req: Request, res: Response) => {
+  try {
+    const { id } = req.params;
+    const { status } = req.body;
+    const Job = require('../models/job.model').default;
+
+    // Only allow valid statuses
+    if (!['active', 'inactive', 'open', 'closed', 'draft'].includes(status)) {
+      return res.status(400).json({ error: 'Invalid status' });
+    }
+
+    const job = await Job.findById(id);
+    if (!job) return res.status(404).json({ error: 'Job not found' });
+
+    // Only allow the recruiter who posted the job to update status
+    if (String(job.postedBy) !== String(req.user._id)) {
+      return res.status(403).json({ error: 'Unauthorized' });
+    }
+
+    job.status = status;
+    await job.save();
+
+    res.json({ success: true, job });
+  } catch (error) {
+    res.status(500).json({ error: 'Failed to update job status' });
+  }
+});
+
+// Delete a job by ID (recruiter only)
+router.delete('/:id', authenticateToken, async (req: Request, res: Response) => {
+  try {
+    const { id } = req.params;
+    const Job = require('../models/job.model').default;
+    const job = await Job.findById(id);
+    if (!job) {
+      return res.status(404).json({ error: 'Job not found' });
+    }
+    // Only allow the recruiter who posted the job to delete it
+    if (String(job.postedBy) !== String(req.user._id)) {
+      return res.status(403).json({ error: 'Unauthorized' });
+    }
+    await job.deleteOne();
+    res.json({ success: true });
+  } catch (error) {
+    res.status(500).json({ error: 'Failed to delete job' });
+  }
+});
+
 export default router;

@@ -16,7 +16,7 @@ export interface IJob extends Document {
   skills: string[];
   deadline: Date;
   postedBy: mongoose.Types.ObjectId;
-  status: 'open' | 'closed' | 'draft';
+  status: 'open' | 'closed' | 'draft' | 'active' | 'inactive';
   applicants: mongoose.Types.ObjectId[];
   createdAt: Date;
   updatedAt: Date;
@@ -66,9 +66,10 @@ const jobSchema = new mongoose.Schema<IJob>({
     type: String,
     required: true,
   },
-  skills: [{
-    type: String,
-  }],
+  skills: {
+    type: [String],
+    default: [],
+  },
   deadline: {
     type: Date,
     required: true,
@@ -80,7 +81,7 @@ const jobSchema = new mongoose.Schema<IJob>({
   },
   status: {
     type: String,
-    enum: ['open', 'closed', 'draft'],
+    enum: ['open', 'closed', 'draft', 'active', 'inactive'],
     default: 'open',
   },
   applicants: [{

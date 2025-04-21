@@ -76,8 +76,8 @@ const Feed = () => {
 
   return (
     <DashboardLayout>
-      <div className="w-full py-8 px-0 sm:px-2">
-        <h1 className="text-3xl font-bold mb-6">Feed</h1>
+      <div className="w-full py-8 px-0 sm:px-2 bg-cream-50 min-h-screen">
+        <h1 className="text-3xl font-bold mb-6 text-blue-900">Feed</h1>
         <PostComposer onPost={handleNewPost} />
         <div className="space-y-6 mt-8">
           {posts.map((post, i) => (
@@ -88,10 +88,10 @@ const Feed = () => {
               <PostItem post={post} />
             </div>
           ))}
-          {loading && <div className="text-center text-gray-500">Loading...</div>}
+          {loading && <div className="text-center text-blue-500">Loading...</div>}
           {error && <div className="text-center text-red-600">{error}</div>}
           {!loading && !hasMore && posts.length > 0 && (
-            <div className="text-center text-gray-400">No more posts</div>
+            <div className="text-center text-blue-300">No more posts</div>
           )}
         </div>
       </div>

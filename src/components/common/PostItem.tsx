@@ -33,41 +33,41 @@ const PostItem = ({ post, onDelete }: PostItemProps & { onDelete?: (id: string) 
   }, [dropdownOpen]);
 
   return (
-    <div className="bg-white rounded-lg shadow p-0 sm:px-2 relative">
+    <div className="bg-white rounded-lg shadow p-0 sm:px-2 relative border border-cream-100">
       <div className="flex items-center gap-3 mb-2 ml-2 mt-2">
         {post.author.picture ? (
           <img
             src={post.author.picture}
             alt={post.author.name}
-            className="w-10 h-10 rounded-full object-cover"
+            className="w-10 h-10 rounded-full object-cover border-2 border-blue-100"
           />
         ) : (
-          <div className="w-10 h-10 rounded-full bg-gray-200 flex items-center justify-center">
-            <span className="text-lg text-gray-500">{post.author.name.charAt(0)}</span>
+          <div className="w-10 h-10 rounded-full bg-blue-50 flex items-center justify-center border border-blue-100">
+            <span className="text-lg text-blue-500">{post.author.name.charAt(0)}</span>
           </div>
         )}
         <div className="ml-1 mt-1">
-          <div className="font-semibold text-gray-900 cursor-pointer hover:underline"
+          <div className="font-semibold text-blue-900 cursor-pointer hover:underline"
                onClick={() => window.location.href = `/profile/${post.author._id}?view=recruiter`}>
             {(post.author.firstName && post.author.lastName && `${post.author.firstName} ${post.author.lastName}`) || post.author.name}
           </div>
-          <div className="text-xs text-gray-500">{new Date(post.createdAt).toLocaleString()}</div>
+          <div className="text-xs text-blue-400">{new Date(post.createdAt).toLocaleString()}</div>
         </div>
         {isOwner && onDelete && (
           <div className="ml-auto relative flex items-center" ref={dropdownRef}>
             <button
-              className="px-2 py-1 text-xs bg-gray-100 text-gray-600 rounded hover:bg-gray-200 transition flex items-center justify-center focus:outline-none focus:ring-2 focus:ring-blue-400"
-              style={{ minWidth: 32, minHeight: 32, fontSize: 24, lineHeight: 1 }}
-              onClick={() => setDropdownOpen((open) => !open)}
+              className="px-2 py-1 text-xs bg-blue-50 text-blue-600 rounded hover:bg-blue-100 transition flex items-center justify-center focus:outline-none focus:ring-2 focus:ring-blue-400"
+               style={{ minWidth: 32, minHeight: 32, fontSize: 24, lineHeight: 1 }}
+               onClick={() => setDropdownOpen((open) => !open)}
               aria-label="Post Actions"
             >
               &#8942;
             </button>
             {dropdownOpen && (
-              <div className="absolute right-0 mt-2 w-32 bg-white border border-gray-200 rounded shadow-lg z-10">
+              <div className="absolute right-0 mt-2 w-32 bg-white border border-blue-100 rounded shadow-lg z-10">
                 <button
-                  className="block w-full text-left px-4 py-2 text-red-600 hover:bg-red-50"
-                  onClick={() => { onDelete(post._id); setDropdownOpen(false); }}
+                  className="block w-full text-left px-4 py-2 text-red-600 hover:bg-red-100"
+                   onClick={() => { onDelete(post._id); setDropdownOpen(false); }}
                 >
                   Delete Post
                 </button>
@@ -76,10 +76,10 @@ const PostItem = ({ post, onDelete }: PostItemProps & { onDelete?: (id: string) 
           </div>
         )}
       </div>
-      <div className="mb-2 whitespace-pre-line text-left">{post.content}</div>
+      <div className="mb-2 whitespace-pre-line text-left text-blue-900">{post.content}</div>
       {post.imageUrl && (
         <div className="w-full flex justify-center my-2">
-          <div className="aspect-[4/5] w-full max-w-xs sm:max-w-sm md:max-w-md lg:max-w-lg xl:max-w-xl overflow-hidden rounded border bg-gray-100">
+          <div className="aspect-[4/5] w-full max-w-xs sm:max-w-sm md:max-w-md lg:max-w-lg xl:max-w-xl overflow-hidden rounded border border-cream-100 bg-cream-50">
             <img
               src={post.imageUrl}
               alt="Post"

@@ -10,12 +10,14 @@ export interface User {
   picture?: string;
   role: 'artist' | 'recruiter';
   token?: string; // Add for backend compatibility
+  portfolioLink?: string; // Add portfolioLink for artist sidebar
 }
 
 interface AuthContextType {
   user: User | null;
   login: (userData: { sub: string; name: string; email: string; picture?: string; role: 'artist' | 'recruiter'; token: string }) => Promise<void>;
   logout: () => void;
+  setPortfolioLink: (link: string) => void;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -117,8 +119,22 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     navigate('/');
   };
 
+  // Update user data and localStorage
+  const updateUser = (newUser: User) => {
+    setUser(newUser);
+    localStorage.setItem('user', JSON.stringify(newUser));
+  };
+
+  // Add a method to update portfolioLink for the logged-in user
+  const setPortfolioLink = (link: string) => {
+    if (user) {
+      const updatedUser = { ...user, portfolioLink: link };
+      updateUser(updatedUser);
+    }
+  };
+
   return (
-    <AuthContext.Provider value={{ user, login, logout }}>
+    <AuthContext.Provider value={{ user, login, logout, setPortfolioLink }}>
       {children}
     </AuthContext.Provider>
   );

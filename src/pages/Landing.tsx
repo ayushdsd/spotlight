@@ -88,10 +88,10 @@ const Landing = () => {
   };
 
   return (
-    <div className="w-full max-w-none px-0 mx-0">
+    <div className="w-full max-w-none px-0 mx-0 bg-cream-50">
       <Splash />
       {/* Header */}
-      <header className="fixed top-0 left-0 right-0 z-40 bg-white/95 backdrop-blur w-screen">
+      <header className="fixed top-0 left-0 right-0 z-40 bg-cream-50/95 backdrop-blur w-screen">
         <nav className="w-full">
           <div className="flex items-center justify-between h-16 px-4">
             {/* Logo */}
@@ -156,7 +156,7 @@ const Landing = () => {
       </section>
 
       {/* Featured Artists */}
-      <section className="py-8 sm:py-12 lg:py-16 bg-white w-full overflow-hidden">
+      <section className="py-8 sm:py-12 lg:py-16 bg-cream-50 w-full overflow-hidden">
         <div className="w-full">
           <h2 className="font-minimal text-2xl sm:text-3xl font-bold text-black mb-6 sm:mb-8 text-center">Featured Artists</h2>
           
@@ -167,7 +167,7 @@ const Landing = () => {
               {[...featuredArtists, ...featuredArtists].map((artist, index) => (
                 <div 
                   key={`${artist.id}-${index}`}
-                  className="flex-none w-[260px] sm:w-[300px] mx-2 sm:mx-4 bg-white rounded-xl p-4 sm:p-6 transform-style-3d hover:animate-card-hover cursor-pointer transition-all border border-gray-100 shadow-sm"
+                  className="flex-none w-[260px] sm:w-[300px] mx-2 sm:mx-4 bg-cream-100 rounded-xl p-4 sm:p-6 transform-style-3d hover:animate-card-hover cursor-pointer transition-all border border-blue-50 shadow-sm"
                 >
                   <img src={artist.image} alt={artist.name} className="w-16 h-16 sm:w-20 sm:h-20 rounded-full mb-3 sm:mb-4 transform-gpu hover:scale-105 transition-transform" />
                   <h3 className="font-minimal text-lg sm:text-xl font-semibold text-black">{artist.name}</h3>
@@ -178,14 +178,14 @@ const Landing = () => {
             </div>
 
             {/* Gradient overlays */}
-            <div className="absolute top-0 left-0 bottom-0 w-24 sm:w-48 bg-gradient-to-r from-white to-transparent pointer-events-none"></div>
+            <div className="absolute top-0 left-0 bottom-0 w-24 sm:w-48 bg-gradient-to-r from-cream-50 to-transparent pointer-events-none"></div>
             <div className="absolute top-0 right-0 bottom-0 w-24 sm:w-48 bg-gradient-to-l from-white to-transparent pointer-events-none"></div>
           </div>
         </div>
       </section>
 
       {/* Featured Recruiters */}
-      <section className="py-8 sm:py-12 lg:py-16 bg-gray-50 w-full overflow-hidden">
+      <section className="py-8 sm:py-12 lg:py-16 bg-cream-50 w-full overflow-hidden">
         <div className="w-full">
           <h2 className="font-minimal text-2xl sm:text-3xl font-bold text-black mb-6 sm:mb-8 text-center">Featured Recruiters</h2>
           
@@ -196,7 +196,7 @@ const Landing = () => {
               {[...featuredRecruiters, ...featuredRecruiters].map((recruiter, index) => (
                 <div 
                   key={`${recruiter.id}-${index}`}
-                  className="flex-none w-[260px] sm:w-[300px] mx-2 sm:mx-4 bg-white rounded-xl p-4 sm:p-6 transform-style-3d hover:animate-card-hover cursor-pointer transition-all border border-gray-100 shadow-sm"
+                  className="flex-none w-[260px] sm:w-[300px] mx-2 sm:mx-4 bg-cream-100 rounded-xl p-4 sm:p-6 transform-style-3d hover:animate-card-hover cursor-pointer transition-all border border-blue-50 shadow-sm"
                 >
                   <div className="flex items-center mb-3 sm:mb-4">
                     <img src={recruiter.image} alt={recruiter.name} className="w-16 h-16 sm:w-20 sm:h-20 rounded-full transform-gpu hover:scale-105 transition-transform" />
@@ -215,21 +215,21 @@ const Landing = () => {
             </div>
 
             {/* Gradient overlays */}
-            <div className="absolute top-0 left-0 bottom-0 w-24 sm:w-48 bg-gradient-to-r from-gray-50 to-transparent pointer-events-none"></div>
-            <div className="absolute top-0 right-0 bottom-0 w-24 sm:w-48 bg-gradient-to-l from-gray-50 to-transparent pointer-events-none"></div>
+            <div className="absolute top-0 left-0 bottom-0 w-24 sm:w-48 bg-gradient-to-r from-cream-50 to-transparent pointer-events-none"></div>
+            <div className="absolute top-0 right-0 bottom-0 w-24 sm:w-48 bg-gradient-to-l from-cream-50 to-transparent pointer-events-none"></div>
           </div>
         </div>
       </section>
 
       {/* FAQ Section */}
-      <section className="py-16 bg-white w-full perspective-1000">
+      <section className="py-16 bg-cream-50 w-full perspective-1000">
         <div className="w-full px-4 sm:px-6 lg:px-8">
           <h2 className="font-minimal text-3xl font-bold text-black mb-8 text-center animate-fade-in">Frequently Asked Questions</h2>
           <div className="space-y-4">
             {faqItems.map((item, index) => (
               <div 
                 key={index} 
-                className="bg-white rounded-xl border border-gray-100 transform-style-3d hover:translate-z-2 hover:-translate-y-0.5 transition-transform shadow-sm"
+                className="bg-cream-100 rounded-xl border border-blue-50 transform-style-3d hover:translate-z-2 hover:-translate-y-0.5 transition-transform shadow-sm"
                 style={{ animationDelay: `${index * 100}ms` }}
               >
                 <button
@@ -244,7 +244,7 @@ const Landing = () => {
                   />
                 </button>
                 {openIndex === index && (
-                  <div className="p-4 pt-0 text-gray-600 border-t border-gray-100">
+                  <div className="p-4 pt-0 text-gray-600 border-t border-blue-50">
                     {item.answer}
                   </div>
                 )}

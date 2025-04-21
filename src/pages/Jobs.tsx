@@ -37,11 +37,13 @@ const Jobs = () => {
     }
   };
 
-  const filteredJobs = jobs.filter(job => 
-    (selectedCategory === 'all' || job.category === selectedCategory) &&
-    (job.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-     job.company.toLowerCase().includes(searchTerm.toLowerCase()))
-  );
+  const filteredJobs = jobs
+    .filter(job => job.status === 'active')
+    .filter(job => 
+      (selectedCategory === 'all' || job.category === selectedCategory) &&
+      (job.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
+       job.company.toLowerCase().includes(searchTerm.toLowerCase()))
+    );
 
   return (
     <DashboardLayout>
