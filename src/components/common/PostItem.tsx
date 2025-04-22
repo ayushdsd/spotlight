@@ -1,19 +1,38 @@
 import { Post } from '../../pages/Feed';
 import { useAuth } from '../../contexts/AuthContext';
 import { useState, useRef, useEffect } from 'react';
+import axios from 'axios';
+import { FaRegHeart, FaHeart, FaRegComment, FaShare } from 'react-icons/fa';
+import { API_BASE_URL } from '../../utils/api';
 
 interface PostItemProps {
   post: Post;
+  onDelete?: (id: string) => void;
 }
 
-const PostItem = ({ post, onDelete }: PostItemProps & { onDelete?: (id: string) => void }) => {
+const PostItem = ({ post, onDelete }: PostItemProps) => {
   const { user } = useAuth();
-  const userId = user?._id || user?.id; // Always use _id
+  const userId = user?._id || user?.id;
   const isOwner = userId && post.author && String(post.author._id) === String(userId);
 
   // Dropdown state
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
+
+  // Engagement state
+  const [likes, setLikes] = useState(post.likes || []);
+  const [liked, setLiked] = useState(() => (userId ? post.likes.includes(userId) : false));
+  const [comments, setComments] = useState(post.comments || []);
+  const [commentText, setCommentText] = useState('');
+  const [showComments, setShowComments] = useState(false);
+  const [sharing, setSharing] = useState(false);
+  const [shareMsg, setShareMsg] = useState('');
+
+  useEffect(() => {
+    setLikes(post.likes || []);
+    setLiked(userId ? post.likes.includes(userId) : false);
+    setComments(post.comments || []);
+  }, [post.likes, post.comments, userId]);
 
   // Close dropdown if clicked outside
   useEffect(() => {
@@ -31,6 +50,46 @@ const PostItem = ({ post, onDelete }: PostItemProps & { onDelete?: (id: string) 
       document.removeEventListener('mousedown', handleClickOutside);
     };
   }, [dropdownOpen]);
+
+  const handleLike = async () => {
+    try {
+      const token = localStorage.getItem('token');
+      const res = await axios.post(`${API_BASE_URL}/api/feed/${post._id}/like`, {}, { headers: { Authorization: `Bearer ${token}` } });
+      setLikes((prev) => {
+        if (res.data.liked) return [...prev, userId!];
+        else return prev.filter((id) => id === userId);
+      });
+      setLiked(res.data.liked);
+    } catch (err) {
+      // Optionally show error
+    }
+  };
+
+  const handleComment = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!commentText.trim()) return;
+    try {
+      const token = localStorage.getItem('token');
+      const res = await axios.post(`${API_BASE_URL}/api/feed/${post._id}/comment`, { text: commentText }, { headers: { Authorization: `Bearer ${token}` } });
+      setComments(res.data.comments);
+      setCommentText('');
+    } catch (err) {
+      // Optionally show error
+    }
+  };
+
+  const handleShare = async () => {
+    try {
+      await navigator.clipboard.writeText(window.location.origin + `/post/${post._id}`);
+      setShareMsg('Link copied!');
+      setSharing(true);
+      setTimeout(() => { setSharing(false); setShareMsg(''); }, 1500);
+    } catch {
+      setShareMsg('Failed to copy');
+      setSharing(true);
+      setTimeout(() => { setSharing(false); setShareMsg(''); }, 1500);
+    }
+  };
 
   return (
     <div className="bg-white rounded-lg shadow p-0 sm:px-2 relative border border-cream-100">
@@ -89,7 +148,59 @@ const PostItem = ({ post, onDelete }: PostItemProps & { onDelete?: (id: string) 
           </div>
         </div>
       )}
-      {/* Media support can be added here */}
+      {/* Engagement Bar */}
+      <div className="flex items-center gap-6 px-4 py-2 border-t border-cream-100">
+        <button className="flex items-center gap-1 text-blue-600 hover:text-blue-800" onClick={handleLike} aria-label="Like">
+          {liked ? <FaHeart className="text-red-500" /> : <FaRegHeart />}
+          <span className="text-sm">{likes.length}</span>
+        </button>
+        <button className="flex items-center gap-1 text-blue-600 hover:text-blue-800" onClick={() => setShowComments((v) => !v)} aria-label="Comment">
+          <FaRegComment />
+          <span className="text-sm">{comments.length}</span>
+        </button>
+        <button className="flex items-center gap-1 text-blue-600 hover:text-blue-800" onClick={handleShare} aria-label="Share">
+          <FaShare />
+          <span className="text-sm">Share</span>
+        </button>
+        {sharing && <span className="text-xs text-green-600 ml-2">{shareMsg}</span>}
+      </div>
+      {/* Comments Section */}
+      {showComments && (
+        <div className="px-4 py-2 border-t border-cream-100 bg-cream-50">
+          <form className="flex gap-2 mb-2" onSubmit={handleComment}>
+            <input
+              type="text"
+              className="flex-1 rounded border border-blue-100 px-2 py-1 text-sm focus:outline-none focus:ring-2 focus:ring-blue-200"
+              placeholder="Add a comment..."
+              value={commentText}
+              onChange={(e) => setCommentText(e.target.value)}
+              maxLength={200}
+            />
+            <button type="submit" className="bg-blue-600 text-white px-3 py-1 rounded hover:bg-blue-700 text-sm" disabled={!commentText.trim()}>
+              Post
+            </button>
+          </form>
+          <div className="space-y-2 max-h-40 overflow-y-auto">
+            {comments.length === 0 && <div className="text-xs text-blue-400">No comments yet</div>}
+            {comments.map((c, idx) => (
+              <div key={idx} className="flex items-start gap-2">
+                {c.user?.picture ? (
+                  <img src={c.user.picture} alt={c.user.name} className="w-7 h-7 rounded-full object-cover border border-blue-100" />
+                ) : (
+                  <div className="w-7 h-7 rounded-full bg-blue-100 flex items-center justify-center border border-blue-100">
+                    <span className="text-sm text-blue-500">{c.user?.name?.charAt(0) || '?'}</span>
+                  </div>
+                )}
+                <div className="flex-1">
+                  <div className="text-xs font-semibold text-blue-900">{c.user?.name || 'User'}</div>
+                  <div className="text-xs text-blue-800 break-words">{c.text}</div>
+                  <div className="text-[10px] text-blue-400">{new Date(c.createdAt).toLocaleString()}</div>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
     </div>
   );
 };

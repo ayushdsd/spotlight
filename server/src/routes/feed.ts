@@ -104,4 +104,51 @@ router.delete('/:postId', async (req: Request, res: Response) => {
   }
 });
 
+// POST /api/feed/:postId/like - Like or unlike a post
+router.post('/:postId/like', async (req: Request, res: Response) => {
+  try {
+    const user = req.user;
+    const { postId } = req.params;
+    if (!user) return res.status(401).json({ error: 'Missing user' });
+    const post = await Post.findById(postId);
+    if (!post) return res.status(404).json({ error: 'Post not found' });
+    const userId = typeof user._id === 'string' ? require('mongoose').Types.ObjectId(user._id) : user._id;
+    const liked = post.likes.some((id: any) => id.toString() === userId.toString());
+    if (liked) {
+      post.likes = post.likes.filter((id: any) => id.toString() !== userId.toString());
+    } else {
+      post.likes.push(userId);
+    }
+    await post.save();
+    res.json({ likes: post.likes.length, liked: !liked });
+  } catch (err) {
+    res.status(500).json({ error: 'Could not like/unlike post' });
+  }
+});
+
+// POST /api/feed/:postId/comment - Add a comment to a post
+router.post('/:postId/comment', async (req: Request, res: Response) => {
+  try {
+    const user = req.user;
+    const { postId } = req.params;
+    const { text } = req.body;
+    if (!user) return res.status(401).json({ error: 'Missing user' });
+    if (!text || !text.trim()) return res.status(400).json({ error: 'Comment text required' });
+    const post = await Post.findById(postId);
+    if (!post) return res.status(404).json({ error: 'Post not found' });
+    const userObjId = typeof user._id === 'string' ? require('mongoose').Types.ObjectId(user._id) : user._id;
+    const comment = {
+      user: userObjId,
+      text: text.trim(),
+      createdAt: new Date(),
+    };
+    post.comments.push(comment);
+    await post.save();
+    await post.populate('comments.user', 'name picture');
+    res.json({ comments: post.comments });
+  } catch (err) {
+    res.status(500).json({ error: 'Could not add comment' });
+  }
+});
+
 export default router;

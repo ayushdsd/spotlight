@@ -19,6 +19,16 @@ export interface Post {
   content: string;
   imageUrl?: string;
   createdAt: string;
+  likes: string[];
+  comments: Array<{
+    user: {
+      _id: string;
+      name: string;
+      picture?: string;
+    };
+    text: string;
+    createdAt: string;
+  }>;
 }
 
 const PAGE_SIZE = 10;
