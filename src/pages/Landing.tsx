@@ -4,6 +4,7 @@ import { ChevronDownIcon } from '@heroicons/react/24/outline';
 import Splash from '../components/common/Splash';
 import spotlightLogo from '../assets/SPOTLIGHT.png';
 import herobg from '../assets/herobg.jpg';
+import Hero3D from '../components/three/Hero3D';
 
 const Landing = () => {
   const { openIndex, toggleAccordion } = useAccordion();
@@ -150,6 +151,10 @@ const Landing = () => {
                   </Link>
                 </div>
               </div>
+            </div>
+            {/* Right side - 3D Hero */}
+            <div className="flex items-center justify-center h-full">
+              <Hero3D />
             </div>
           </div>
         </div>

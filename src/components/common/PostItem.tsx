@@ -27,6 +27,8 @@ const PostItem = ({ post, onDelete }: PostItemProps) => {
   const [showComments, setShowComments] = useState(false);
   const [sharing, setSharing] = useState(false);
   const [shareMsg, setShareMsg] = useState('');
+  const [likeAnim, setLikeAnim] = useState(false);
+  const [commentAnim, setCommentAnim] = useState(false);
 
   useEffect(() => {
     setLikes(post.likes || []);
@@ -55,11 +57,10 @@ const PostItem = ({ post, onDelete }: PostItemProps) => {
     try {
       const token = localStorage.getItem('token');
       const res = await axios.post(`${API_BASE_URL}/api/feed/${post._id}/like`, {}, { headers: { Authorization: `Bearer ${token}` } });
-      setLikes((prev) => {
-        if (res.data.liked) return [...prev, userId!];
-        else return prev.filter((id) => id === userId);
-      });
+      setLikes(res.data.likes);
       setLiked(res.data.liked);
+      setLikeAnim(true);
+      setTimeout(() => setLikeAnim(false), 400);
     } catch (err) {
       // Optionally show error
     }
@@ -73,6 +74,8 @@ const PostItem = ({ post, onDelete }: PostItemProps) => {
       const res = await axios.post(`${API_BASE_URL}/api/feed/${post._id}/comment`, { text: commentText }, { headers: { Authorization: `Bearer ${token}` } });
       setComments(res.data.comments);
       setCommentText('');
+      setCommentAnim(true);
+      setTimeout(() => setCommentAnim(false), 400);
     } catch (err) {
       // Optionally show error
     }
@@ -92,7 +95,7 @@ const PostItem = ({ post, onDelete }: PostItemProps) => {
   };
 
   return (
-    <div className="bg-white rounded-lg shadow p-0 sm:px-2 relative border border-cream-100">
+    <div className="bg-white rounded-xl shadow p-0 sm:px-4 relative border border-cream-100 mb-4">
       <div className="flex items-center gap-3 mb-2 ml-2 mt-2">
         {post.author.picture ? (
           <img
@@ -135,7 +138,7 @@ const PostItem = ({ post, onDelete }: PostItemProps) => {
           </div>
         )}
       </div>
-      <div className="mb-2 whitespace-pre-line text-left text-blue-900">{post.content}</div>
+      <div className="mb-2 whitespace-pre-line text-left text-blue-900 text-base px-2">{post.content}</div>
       {post.imageUrl && (
         <div className="w-full flex justify-center my-2">
           <div className="aspect-[4/5] w-full max-w-xs sm:max-w-sm md:max-w-md lg:max-w-lg xl:max-w-xl overflow-hidden rounded border border-cream-100 bg-cream-50">
@@ -149,24 +152,36 @@ const PostItem = ({ post, onDelete }: PostItemProps) => {
         </div>
       )}
       {/* Engagement Bar */}
-      <div className="flex items-center gap-6 px-4 py-2 border-t border-cream-100">
-        <button className="flex items-center gap-1 text-blue-600 hover:text-blue-800" onClick={handleLike} aria-label="Like">
+      <div className="flex items-center gap-4 px-2 py-2 border-t border-cream-100 mt-2">
+        <button
+          className={`flex items-center gap-1 text-blue-600 hover:text-blue-800 focus:outline-none transition-transform duration-200 ${likeAnim ? 'scale-125 animate-pulse' : ''}`}
+          onClick={handleLike}
+          aria-label="Like"
+        >
           {liked ? <FaHeart className="text-red-500" /> : <FaRegHeart />}
-          <span className="text-sm">{likes.length}</span>
+          <span className="text-sm font-medium">{likes.length}</span>
         </button>
-        <button className="flex items-center gap-1 text-blue-600 hover:text-blue-800" onClick={() => setShowComments((v) => !v)} aria-label="Comment">
+        <button
+          className={`flex items-center gap-1 text-blue-600 hover:text-blue-800 focus:outline-none transition-transform duration-200 ${commentAnim ? 'scale-110 animate-pulse' : ''}`}
+          onClick={() => setShowComments((v) => !v)}
+          aria-label="Comment"
+        >
           <FaRegComment />
-          <span className="text-sm">{comments.length}</span>
+          <span className="text-sm font-medium">{comments.length}</span>
         </button>
-        <button className="flex items-center gap-1 text-blue-600 hover:text-blue-800" onClick={handleShare} aria-label="Share">
+        <button
+          className="flex items-center gap-1 text-blue-600 hover:text-blue-800 focus:outline-none transition-transform duration-200"
+          onClick={handleShare}
+          aria-label="Share"
+        >
           <FaShare />
-          <span className="text-sm">Share</span>
+          <span className="text-sm font-medium">Share</span>
         </button>
         {sharing && <span className="text-xs text-green-600 ml-2">{shareMsg}</span>}
       </div>
       {/* Comments Section */}
       {showComments && (
-        <div className="px-4 py-2 border-t border-cream-100 bg-cream-50">
+        <div className="px-2 py-2 border-t border-cream-100 bg-cream-50 rounded-b-xl">
           <form className="flex gap-2 mb-2" onSubmit={handleComment}>
             <input
               type="text"
@@ -176,7 +191,7 @@ const PostItem = ({ post, onDelete }: PostItemProps) => {
               onChange={(e) => setCommentText(e.target.value)}
               maxLength={200}
             />
-            <button type="submit" className="bg-blue-600 text-white px-3 py-1 rounded hover:bg-blue-700 text-sm" disabled={!commentText.trim()}>
+            <button type="submit" className="bg-blue-600 text-white px-3 py-1 rounded hover:bg-blue-700 text-sm transition-transform duration-200" disabled={!commentText.trim()}>
               Post
             </button>
           </form>

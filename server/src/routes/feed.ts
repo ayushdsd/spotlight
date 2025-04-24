@@ -1,4 +1,5 @@
 import express, { Request, Response } from 'express';
+import mongoose from 'mongoose';
 import Post from '../models/post.model';
 import auth from '../middleware/auth';
 import upload from '../middleware/multer';
@@ -110,9 +111,12 @@ router.post('/:postId/like', async (req: Request, res: Response) => {
     const user = req.user;
     const { postId } = req.params;
     if (!user) return res.status(401).json({ error: 'Missing user' });
+    if (!mongoose.Types.ObjectId.isValid(user._id)) {
+      return res.status(400).json({ error: 'Invalid user ID' });
+    }
     const post = await Post.findById(postId);
     if (!post) return res.status(404).json({ error: 'Post not found' });
-    const userId = typeof user._id === 'string' ? require('mongoose').Types.ObjectId(user._id) : user._id;
+    const userId = new mongoose.Types.ObjectId(user._id);
     const liked = post.likes.some((id: any) => id.toString() === userId.toString());
     if (liked) {
       post.likes = post.likes.filter((id: any) => id.toString() !== userId.toString());
@@ -122,7 +126,8 @@ router.post('/:postId/like', async (req: Request, res: Response) => {
     await post.save();
     res.json({ likes: post.likes.length, liked: !liked });
   } catch (err) {
-    res.status(500).json({ error: 'Could not like/unlike post' });
+    console.error('Error in /like endpoint:', err);
+    res.status(500).json({ error: 'Could not like/unlike post', details: err instanceof Error ? err.message : err });
   }
 });
 
@@ -133,10 +138,13 @@ router.post('/:postId/comment', async (req: Request, res: Response) => {
     const { postId } = req.params;
     const { text } = req.body;
     if (!user) return res.status(401).json({ error: 'Missing user' });
+    if (!mongoose.Types.ObjectId.isValid(user._id)) {
+      return res.status(400).json({ error: 'Invalid user ID' });
+    }
     if (!text || !text.trim()) return res.status(400).json({ error: 'Comment text required' });
     const post = await Post.findById(postId);
     if (!post) return res.status(404).json({ error: 'Post not found' });
-    const userObjId = typeof user._id === 'string' ? require('mongoose').Types.ObjectId(user._id) : user._id;
+    const userObjId = new mongoose.Types.ObjectId(user._id);
     const comment = {
       user: userObjId,
       text: text.trim(),
@@ -147,7 +155,8 @@ router.post('/:postId/comment', async (req: Request, res: Response) => {
     await post.populate('comments.user', 'name picture');
     res.json({ comments: post.comments });
   } catch (err) {
-    res.status(500).json({ error: 'Could not add comment' });
+    console.error('Error in /comment endpoint:', err);
+    res.status(500).json({ error: 'Could not add comment', details: err instanceof Error ? err.message : err });
   }
 });
 
