@@ -3,13 +3,14 @@ import { useGLTF, Float } from '@react-three/drei';
 
 function ToonDuckModel() {
   const { scene } = useGLTF('/models/toon_ducks.glb');
-  return <primitive object={scene} scale={3} />;
+  // Adjust scale and position to fit loader view
+  return <primitive object={scene} scale={2.2} position={[0, -0.6, 0]} />;
 }
 
 export default function DuckLoader() {
   return (
-    <div style={{ width: 180, height: 180, margin: '0 auto' }}>
-      <Canvas camera={{ position: [0, 0, 8], fov: 60 }}>
+    <div style={{ width: 240, height: 240, margin: '0 auto', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+      <Canvas camera={{ position: [0, 0, 7], fov: 60 }} style={{ background: 'transparent' }}>
         <ambientLight intensity={1} />
         <Float speed={2} rotationIntensity={1.2} floatIntensity={1.5}>
           <ToonDuckModel />

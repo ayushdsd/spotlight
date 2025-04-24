@@ -2,6 +2,7 @@ import { useGoogleLogin } from '@react-oauth/google';
 import { useAuth } from '../contexts/AuthContext';
 import { useNavigate } from 'react-router-dom';
 import { useState } from 'react';
+import DuckLoader from './three/DuckLoader';
 
 interface GoogleLoginProps {
   role: 'artist' | 'recruiter';
@@ -83,21 +84,30 @@ export default function GoogleLogin({ role }: GoogleLoginProps) {
     },
   });
 
+  if (isLoading) {
+    return (
+      <div className="flex items-center justify-center min-h-screen bg-cream-50">
+        <div className="text-center">
+          <DuckLoader />
+          <div className="mt-4 text-2xl font-bold text-primary-600">Spotlight</div>
+          <div className="mt-2">Logging in...</div>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <button
+      type="button"
+      className="flex items-center justify-center w-full py-2 px-4 border border-gray-300 rounded-md shadow-sm bg-white text-sm font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500"
       onClick={() => handleGoogleLogin()}
       disabled={isLoading}
-      className="w-full flex items-center justify-center px-4 py-3 border border-gray-300 rounded-lg text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
     >
       {isLoading ? (
-        <div className="flex items-center">
-          <img
-            src="/spotlight-logo.png"
-            alt="Loading"
-            className="w-5 h-5 mr-3 animate-spin"
-          />
-          <span className="font-medium">Logging in...</span>
-        </div>
+        <span className="flex items-center">
+          <DuckLoader />
+          <span className="ml-2">Logging in...</span>
+        </span>
       ) : (
         <>
           <img
