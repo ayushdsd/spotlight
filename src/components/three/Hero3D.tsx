@@ -5,7 +5,7 @@ function ClapboardModel() {
   // Use correct path for production/public serving
   const { scene } = useGLTF('/models/clapperboard.glb');
   // Scale remains large for visual impact
-  return <primitive object={scene} scale={10} />;
+  return <primitive object={scene} scale={16} />;
 }
 
 export default function Hero3D() {
