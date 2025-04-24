@@ -2,6 +2,7 @@ import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import { Suspense, lazy } from 'react';
 import { AuthProvider } from './contexts/AuthContext';
 import RouteGuard from './components/RouteGuard';
+import DuckLoader from './components/three/DuckLoader';
 import './App.css'
 
 // Lazy load components for better performance
@@ -25,9 +26,10 @@ function App() {
     <Router>
       <AuthProvider>
         <Suspense fallback={
-          <div className="flex items-center justify-center min-h-screen">
+          <div className="flex items-center justify-center min-h-screen bg-cream-50">
             <div className="text-center">
-              <div className="text-2xl font-bold text-primary-600">Spotlight</div>
+              <DuckLoader />
+              <div className="mt-4 text-2xl font-bold text-primary-600">Spotlight</div>
               <div className="mt-2">Loading...</div>
             </div>
           </div>
