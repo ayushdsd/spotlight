@@ -2,7 +2,8 @@ import { Canvas } from '@react-three/fiber';
 import { OrbitControls, Float, useGLTF } from '@react-three/drei';
 
 function ClapboardModel() {
-  const { scene } = useGLTF('/public/models/clapperboard.glb');
+  // Use correct path for production/public serving
+  const { scene } = useGLTF('/models/clapperboard.glb');
   // Scale remains large for visual impact
   return <primitive object={scene} scale={10} />;
 }
@@ -24,4 +25,4 @@ export default function Hero3D() {
 
 // Required for GLTF loading
 // @ts-ignore
-useGLTF.preload && useGLTF.preload('/public/models/clapperboard.glb');
+useGLTF.preload && useGLTF.preload('/models/clapperboard.glb');
