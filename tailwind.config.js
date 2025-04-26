@@ -12,33 +12,33 @@ export default {
     extend: {
       colors: {
         blue: {
-          50: '#e0f2fe',   // Lightest blue (backgrounds)
-          100: '#bae6fd',
-          200: '#7dd3fc',
-          300: '#38bdf8',
-          400: '#0ea5e9',  // Main blue (buttons, accents)
-          500: '#2563eb',  // Deep blue (nav, CTAs)
-          600: '#1d4ed8',
-          700: '#1e40af',
-          800: '#1e3a8a',
-          900: '#172554',
+          50: '#ffffff',
+          100: '#f4f4f5',
+          200: '#e4e4e7',
+          300: '#d4d4d8',
+          400: '#a1a1aa',
+          500: '#71717a',
+          600: '#52525b',
+          700: '#3f3f46',
+          800: '#27272a',
+          900: '#18181b',
         },
         cream: {
-          50: '#fff9e5',   // Main cream (background)
-          100: '#fdf6ec',
-          200: '#faf3e3',
-          300: '#f5e9c8',
-          400: '#f0e3b2',
-          500: '#e9d69e',
+          50: '#ffffff',
+          100: '#f4f4f5',
+          200: '#e4e4e7',
+          300: '#d4d4d8',
+          400: '#a1a1aa',
+          500: '#71717a',
         },
         gold: {
-          400: '#ffd700', // Accent gold
+          400: '#ffffff',
         },
         gray: {
-          50: '#f3f4f6', // Light gray backgrounds
-          100: '#e5e7eb',
-          500: '#6b7280', // Secondary text
-          900: '#22223b', // Primary text (dark blue/gray)
+          50: '#fafafa',
+          100: '#f4f4f5',
+          500: '#52525b',
+          900: '#18181b',
         },
         mono: {
           50: '#fafafa',
@@ -56,6 +56,9 @@ export default {
         black: {
           DEFAULT: '#000000',
           50: '#1a1a1a',
+        },
+        white: {
+          DEFAULT: '#ffffff',
         },
       },
       fontFamily: {
