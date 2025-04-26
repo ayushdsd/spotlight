@@ -60,6 +60,15 @@ export default {
         white: {
           DEFAULT: '#ffffff',
         },
+        cta1: {
+          DEFAULT: '#140D32',
+        },
+        cta2: {
+          DEFAULT: '#551138',
+        },
+        cta3: {
+          DEFAULT: '#CC2114',
+        },
       },
       fontFamily: {
         sans: ['Plus Jakarta Sans', 'system-ui', 'sans-serif'],

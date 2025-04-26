@@ -76,6 +76,135 @@ button:focus-visible {
   outline: 4px auto -webkit-focus-ring-color;
 }
 
+/* --- Subtle modern CTA animation: scale + shadow lift --- */
+.cta-btn {
+  perspective: 600px;
+  transition: transform 0.18s cubic-bezier(.4,1.5,.6,1), box-shadow 0.18s cubic-bezier(.4,1.5,.6,1), color 0.15s;
+  will-change: transform, box-shadow;
+  box-shadow: 0 2px 12px 0 rgba(20,13,50,0.04);
+}
+.cta-btn:hover, .cta-btn:focus {
+  transform: scale(1.045) translateY(-2px);
+  box-shadow: 0 8px 32px 0 rgba(20,13,50,0.10);
+}
+
+/* Prevent anchor text color change on hover for CTA buttons */
+.cta-btn, .cta-btn:visited, .cta-btn:hover, .cta-btn:active, .cta-btn:focus {
+  color: #fff !important;
+}
+
+/* --- Fix for header auth buttons: prevent color change on hover/focus --- */
+.header-auth-btn, .header-auth-btn:visited, .header-auth-btn:hover, .header-auth-btn:active, .header-auth-btn:focus {
+  color: #fff !important;
+}
+.header-auth-btn {
+  transition: background 0.18s, border-color 0.18s, color 0.15s;
+}
+.header-auth-btn:not(.get-started), .header-auth-btn:not(.get-started):visited, .header-auth-btn:not(.get-started):hover, .header-auth-btn:not(.get-started):active, .header-auth-btn:not(.get-started):focus {
+  background-color: #140D32 !important;
+  border-color: #140D32 !important;
+}
+.header-auth-btn.get-started, .header-auth-btn.get-started:visited, .header-auth-btn.get-started:hover, .header-auth-btn.get-started:active, .header-auth-btn.get-started:focus {
+  background-color: #CC2114 !important;
+  border-color: #CC2114 !important;
+  color: #fff !important;
+}
+
+/* --- Universal Landing Page Button Hover: F2C200 bg, black text --- */
+.landing-btn,
+.landing-btn:visited {
+  transition: background 0.18s, color 0.18s, border-color 0.18s;
+  z-index: 1;
+}
+.landing-btn:hover, .landing-btn:focus {
+  background-color: #F2C200 !important;
+  color: #140D32 !important;
+  border-color: #F2C200 !important;
+  z-index: 2;
+}
+
+/* Make sure .landing-btn overrides header-auth-btn rules */
+.header-auth-btn.landing-btn:hover,
+.header-auth-btn.landing-btn:focus,
+.header-auth-btn.get-started.landing-btn:hover,
+.header-auth-btn.get-started.landing-btn:focus {
+  background-color: #F2C200 !important;
+  color: #140D32 !important;
+  border-color: #F2C200 !important;
+}
+
+/* Override for .cta-btn on landing page */
+.landing-btn.cta-btn:hover, .landing-btn.cta-btn:focus {
+  background-color: #F2C200 !important;
+  color: #140D32 !important;
+  border-color: #F2C200 !important;
+}
+
+/* FAQ Section Theming */
+.faq-section-bg {
+  background: linear-gradient(135deg, #fff8f2 60%, #f7f0fa 100%); /* soft cream to faded purple */
+  border: 2px solid #F2C200; /* yellow border */
+  border-radius: 1rem;
+}
+.faq-section-bg.black-border {
+  border-color: #140D32;
+}
+.faq-title-glow {
+  position: relative;
+  z-index: 1;
+}
+.faq-title-glow::before {
+  content: '';
+  position: absolute;
+  left: 50%;
+  top: 55%;
+  transform: translate(-50%, -50%);
+  width: 120%;
+  height: 70%;
+  background: radial-gradient(circle, #F2C20055 0%, transparent 80%);
+  filter: blur(10px);
+  z-index: -1;
+}
+.faq-question {
+  font-family: 'Inter', sans-serif;
+  font-weight: 700;
+  font-size: 1.13rem;
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  color: #140D32;
+}
+.faq-icon {
+  color: #F2C200;
+  font-size: 1.5rem;
+  flex-shrink: 0;
+}
+.faq-card {
+  border-radius: 0.75rem;
+  border: 2px solid transparent;
+  background: #fff;
+  transition: box-shadow 0.25s, border-color 0.25s, background 0.25s;
+  box-shadow: 0 2px 16px 0 rgba(20,13,50,0.04);
+}
+.faq-card.active {
+  border-color: #F2C200;
+  background: #fffbe6;
+  box-shadow: 0 8px 32px 0 rgba(242,194,0,0.12);
+}
+.faq-card:not(.active):hover {
+  border-color: #140D32;
+  box-shadow: 0 4px 24px 0 rgba(20,13,50,0.08);
+}
+.faq-answer {
+  font-family: 'Inter', sans-serif;
+  color: #3d315b;
+  font-size: 1rem;
+  line-height: 1.7;
+  background: transparent;
+  border-radius: 0 0 0.75rem 0.75rem;
+  transition: background 0.25s;
+}
+
 @media (prefers-color-scheme: light) {
   :root {
     color: #213547;
