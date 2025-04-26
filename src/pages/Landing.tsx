@@ -14,12 +14,6 @@ const Landing = () => {
     { id: 3, name: 'Emma Davis', role: 'Contemporary Dancer', image: 'https://i.pravatar.cc/150?img=3', rating: 4.9 }
   ];
 
-  const featuredRecruiters = [
-    { id: 1, name: 'Royal Theater Company', role: 'Theater Production', image: 'https://i.pravatar.cc/150?img=4', verified: true },
-    { id: 2, name: 'Symphony Orchestra', role: 'Music Production', image: 'https://i.pravatar.cc/150?img=5', verified: true },
-    { id: 3, name: 'Modern Dance Co.', role: 'Dance Company', image: 'https://i.pravatar.cc/150?img=6', verified: true }
-  ];
-
   const faqItems = [
     { 
       question: 'How does Spotlight work?', 
