@@ -70,10 +70,10 @@ const Jobs = () => {
               <button
                 key={category.id}
                 onClick={() => setSelectedCategory(category.id)}
-                className={`px-4 py-2 rounded-lg whitespace-nowrap transform-style-3d hover:translate-z-1 transition-transform ${
+                className={`px-4 py-2 rounded-lg whitespace-nowrap border-0 focus:outline-none focus:ring-0 active:outline-none active:ring-0 transform-style-3d hover:translate-z-1 transition-transform ${
                   selectedCategory === category.id
-                    ? 'bg-blue-600 text-white'
-                    : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                    ? 'bg-[#F2C200] text-black font-semibold'
+                    : 'bg-[#551138] text-white hover:bg-[#F2C200] hover:text-black'
                 }`}
               >
                 {category.name}

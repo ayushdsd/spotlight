@@ -13,11 +13,11 @@ interface StatCardProps {
 
 function StatCard({ title, value, trend, icon }: StatCardProps) {
   return (
-    <div className="bg-white rounded-xl border border-gray-100 p-6 shadow-sm">
+    <div className="bg-cta2 rounded-xl border border-black p-6 shadow-sm">
       <div className="flex justify-between items-start">
         <div>
-          <p className="text-sm font-medium text-gray-600">{title}</p>
-          <p className="mt-2 text-3xl font-semibold text-gray-900">{value}</p>
+          <p className="text-sm font-medium text-white">{title}</p>
+          <p className="mt-2 text-3xl font-semibold text-white">{value}</p>
           {trend && (
             <p className={`mt-2 text-sm ${trend >= 0 ? 'text-green-600' : 'text-red-600'}`}>
               {trend > 0 ? '+' : ''}{trend}%
@@ -67,10 +67,10 @@ const Dashboard = () => {
   const { user } = useAuth();
 
   const stats = [
-    { title: 'Applications', value: '24', trend: 12, icon: <TbClipboardList className="text-2xl text-yellow-500" /> },
-    { title: 'Interviews', value: '8', trend: 5, icon: <MdOutlineWorkOutline className="text-2xl text-green-500" /> },
-    { title: 'Profile Views', value: '156', trend: 25, icon: <MdOutlineDashboard className="text-2xl text-indigo-500" /> },
-    { title: 'Messages', value: '12', icon: <TbMessages className="text-2xl text-cyan-500" /> },
+    { title: 'Applications', value: '24', trend: 12, icon: <TbClipboardList className="text-2xl text-white" strokeWidth={1.5} /> },
+    { title: 'Interviews', value: '8', trend: 5, icon: <MdOutlineWorkOutline className="text-2xl text-white" /> },
+    { title: 'Profile Views', value: '156', trend: 25, icon: <MdOutlineDashboard className="text-2xl text-white" /> },
+    { title: 'Messages', value: '12', icon: <TbMessages className="text-2xl text-white" strokeWidth={1.5} /> },
   ];
 
   const recentActivity = [

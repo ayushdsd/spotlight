@@ -20,7 +20,7 @@ services:
       - key: CLOUDINARY_API_SECRET
         sync: false
       - key: CORS_ORIGIN
-        value: https://spotlightcast.vercel.app
+        value: https://spotlightcast.in
       - key: GOOGLE_ARTIST_CLIENT_ID
         sync: false
       - key: GOOGLE_ARTIST_CLIENT_SECRET

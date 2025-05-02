@@ -124,10 +124,10 @@ const Landing = () => {
             {/* Left side - Text content */}
             <div className="flex flex-col justify-center p-4 lg:p-8 bg-white h-full">
               <div className="max-w-3xl">
-                <h1 className="font-minimal text-4xl sm:text-5xl lg:text-6xl xl:text-7xl font-bold text-black text-left font-inter">
+                <h1 className="font-display text-4xl sm:text-5xl lg:text-6xl xl:text-7xl font-bold text-black text-left font-inter">
                   Your Talent <br className="hidden sm:block" />
                   Deserves our{' '}
-                  <span className="font-inter" style={{ color: '#F2C200' }}>Spotlight</span>
+                  <span className="font-display" style={{ color: '#F2C200' }}>Spotlight</span>
                 </h1>
                 <p className="text-black/80 text-lg sm:text-xl lg:text-2xl mt-6 bg-white/80 p-4 rounded-lg text-left font-inter">
                   Connect with top artists and recruiters in the performing arts industry. Showcase your talent and find your next big opportunity.

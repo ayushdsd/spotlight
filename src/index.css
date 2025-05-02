@@ -140,6 +140,15 @@ button:focus-visible {
   border-color: #F2C200 !important;
 }
 
+/* Prevent sidebar nav links from turning blue on hover */
+.sidebar-link,
+.sidebar-link:visited,
+.sidebar-link:hover,
+.sidebar-link:active,
+.sidebar-link:focus {
+  color: #18181b !important;
+}
+
 /* FAQ Section Theming */
 .faq-section-bg {
   background: linear-gradient(135deg, #fff8f2 60%, #f7f0fa 100%); /* soft cream to faded purple */

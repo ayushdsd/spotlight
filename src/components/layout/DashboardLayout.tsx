@@ -102,7 +102,7 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
                       href={item.path}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className={`flex items-center gap-2 px-6 py-3 rounded-lg transition-colors ${isActiveRoute(item.path) ? 'bg-blue-100 text-blue-700 font-semibold' : 'text-gray-700 hover:bg-blue-100'}`}
+                      className={`sidebar-link flex items-center gap-2 px-6 py-3 rounded-lg transition-colors ${isActiveRoute(item.path) ? 'bg-[#F2C200] text-black font-semibold' : 'text-gray-700 hover:bg-[#F2C200] hover:text-black'}`}
                     >
                       <span className="mr-4 flex items-center">{item.icon}</span>
                       <span>{item.name}</span>
@@ -112,7 +112,7 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
                   <li key={item.name}>
                     <Link
                       to={item.path}
-                      className={`flex items-center gap-2 px-6 py-3 rounded-lg transition-colors ${isActiveRoute(item.path) ? 'bg-blue-100 text-blue-700 font-semibold' : 'text-gray-700 hover:bg-blue-100'}`}
+                      className={`sidebar-link flex items-center gap-2 px-6 py-3 rounded-lg transition-colors ${isActiveRoute(item.path) ? 'bg-[#F2C200] text-black font-semibold' : 'text-gray-700 hover:bg-[#F2C200] hover:text-black'}`}
                     >
                       <span className="mr-4 flex items-center">{item.icon}</span>
                       <span>{item.name}</span>

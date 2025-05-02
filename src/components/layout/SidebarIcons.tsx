@@ -3,23 +3,23 @@ import { MdOutlineWorkOutline, MdOutlineDashboard, MdOutlineSubscriptions, MdOut
 import { TbMessages, TbClipboardList, TbBuilding } from 'react-icons/tb';
 
 export const ArtistSidebarIcons = {
-  Feed: <MdOutlineFeed className="text-2xl text-blue-500" />,
-  Dashboard: <MdOutlineDashboard className="text-2xl text-indigo-500" />,
-  Jobs: <MdOutlineWorkOutline className="text-2xl text-green-500" />,
-  'My Applications': <TbClipboardList className="text-2xl text-yellow-500" />,
-  Profile: <FiUser className="text-2xl text-pink-500" />,
-  Portfolio: <MdOutlinePalette className="text-2xl text-purple-500" />,
-  Messages: <TbMessages className="text-2xl text-cyan-500" />,
-  Subscription: <MdOutlineSubscriptions className="text-2xl text-orange-500" />,
+  Feed: <MdOutlineFeed className="text-2xl text-black" />,
+  Dashboard: <MdOutlineDashboard className="text-2xl text-black" />,
+  Jobs: <MdOutlineWorkOutline className="text-2xl text-black" />,
+  'My Applications': <TbClipboardList className="text-2xl text-black" />,
+  Profile: <FiUser className="text-2xl text-black" />,
+  Portfolio: <MdOutlinePalette className="text-2xl text-black" />,
+  Messages: <TbMessages className="text-2xl text-black" />,
+  Subscription: <MdOutlineSubscriptions className="text-2xl text-black" />,
 };
 
 export const RecruiterSidebarIcons = {
-  Feed: <MdOutlineFeed className="text-2xl text-blue-500" />,
-  Dashboard: <MdOutlineDashboard className="text-2xl text-indigo-500" />,
-  'Post Job': <MdOutlineWorkOutline className="text-2xl text-green-500" />,
-  'My Listings': <TbClipboardList className="text-2xl text-yellow-500" />,
-  Applicants: <FiUsers className="text-2xl text-pink-500" />,
-  'Company Profile': <TbBuilding className="text-2xl text-purple-500" />,
-  Messages: <TbMessages className="text-2xl text-cyan-500" />,
-  Analytics: <MdOutlineAnalytics className="text-2xl text-orange-500" />,
+  Feed: <MdOutlineFeed className="text-2xl text-black" />,
+  Dashboard: <MdOutlineDashboard className="text-2xl text-black" />,
+  'Post Job': <MdOutlineWorkOutline className="text-2xl text-black" />,
+  'My Listings': <TbClipboardList className="text-2xl text-black" />,
+  Applicants: <FiUsers className="text-2xl text-black" />,
+  'Company Profile': <TbBuilding className="text-2xl text-black" />,
+  Messages: <TbMessages className="text-2xl text-black" />,
+  Analytics: <MdOutlineAnalytics className="text-2xl text-black" />,
 };
